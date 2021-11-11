@@ -16,10 +16,17 @@ __version__ = "0.1.0"
 
 
 def create_app():
+
+    database_url = os.environ.get("DATABASE_URL", '')
+
+    # dokku uses postgres:// and sqlalchamy requires postgresql:// fix the url here
+    if database_url.startswith("postgres://"):
+        database_url = database_url.replace("postgres://", "postgresql://")
+
     app = Flask(__name__)
     app.config.from_mapping(
         DATASTORE_URL=os.environ.get("DATASTORE_URL"),
-        SQLALCHEMY_DATABASE_URI=os.environ.get("DB_URL"),
+        SQLALCHEMY_DATABASE_URI=database_url,
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         MAPBOX_ACCESS_TOKEN=os.environ.get("MAPBOX_ACCESS_TOKEN"),
         URL_FETCH_ALLOW_LIST=settings.URL_FETCH_ALLOW_LIST,
@@ -182,7 +189,7 @@ def create_app():
             template=template,
             page_urls=page_urls,
         )
-    
+
     app.add_url_rule("/upload", 'upload', view_func=upload_file, methods=['POST'])
 
     return app
