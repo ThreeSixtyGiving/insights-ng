@@ -1,0 +1,13 @@
+flask
+python-dotenv
+flask_graphql
+flask_sqlalchemy
+flask_migrate
+graphene_sqlalchemy
+psycopg2
+requests
+babel
+inflect
+humanize
+gunicorn
+libcove
