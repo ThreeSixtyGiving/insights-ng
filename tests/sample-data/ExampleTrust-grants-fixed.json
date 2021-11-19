@@ -1,0 +1,310 @@
+{
+    "grants": [
+        {
+            "id": "360G-KJD-001230",
+            "title": "Grant award to Blue Trust",
+            "description": "Towards respite day trips for young carers",
+            "currency": "GBP",
+            "amountAwarded": 5000,
+            "awardDate": "2017-12-08T00:00:00+00:00",
+            "recipientOrganization": [
+                {
+                    "id": "GB-CHC-265374",
+                    "name": "Blue Trust"
+                }
+            ],
+            "beneficiaryLocation": [
+                {
+                    "name": "North East England",
+                    "countryCode": "GB",
+                    "geoCode": "E12000001",
+                    "geoCodeType": "RGN/GOR"
+                }
+            ],
+            "fundingOrganization": [
+                {
+                    "id": "GB-CHC-301077",
+                    "name": "K J D Foundation"
+                }
+            ],
+            "dateModified": "2017-12-22T00:00:00+00:00",
+            "dataSource": "http://www.example.org/grants.htm"
+        },
+        {
+            "id": "360G-KJD-001231",
+            "title": "Grant award to Red Charity",
+            "description": "Towards the salary of an advice worker",
+            "currency": "GBP",
+            "amountAwarded": 10000,
+            "awardDate": "2017-12-08T00:00:00+00:00",
+            "recipientOrganization": [
+                {
+                    "id": "GB-CHC-1102541",
+                    "name": "Red Charity"
+                }
+            ],
+            "beneficiaryLocation": [
+                {
+                    "name": "South West England",
+                    "countryCode": "GB",
+                    "geoCode": "E12000009",
+                    "geoCodeType": "RGN/GOR"
+                }
+            ],
+            "fundingOrganization": [
+                {
+                    "id": "GB-CHC-301077",
+                    "name": "K J D Foundation"
+                }
+            ],
+            "dateModified": "2017-12-22T00:00:00+00:00",
+            "dataSource": "http://www.example.org/grants.htm"
+        },
+        {
+            "id": "360G-KJD-001232",
+            "title": "Grant award to Green House Charity",
+            "description": "Towards the purchase of a new minibus",
+            "currency": "GBP",
+            "amountAwarded": 3500,
+            "awardDate": "2017-12-08T00:00:00+00:00",
+            "recipientOrganization": [
+                {
+                    "id": "GB-SC-SC065843",
+                    "name": "Green House Charity"
+                }
+            ],
+            "beneficiaryLocation": [
+                {
+                    "name": "Scotland",
+                    "countryCode": "GB",
+                    "geoCode": "S92000003 ",
+                    "geoCodeType": "CTRY"
+                },
+                {
+                    "name": "Northern Ireland",
+                    "countryCode": "GB",
+                    "geoCode": "N92000002",
+                    "geoCodeType": "CTRY"
+                }
+            ],
+            "fundingOrganization": [
+                {
+                    "id": "GB-CHC-301077",
+                    "name": "K J D Foundation"
+                }
+            ],
+            "dateModified": "2017-12-22T00:00:00+00:00",
+            "dataSource": "http://www.example.org/grants.htm"
+        },
+        {
+            "id": "360G-KJD-001233",
+            "title": "Grant award to Purple Community Group",
+            "description": "Towards the purchase of IT equipment",
+            "currency": "GBP",
+            "amountAwarded": 2000,
+            "awardDate": "2017-12-08T00:00:00+00:00",
+            "recipientOrganization": [
+                {
+                    "id": "GB-REV-XN65729",
+                    "name": "Purple Community Group"
+                }
+            ],
+            "beneficiaryLocation": [
+                {
+                    "name": "Northern Ireland",
+                    "countryCode": "GB",
+                    "geoCode": "N92000002",
+                    "geoCodeType": "CTRY"
+                }
+            ],
+            "fundingOrganization": [
+                {
+                    "id": "GB-CHC-301077",
+                    "name": "K J D Foundation"
+                }
+            ],
+            "dateModified": "2017-12-22T00:00:00+00:00",
+            "dataSource": "http://www.example.org/grants.htm"
+        },
+        {
+            "id": "360G-KJD-001234",
+            "title": "Grant award to Yellow Day Centre",
+            "description": "Towards the core costs of the centre",
+            "currency": "GBP",
+            "amountAwarded": 4500,
+            "awardDate": "2017-12-08T00:00:00+00:00",
+            "recipientOrganization": [
+                {
+                    "id": "GB-COH-08435647",
+                    "name": "Yellow Day Centre"
+                }
+            ],
+            "beneficiaryLocation": [
+                {
+                    "name": "London",
+                    "countryCode": "GB",
+                    "geoCode": "E12000007",
+                    "geoCodeType": "RGN/GOR"
+                }
+            ],
+            "fundingOrganization": [
+                {
+                    "id": "GB-CHC-301077",
+                    "name": "K J D Foundation"
+                }
+            ],
+            "dateModified": "2017-12-22T00:00:00+00:00",
+            "dataSource": "http://www.example.org/grants.htm"
+        },
+        {
+            "id": "360G-KJD-001235",
+            "title": "Grant award to Orange Gardens",
+            "description": "Towards the rebuilding of the historic orangery",
+            "currency": "GBP",
+            "amountAwarded": 15000,
+            "awardDate": "2017-12-08T00:00:00+00:00",
+            "recipientOrganization": [
+                {
+                    "id": "GB-COH-07345264",
+                    "name": "Orange Gardens"
+                }
+            ],
+            "beneficiaryLocation": [
+                {
+                    "name": "Wales",
+                    "countryCode": "GB",
+                    "geoCode": "W92000004",
+                    "geoCodeType": "CTRY"
+                }
+            ],
+            "fundingOrganization": [
+                {
+                    "id": "GB-CHC-301077",
+                    "name": "K J D Foundation"
+                }
+            ],
+            "dateModified": "2017-12-22T00:00:00+00:00",
+            "dataSource": "http://www.example.org/grants.htm"
+        },
+        {
+            "id": "360G-KJD-001236",
+            "title": "Grant award to Turquiose Foundation",
+            "description": "Towards the redevelopment of the website",
+            "currency": "GBP",
+            "amountAwarded": 1500,
+            "awardDate": "2017-12-08T00:00:00+00:00",
+            "recipientOrganization": [
+                {
+                    "id": "GB-CHC-1103425",
+                    "name": "Turquiose Foundation"
+                }
+            ],
+            "beneficiaryLocation": [
+                {
+                    "name": "Yorkshire and The Humber",
+                    "countryCode": "GB",
+                    "geoCode": "E12000003",
+                    "geoCodeType": "RGN/GOR"
+                }
+            ],
+            "fundingOrganization": [
+                {
+                    "id": "GB-CHC-301077",
+                    "name": "K J D Foundation"
+                }
+            ],
+            "dateModified": "2017-12-22T00:00:00+00:00",
+            "dataSource": "http://www.example.org/grants.htm"
+        },
+        {
+            "id": "360G-KJD-001237",
+            "title": "Grant award to Pink Playing Field",
+            "description": "Towards the maintenance of the field",
+            "currency": "GBP",
+            "amountAwarded": 2500,
+            "awardDate": "2017-12-08T00:00:00+00:00",
+            "recipientOrganization": [
+                {
+                    "id": "360G-KJD-ORG:Pink_Playing_Field",
+                    "name": "Pink Playing Field"
+                }
+            ],
+            "beneficiaryLocation": [
+                {
+                    "name": "East Midlands",
+                    "countryCode": "GB",
+                    "geoCode": "E12000004",
+                    "geoCodeType": "RGN/GOR"
+                }
+            ],
+            "fundingOrganization": [
+                {
+                    "id": "GB-CHC-301077",
+                    "name": "K J D Foundation"
+                }
+            ],
+            "dateModified": "2017-12-22T00:00:00+00:00",
+            "dataSource": "http://www.example.org/grants.htm"
+        },
+        {
+            "id": "360G-KJD-001238",
+            "title": "Grant award to Maroon Gallery",
+            "description": "Towards the annual art exhibition at the Maroon Gallery",
+            "currency": "GBP",
+            "amountAwarded": 7500,
+            "awardDate": "2017-12-08T00:00:00+00:00",
+            "recipientOrganization": [
+                {
+                    "id": "GB-COH-07564986",
+                    "name": "Maroon Gallery"
+                }
+            ],
+            "beneficiaryLocation": [
+                {
+                    "name": "East Midlands",
+                    "countryCode": "GB",
+                    "geoCode": "E12000004",
+                    "geoCodeType": "RGN/GOR"
+                }
+            ],
+            "fundingOrganization": [
+                {
+                    "id": "GB-CHC-301077",
+                    "name": "K J D Foundation"
+                }
+            ],
+            "dateModified": "2017-12-22T00:00:00+00:00",
+            "dataSource": "http://www.example.org/grants.htm"
+        },
+        {
+            "id": "360G-KJD-001239",
+            "title": "Grant award to Grey Scout Group",
+            "description": "Towards the roof repairs for the scout hut",
+            "currency": "GBP",
+            "amountAwarded": 8250,
+            "awardDate": "2017-12-08T00:00:00+00:00",
+            "recipientOrganization": [
+                {
+                    "id": "360G-KJD-ORG:Grey_Scout_Group",
+                    "name": "Grey Scout Group"
+                }
+            ],
+            "beneficiaryLocation": [
+                {
+                    "name": "North West England",
+                    "countryCode": "GB",
+                    "geoCode": "E12000002",
+                    "geoCodeType": "RGN/GOR"
+                }
+            ],
+            "fundingOrganization": [
+                {
+                    "id": "GB-CHC-301077",
+                    "name": "K J D Foundation"
+                }
+            ],
+            "dateModified": "2017-12-22T00:00:00+00:00",
+            "dataSource": "http://www.example.org/grants.htm"
+        }
+    ]
+}
