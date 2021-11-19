@@ -4,7 +4,6 @@ Vue.filter('formatNumber', formatNumber);
 
 var app = new Vue({
     el: '#app',
-    delimiters: ["<%", "%>"],
     data() {
         return {
             uploadModal: false,
