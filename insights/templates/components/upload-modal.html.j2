@@ -4,16 +4,16 @@
     <button class="modal__close modal__trigger" data-id="modal-01" v-on:click.stop="uploadModal = !uploadModal"></button>
     <div class="modal__content">
       <template v-if="uploadStatus=='uploading'">
-        <h4>Uploading <% uploadFile.name %></h4>
+        <h4>Uploading {{ uploadFile.name }}</h4>
         {% include 'components/loading.html.j2' %}
       </template>
       <template v-else>
-        <input type="file" v-on:change.prevent="addFile" ref="uploadFileInput" style="display: none" /> 
+        <input type="file" v-on:change.prevent="addFile" ref="uploadFileInput" style="display: none" />
         <div class="upload-file drag-drop" v-if="!uploadFile" v-on:click.prevent="openFileDialog" v-on:drop.prevent="addFile" v-on:dragover.prevent="">
           <h3 class="margin-bottom:05 margin-top:05">Drop your file here</h3>
         </div>
         <div class="upload-file drag-drop padding-left:1 padding-right:1 padding-top:1 padding-bottom:1" v-on:click.prevent="openFileDialog" v-on:drop.prevent="addFile" v-on:dragover.prevent="" v-else>
-          <code><% uploadFile.name %></code>
+          <code>{{ uploadFile.name }}</code>
         </div>
         <div v-if="uploadFile" class="grid grid--four-columns margin-top:3">
           <div class="grid__1">
@@ -29,9 +29,9 @@
         </div>
       </template>
 
-      <div class="box box--red margin-top:2 padding-left:1 padding-right:1 padding-top:1 padding-bottom:1" v-if="uploadError"> 
+      <div class="box box--red margin-top:2 padding-left:1 padding-right:1 padding-top:1 padding-bottom:1" v-if="uploadError">
         <h3 class="box__heading">Error</h3>
-        <p><% uploadError %></p>
+        <p>{{ uploadError }}</p>
       </div>
 
       <h4>Data Privacy Information</h4>

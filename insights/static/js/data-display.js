@@ -26,11 +26,25 @@ Vue.filter('formatNumber', formatNumber);
 Vue.filter('getAmountSuffix', getAmountSuffix);
 Vue.filter('formatNumberSuffix', formatNumberSuffix);
 
+function resetUrlSearchParams(){
+    /* reset all the url params apart from the multi select */
+    let oldParams = new URLSearchParams(window.location.search);
+    let newParams = new URLSearchParams();
+
+    for (const selected of oldParams.getAll("selected")){
+        newParams.append("selected", selected);
+    }
+
+    return newParams;
+}
+
+
 function initialFilters(useQueryParams) {
-    if(useQueryParams){
-        var params = new URLSearchParams(window.location.search);
-    } else {
-        var params = new URLSearchParams();
+    var params = new URLSearchParams(window.location.search);
+
+    if(!useQueryParams){
+        /* reset all params apart from "selected" */
+        params = resetUrlSearchParams();
     }
     return {
         awardAmount: {
@@ -60,10 +74,11 @@ function initialFilters(useQueryParams) {
 
 var app = new Vue({
     el: '#data-display',
-    delimiters: ["<%", "%>"],
     data() {
         return {
             dataset: DATASET,
+            title: TITLE,
+            subtitle: SUBTITLE,
             bin_labels: BIN_LABELS,
             loading: true,
             initialData: null,
@@ -143,7 +158,7 @@ var app = new Vue({
     },
     methods: {
         updateUrl() {
-            var queryParams = new URLSearchParams();
+            var queryParams = resetUrlSearchParams();
             Object.entries(this.filters)
                 .filter(([k, v]) => v && v.length != 0)
                 .forEach(([k, v]) => {
