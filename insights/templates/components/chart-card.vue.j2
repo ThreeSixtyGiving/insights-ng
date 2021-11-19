@@ -1,0 +1,38 @@
+{% raw %}
+<script type="text/x-template" id="chart-card-template">
+  <div v-bind:class="'grid__'+size" >
+      <div class="base-card base-card--left" v-bind:class="'base-card--'+color" >
+          <div class="base-card__content">
+              <slot></slot>
+              {% include 'components/loading.html.j2' %}
+          </div>
+      </div>
+  </div>
+</script>
+
+<script type="text/x-template" id="chart-card-header-template">
+  <header class="base-card__header">
+      <h3 class="base-card__heading">{{ title }}</h3>
+      <h4 class="base-card__subheading">
+        <slot></slot>
+      </h4>
+  </header>
+</script>
+
+<script>
+    Vue.component('chart-card', {
+        template: "#chart-card-template",
+        props: {
+            size: { type: String, default: "2" },
+            color: { type: String, default: "yellow" },
+        },
+    });
+
+    Vue.component('chart-card-header', {
+        template: "#chart-card-header-template",
+        props: {
+            title: { type: String },
+        },
+    });
+</script>
+{% endraw %}

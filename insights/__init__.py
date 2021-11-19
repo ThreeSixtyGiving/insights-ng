@@ -62,7 +62,7 @@ def create_app():
                 return redirect(fetch_file_from_url(request.args.get("url")))
             except Exception as e:
                 flash("Could not fetch from URL:" + str(e), "error")
-        return render_template("index.html.j2", dataset_select=get_frontpage_options())
+        return render_template("homepage.vue.j2", dataset_select=get_frontpage_options())
 
     @app.route("/about")
     def about():
@@ -73,7 +73,7 @@ def create_app():
         dataset=settings.DEFAULT_DATASET,
         title="Granty grants",
         subtitle="Grants made by",
-        template="data.html.j2",
+        template="data-display.vue.j2",
         **kwargs
     ):
         return render_template(
@@ -177,9 +177,9 @@ def create_app():
             subtitle = "Grants made in"
 
         if page == "map":
-            template = "map.html.j2"
+            template = "map.data-display.vue.j2"
         else:
-            template = "data.html.j2"
+            template = "data-display.vue.j2"
 
         return data_template(
             filters,

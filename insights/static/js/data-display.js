@@ -60,10 +60,11 @@ function initialFilters(useQueryParams) {
 
 var app = new Vue({
     el: '#data-display',
-    delimiters: ["<%", "%>"],
     data() {
         return {
             dataset: DATASET,
+            title: TITLE,
+            subtitle: SUBTITLE,
             bin_labels: BIN_LABELS,
             loading: true,
             initialData: null,
