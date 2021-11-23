@@ -1,5 +1,5 @@
 import os
-from urllib.parse import urlparse
+from urllib.parse import parse_qs
 
 from flask import Flask, abort, render_template, url_for, request, redirect, flash
 from flask_graphql import GraphQLView
@@ -93,18 +93,29 @@ def create_app():
     @app.route("/data")
     @app.route("/data/<dataset>")
     @app.route("/data/<dataset>/<page>")
+    @app.route("/<data_type>/")
+    @app.route("/<data_type>/<page>")
     @app.route("/<data_type>/<data_id>")
     @app.route("/<data_type>/<data_id>/<page>")
     def data(
         data_type="data", page="data", dataset=settings.DEFAULT_DATASET, data_id=None
     ):
+
+        # flask has this in request.args but it is in a silly format
+        query = parse_qs(request.query_string.decode("utf-8"))
+
         if data_type not in (
             "data",
             "funder",
+            "funders",
             "funder_type",
+            "funder_types",
             "publisher",
+            "publishers",
             "file",
+            "files",
             "area",
+            "areas",
         ):
             abort(404, "Page not found")
         if page not in ("data", "map"):
@@ -129,8 +140,12 @@ def create_app():
             }
 
 
-        if data_type == "funder":
-            funders = data_id.split("+")
+        if data_type == "funder" or data_type == "funders":
+            if data_type == "funders":
+                funders = query.get("selected", ["none"])
+            else:
+                funders = [data_id]
+
             all_funder_names = get_funder_names(settings.DEFAULT_DATASET)
             funder_names = [
                 all_funder_names[f] for f in funders if f in all_funder_names
