@@ -24,8 +24,10 @@ export MAPBOX_ACCESS_TOKEN=<mapbox_access_token>
 export FLASK_APP=insights.wsgi:app
 export FLASK_ENV=development # if developing
 
-Run migrations
 ```
+
+Run [Migrations](#migrations)
+
 
 ### Dokku
 
@@ -42,6 +44,7 @@ dokku config:set insights-ng DATASTORE_URL=postgresql://user:pass@store.data.thr
 
 # Import data from 360Giving datastore
 dokku run insights-ng flask data fetch
+dokku run insights-ng flask data geonames
 
 ```
 
@@ -56,15 +59,16 @@ flask db upgrade
 
 ```
 flask data fetch
+flask data geonames
 ```
 
 ## Run
 
-### Server
+### Development server
 
 ```
 export FLASK_APP=insights.wsgi:app
-export FLASK_ENV=development # if developing
+export FLASK_ENV=development
 flask run
 ```
 
@@ -74,7 +78,7 @@ flask run
 pytest tests
 ```
 
-## Test coverage
+### Test coverage
 
 ```
 coverage run -m pytest ./tests
