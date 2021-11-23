@@ -2,6 +2,17 @@ import { formatNumber } from './components/filters.js';
 
 Vue.filter('formatNumber', formatNumber);
 
+Vue.component('multi-select', window.VueMultiselect.default)
+
+function initMultiSelectGrantTotals(){
+    let ret = {}
+    for (const field in DATASET_SELECT_SECTIONS){
+        ret[field] = { totalGrants: 0}
+    }
+
+    return ret;
+}
+
 var app = new Vue({
     el: '#app',
     data() {
@@ -19,10 +30,13 @@ var app = new Vue({
             datasetSelectSections: DATASET_SELECT_SECTIONS,
             datasetSearch: null,
             maxListLength: 10,
+            multiSelect: {},
+            multiSelectGrantTotals: initMultiSelectGrantTotals(),
         }
     },
     methods: {
         getDatasetOptions: function (field) {
+        /* Returns an array of data for field (e.g. funder) limited to maxListLength */
             if (this.datasetSearch) {
                 return this.datasetSelect[field].filter((v) => {
                     var searchStr = v.name
@@ -31,13 +45,37 @@ var app = new Vue({
                     return searchStr.includes(this.datasetSearch.toLowerCase());
                 });
             }
-            return this.datasetSelect[field].slice(0, this.maxListLength);
+            return this.datasetSelect[field];// #.slice(0, this.maxListLength);
         },
         getDatasetOptionsOtherN: function (field) {
+            /* Returns the number of items not currently being shown */
             if (this.datasetSearch) {
                 return 0;
             }
             return this.datasetSelect[field].length - this.getDatasetOptions(field).length;
+        },
+
+        multiSelectSelected: function(field, event){
+            console.log(field);
+            console.log(event);
+
+            this.multiSelectGrantTotals[field].totalGrants += event.grant_count;
+        },
+
+        viewInsights: function(field, event){
+            if (this.multiSelect[field].length === 1){
+                window.location = this.multiSelect[field][0].url;
+            } else {
+                let query = new URLSearchParams();
+
+                for (const data of this.multiSelect[field]){
+                    query.append("selected", data.id);
+                }
+
+                window.location = `${field}/?${query.toString()}`;
+            }
+        }
+
         },
         addFile: function(e){
             let droppedFiles;
@@ -77,5 +115,5 @@ var app = new Vue({
         openFileDialog: function(){
             this.$refs.uploadFileInput.click();
         }
-    }
+
 });

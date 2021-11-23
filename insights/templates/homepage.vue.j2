@@ -6,8 +6,8 @@
     const UPLOAD_URL = {{ url_for('upload')|tojson }};
     const DATASET_SELECT = {{ dataset_select|tojson }};
     const DATASET_SELECT_SECTIONS = {
-      funder_types: "",
       funders: "Funders",
+      funder_types: "Funding organisation type",
       // publishers: "Publishers",
       countries: "Countries",
       regions: "Regions",
@@ -55,14 +55,27 @@
             <header class="media-card__header">
               <h3 class="media-card__heading">{{ title }}</h3>
             </header>
-            <ul class="dataset-select">
+            <template v-if="getDatasetOptions(index).length > 0" >
+
+              <multi-select v-model="multiSelect[index]" :option-height="100" :searchable="true" :close-on-select="false" :multiple="true" :taggable="true" :options="datasetSelect[index]" label="name" track-by="id" :placeholder="'Select '+title.toLowerCase()" v-on:select="multiSelectSelected(index, $event)">
+                <template slot="option" slot-scope="props">
+                  {{props.option.name}} ({{props.option.grant_count|formatNumber}})
+                </template>
+             </multi-select>
+
+
+            <p v-if="multiSelectGrantTotals[index].totalGrants > 0">
+             Total grants: {{multiSelectGrantTotals[index].totalGrants|formatNumber}}
+            </p>
+
+              <div class="spacer-3"></div>
+              <button class="button button--teal" v-on:click="viewInsights(index, $event)">View Insights</button>
+            </template>
+            <ul v-else class="dataset-select">
               <li v-for="item in getDatasetOptions(index)">
                 <a v-bind:href="item.url" class="filter filter--data-wrangling"><span class="">{{ item.name }}</span> ({{ item.grant_count|formatNumber }})</a>
               </li>
             </ul>
-            <div class="media-card__byline" v-if="getDatasetOptionsOtherN(index)">
-                ...plus {{ getDatasetOptionsOtherN(index) | formatNumber }} other {{ title.toLowerCase() }}
-            </div>
           </div>
         </article>
       </li>
