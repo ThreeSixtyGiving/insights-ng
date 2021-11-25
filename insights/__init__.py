@@ -1,4 +1,7 @@
 import os
+import random
+import string
+import sys
 from urllib.parse import parse_qs
 
 from flask import Flask, abort, render_template, url_for, request, redirect, flash
@@ -17,6 +20,14 @@ __version__ = "0.1.0"
 
 def create_app():
 
+    def secret_key():
+        if os.environ.get("SECRET_KEY"):
+            return os.environ.get("SECRET_KEY")
+
+        print("Warning: Using self generated random key. Set environment var SECRET_KEY", file=sys.stderr)
+
+        return ''.join(random.choice(string.ascii_lowercase) for i in range(40))
+
     database_url = os.environ.get("DATABASE_URL", '')
 
     # dokku uses postgres:// and sqlalchamy requires postgresql:// fix the url here
@@ -30,7 +41,7 @@ def create_app():
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         MAPBOX_ACCESS_TOKEN=os.environ.get("MAPBOX_ACCESS_TOKEN"),
         URL_FETCH_ALLOW_LIST=settings.URL_FETCH_ALLOW_LIST,
-        SECRET_KEY=os.environ.get("SECRET_KEY", b'\x1b\x07\xbd\xb5\x81J\x9d\xc5\x043\xf5\xca\x83\xf3\xc6<')
+        SECRET_KEY=secret_key(),
     )
 
     db.init_app(app)
