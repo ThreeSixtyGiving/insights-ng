@@ -1,3 +1,4 @@
+.ve/
 *.db
 *.db-journal
 *.pkl
