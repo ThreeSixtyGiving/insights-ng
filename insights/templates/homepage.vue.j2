@@ -46,7 +46,6 @@
     <div class="intro-section">
       <h2>Select a 360Giving dataset <br>or <a href="#upload-data">upload a file</a> that meets the 360Giving Standard.</h2>
       <div class="spacer-3"></div>
-      <input id="search" type="search" class="search-field" v-model="datasetSearch" placeholder="Search for a funder or area">
     </div>
     <ul class="card-list">
       <li class="card-list__item" v-for="(title, index) in datasetSelectSections" v-if="getDatasetOptions(index).length > 0">
@@ -103,7 +102,6 @@
       </li>
     </ul>
   </div>
-  {% include 'components/upload-modal.html.j2' %}
 
   <!-- upload file modal -->
   <div id="modal-01" class="modal" v-bind:class="{ 'modal--shown': uploadModal }" v-if="uploadModal">
