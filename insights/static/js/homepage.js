@@ -28,7 +28,6 @@ var app = new Vue({
             uploadError: null,
             datasetSelect: DATASET_SELECT,
             datasetSelectSections: DATASET_SELECT_SECTIONS,
-            datasetSearch: null,
             maxListLength: 10,
             multiSelect: {},
             multiSelectGrantTotals: initMultiSelectGrantTotals(),
@@ -36,29 +35,10 @@ var app = new Vue({
     },
     methods: {
         getDatasetOptions: function (field) {
-        /* Returns an array of data for field (e.g. funder) limited to maxListLength */
-            if (this.datasetSearch) {
-                return this.datasetSelect[field].filter((v) => {
-                    var searchStr = v.name
-                        .concat(" ", v.id)
-                        .toLowerCase();
-                    return searchStr.includes(this.datasetSearch.toLowerCase());
-                });
-            }
-            return this.datasetSelect[field];// #.slice(0, this.maxListLength);
-        },
-        getDatasetOptionsOtherN: function (field) {
-            /* Returns the number of items not currently being shown */
-            if (this.datasetSearch) {
-                return 0;
-            }
-            return this.datasetSelect[field].length - this.getDatasetOptions(field).length;
+            return this.datasetSelect[field];
         },
 
         multiSelectSelected: function(field, event){
-            console.log(field);
-            console.log(event);
-
             this.multiSelectGrantTotals[field].totalGrants += event.grant_count;
         },
 

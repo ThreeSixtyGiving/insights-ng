@@ -101,6 +101,11 @@ def create_app():
         data_type="data", page="data", dataset=settings.DEFAULT_DATASET, data_id=None
     ):
 
+        # regions are areas
+        # local_authorities are areas
+        if data_type == "regions" or data_type == "local_authorities":
+            data_type = "areas"
+
         # flask has this in request.args but it is in a silly format
         query = parse_qs(request.query_string.decode("utf-8"))
 
@@ -142,6 +147,7 @@ def create_app():
 
         if data_type == "funder" or data_type == "funders":
             if data_type == "funders":
+                # multi select query
                 funders = query.get("selected", ["none"])
             else:
                 funders = [data_id]
@@ -159,13 +165,23 @@ def create_app():
                 else "{:,.0f} funders".format(len(funder_names))
             )
 
-        elif data_type == "funder_type":
-            funder_types = data_id.split("+")
+        elif data_type == "funder_type" or data_type == "funder_types":
+            if data_type == "funder_types":
+                # multi select query
+                funder_types = query.get("selected", ["none"])
+            else:
+                funder_types = [data_id]
+
             filters["funderTypes"] = funder_types
             title = list_to_string(funder_types)
 
-        elif data_type == "publisher":
-            publishers = data_id.split("+")
+        elif data_type == "publisher" or data_type == "publishers":
+            if data_type == "publishers":
+                # multi select query
+                publishers = query.get("selected", ["none"])
+            else:
+                publishers = [data_id]
+
             publisher_names = []
             for p in publishers:
                 publisher = db.session.query(Publisher).filter_by(prefix=p).first()
@@ -177,10 +193,16 @@ def create_app():
             subtitle = "Grants published by"
 
         elif data_type == "file":
+            # Not currently in use?
             filters["files"] = data_id.split("+")
 
-        elif data_type == "area":
-            areas = data_id.split("+")
+        elif data_type == "area" or data_type == "areas":
+            if data_type == "areas":
+                # multi select query
+                areas = query.get("selected", ["none"])
+            else:
+                areas = [data_id]
+
             area_names = []
             for a in areas:
                 area = db.session.query(GeoName).filter_by(id=a).first()
