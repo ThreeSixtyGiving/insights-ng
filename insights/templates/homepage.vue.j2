@@ -111,7 +111,7 @@
       <div class="modal__content">
         <template v-if="uploadStatus=='uploading'">
           <h4>Uploading {{ uploadFile.name }}</h4>
-          {% include 'components/loading.html.j2' %}
+          <loading v-if="loading"></loading>
         </template>
         <template v-else>
           <input type="file" v-on:change.prevent="addFile" ref="uploadFileInput" style="display: none" />
