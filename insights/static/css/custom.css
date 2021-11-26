@@ -1,3 +1,7 @@
+[v-cloak] {
+    display: none;
+}
+
 .filter-input {
     padding: 2px 4px;
     border: 1px solid rgba(21, 54, 52, 0.2);
