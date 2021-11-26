@@ -26,6 +26,7 @@
 {% block content %}
 
 {# We don't use a build system so we use the existing templating system to load Vue components #}
+{% include 'components/loading.vue.j2' %}
 {% include 'components/chart-card.vue.j2' %}
 {% include 'components/filter-item.vue.j2' %}
 
@@ -61,7 +62,7 @@
               </template>
             </template>
           </h2>
-          {% include 'components/loading.html.j2' %}
+          <loading v-if="loading"></loading>
         </hgroup>
         <p class="header-group__excerpt" v-if="summary.currencies">
           <template v-if="summary.currencies.length > 1">
@@ -109,7 +110,7 @@
       <div class="grid grid--four-columns" v-if="summary.currencies">
         <div class="grid__1">
           <div class="base-card base-card--orange">
-            {% include 'components/loading.html.j2' %}
+            <loading v-if="loading"></loading>
             <div class="base-card__content">
               <h2 class="base-card__title">{{ summary.grants | formatNumberSuffix }}{{ summary.grants |
                 getAmountSuffix(true) }}</h2>
@@ -120,7 +121,7 @@
 
         <div class="grid__1">
           <div class="base-card base-card--teal">
-            {% include 'components/loading.html.j2' %}
+            <loading v-if="loading"></loading>
             <div class="base-card__content">
               <h2 class="base-card__title">{{ summary.recipients | formatNumberSuffix }}{{ summary.recipients |
                 getAmountSuffix(true) }}</h2>
@@ -281,7 +282,7 @@
     <div class="layout__content-inner">
       <div class="grid grid--two-columns">
 
-        <chart-card color="orange">
+        <chart-card color="orange" v-bind:loading="loading">
           <chart-card-header title="Award amount">
           (number of grants)
           </chart-card-header>
@@ -293,7 +294,7 @@
           </ul>
         </chart-card>
 
-        <chart-card colour="orange" v-if="summary.minDate && summary.minDate.slice(0,7) != summary.maxDate.slice(0,7)" >
+        <chart-card colour="orange" v-bind:loading="loading" v-if="summary.minDate && summary.minDate.slice(0,7) != summary.maxDate.slice(0,7)" >
           <chart-card-header title="Award date">
           (number of grants)
           </chart-card-header>
@@ -303,7 +304,7 @@
           </bar-chart>
         </chart-card>
 
-        <chart-card color="orange" v-if="chartData.byFunderType && chartData.byFunderType.length > 1">
+        <chart-card color="orange" v-bind:loading="loading" v-if="chartData.byFunderType && chartData.byFunderType.length > 1">
           <chart-card-header title="Funder types">
             (number of grants)
           </chart-card-header>
@@ -322,7 +323,7 @@
           </div>
         </chart-card>
 
-        <chart-card color="orange" v-if="chartData.byFunder && chartData.byFunder.length > 1">
+        <chart-card color="orange" v-bind:loading="loading" v-if="chartData.byFunder && chartData.byFunder.length > 1">
           <chart-card-header title="Funders">
             (number of grants)
           </chart-card-header>
@@ -341,7 +342,7 @@
           </div>
       </chart-card>
 
-      <chart-card color="orange"  v-if="chartData.byGrantProgramme && chartN('byGrantProgramme') > 0">
+      <chart-card color="orange" v-bind:loading="loading" v-if="chartData.byGrantProgramme && chartN('byGrantProgramme') > 0">
         <chart-card-header title="Grant Programmes">
           (number of grants)
         </chart-card-header>
@@ -369,7 +370,7 @@
           <h3>Grants locations</h3>
         </div>
 
-        <chart-card color="red" v-if="chartN('byCountryRegion') > 0">
+        <chart-card color="red" v-bind:loading="loading" v-if="chartN('byCountryRegion') > 0">
           <chart-card-header title="UK region and country">
           (number of grants)
           </chart-card-header>
@@ -415,7 +416,7 @@
           </div>
         </div>
 
-        <chart-card color="red" v-if="chartN('byGeoSource') > 0">
+        <chart-card color="red" v-bind:loading="loading" v-if="chartN('byGeoSource') > 0">
           <chart-card-header title="Source of location information">
             (number of grants)
           </chart-card-header>
@@ -434,7 +435,7 @@
           </div>
         </chart-card>
 
-        <chart-card color="red" v-if="!geoGrants || geoGrants.length == 0">
+        <chart-card color="red" v-bind:loading="loading" v-if="!geoGrants || geoGrants.length == 0">
           <chart-card-header title="No location data shown"></chart-card-header>
           <p>
             {{ chartMissing('byCountryRegion') | formatNumber }} grants did not have location data available.
@@ -448,7 +449,7 @@
         <div class="grid__all">
           <h3>Grant recipients</h3>
         </div>
-        <chart-card color="teal">
+        <chart-card color="teal" v-bind:loading="loading">
           <chart-card-header title="Recipient type">
             (number of grants)
           </chart-card-header>
@@ -471,7 +472,7 @@
           </div>
         </chart-card>
 
-        <chart-card color="teal" size="1" v-if="chartN('byOrgSize') > 0" >
+        <chart-card color="teal" v-bind:loading="loading" size="1" v-if="chartN('byOrgSize') > 0" >
           <chart-card-header title="Latest income of charity recipients">
           (number of grants)
           </chart-card-header>
@@ -490,7 +491,7 @@
           </div>
         </chart-card>
 
-        <chart-card color="teal" v-if="chartN('byOrgSize') == 0">
+        <chart-card color="teal" v-bind:loading="loading" v-if="chartN('byOrgSize') == 0">
           <chart-card-header title="Latest income of charity recipients"></chart-card-header>
           <p>
             Latest income is not available for {{ chartMissing('byOrgSize') | formatNumber }} grants.
@@ -501,7 +502,7 @@
           </p>
         </chart-card>
 
-        <chart-card color="teal" size="1" v-if="chartN('byOrgAge') > 0">
+        <chart-card color="teal" v-bind:loading="loading" size="1" v-if="chartN('byOrgAge') > 0">
           <chart-card-header title="Age of recipient organisations">
             (number of grants)
           </chart-card-header>
@@ -522,7 +523,7 @@
         </chart-card>
 
 
-        <chart-card color="teal" size="1" v-if="chartN('byOrgAge') == 0">
+        <chart-card color="teal" v-bind:loading="loading" size="1" v-if="chartN('byOrgAge') == 0">
           <chart-card-header title="Age of recipient organisations"></chart-card-header>
           <p>
             Organisation age is not available for {{ chartMissing('byOrgAge') | formatNumber }} grants.
