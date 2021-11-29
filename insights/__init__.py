@@ -23,10 +23,14 @@ def create_app():
         if os.environ.get("SECRET_KEY"):
             return os.environ.get("SECRET_KEY")
 
+<<<<<<< HEAD
         print(
             "Warning: Using self generated random key. Set environment var SECRET_KEY",
             file=sys.stderr,
         )
+=======
+        print(" * Warning: Using self generated random key. Set environment var SECRET_KEY", file=sys.stderr)
+>>>>>>> insights: frontend: Implement visual filters
 
         return "".join(random.choice(string.ascii_lowercase) for i in range(40))
 
@@ -91,17 +95,27 @@ def create_app():
         template="data-display.vue.j2",
         **kwargs
     ):
+
+        def bins_to_dict(labels, amounts):
+            ret = {}
+            for i,label in enumerate(labels):
+                ret[label] = [amounts[i], amounts[i+1]]
+
+            return ret
+
         return render_template(
             template,
             dataset=dataset,
             base_filters=filters,
             bin_labels={
-                "byAmountAwarded": settings.AMOUNT_BIN_LABELS,
-                "byOrgAge": settings.AGE_BIN_LABELS,
-                "byOrgSize": settings.INCOME_BIN_LABELS,
+                "byAmountAwarded": bins_to_dict(settings.AMOUNT_BIN_LABELS, settings.AMOUNT_BINS),
+                "byOrgAge": bins_to_dict(settings.AGE_BIN_LABELS, settings.AGE_BINS),
+                "byOrgSize": bins_to_dict(settings.INCOME_BIN_LABELS, settings.INCOME_BINS),
             },
+
             title=title,
             subtitle=subtitle,
+            dataset_select=get_frontpage_options(), # Optimisation may not need this
             **kwargs,
         )
 

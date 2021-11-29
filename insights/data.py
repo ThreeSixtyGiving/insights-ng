@@ -1,7 +1,7 @@
 from flask import url_for
 from sqlalchemy import func
 
-from insights.db import GeoName, Grant, Publisher
+from insights.db import GeoName, Grant, Publisher, DatasetStats
 from insights.settings import DEFAULT_DATASET
 
 
@@ -15,12 +15,17 @@ def get_frontpage_options(dataset=DEFAULT_DATASET, with_url=True):
     countries = get_field_counts(Grant.insights_geo_country, dataset=dataset)
     regions = get_field_counts(Grant.insights_geo_region, dataset=dataset)
     local_authorities = get_field_counts(Grant.insights_geo_la, dataset=dataset)
+    dataset_stats = {
+        stat.name: stat.value
+        for stat in DatasetStats.query.filter(dataset == dataset)
+    }
 
     area_names = {g.id: g.name for g in GeoName.query.all()}
     funder_names = get_funder_names(dataset=dataset)
     all_grants = get_field_counts(Grant.dataset, dataset=dataset)
 
     return dict(
+        dataset_stats=dataset_stats,
         publishers=sorted(
             [
                 {
@@ -35,7 +40,7 @@ def get_frontpage_options(dataset=DEFAULT_DATASET, with_url=True):
             ],
             key=lambda x: -x["grant_count"],
         ),
-        funder_types=[
+        funderTypes=[
             {
                 "id": "all",
                 "name": "All grants",
@@ -59,8 +64,9 @@ def get_frontpage_options(dataset=DEFAULT_DATASET, with_url=True):
         ),
         funders=sorted(
             [
-                {
+                {# FIXME for compatibility with graphql filter queries we need a value field we might not actually need id
                     "id": k,
+                    "value": k,
                     "name": funder_names.get(k, k),
                     "url": url_for("data", data_type="funder", data_id=k)
                     if with_url
@@ -99,7 +105,7 @@ def get_frontpage_options(dataset=DEFAULT_DATASET, with_url=True):
             ],
             key=lambda x: -x["grant_count"],
         ),
-        local_authorities=sorted(
+        localAuthorities=sorted(
             [
                 {
                     "id": k,
