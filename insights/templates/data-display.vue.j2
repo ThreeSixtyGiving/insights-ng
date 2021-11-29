@@ -19,6 +19,7 @@
     const PAGE_URLS = {{ page_urls|tojson }};
     const TITLE = {{ title|tojson }};
     const SUBTITLE = {{ subtitle|tojson }};
+    const DATASET_SELECT = {{ dataset_select|tojson }};
   </script>
   <script type="module" src="{{ url_for('static', filename='js/data-display.js') }}"></script>
 {% endblock bodyscripts %}
@@ -280,6 +281,26 @@
   <main class="layout__content">
 
     <div class="layout__content-inner">
+      <template id="phase-one-graphs">
+        <div class="grid grid--two-columns">
+
+          <chart-card color="teal" v-bind:loading="false">
+            <chart-card-header title="Funders">
+              (number of grants)
+            </chart-card-header>
+            <ul class="bar-chart">
+              <li class="bar-chart__item" v-for="funder in datasetSelect['funders']" v-bind:style="{ '--value': funder.grant_count, '--width': `${(funder.grant_count / datasetSelect.total_grants) * 100}%`  }">
+                <label class="bar-chart__label">{{funder.name}}</label>
+                <div class="bar-chart__bar"><span></span></div>
+              </li>
+            </ul>
+          </chart-card>
+
+        </div>
+      </template>
+
+
+      <template id="phase-two-graphs" v-if="filters.funders.length > 0">
       <div class="grid grid--two-columns">
 
         <chart-card color="orange" v-bind:loading="loading">
@@ -534,7 +555,10 @@
           </p>
         </chart-card>
       </div> <!-- / grid -->
+
+    </template> <!-- / phase two graphs-->
     </div>
+
   </main>
 </div> <!-- / vue app -->
 {% endraw %}

@@ -94,6 +94,7 @@ var app = new Vue({
             grants: [],
             mapUrl: PAGE_URLS['map'],
             dataUrl: PAGE_URLS['data'],
+            datasetSelect: DATASET_SELECT,
         }
     },
     computed: {

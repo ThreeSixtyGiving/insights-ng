@@ -19,8 +19,10 @@ def get_frontpage_options(dataset=DEFAULT_DATASET, with_url=True):
     area_names = {g.id: g.name for g in GeoName.query.all()}
     funder_names = get_funder_names(dataset=dataset)
     all_grants = get_field_counts(Grant.dataset, dataset=dataset)
+    print(all_grants[dataset]["grant_count"])
 
     return dict(
+        total_grants=all_grants[dataset]["grant_count"],
         publishers=sorted(
             [
                 {

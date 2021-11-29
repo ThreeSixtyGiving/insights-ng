@@ -98,9 +98,11 @@ def create_app():
             },
             title=title,
             subtitle=subtitle,
+            dataset_select=get_frontpage_options(),
             **kwargs,
         )
 
+    @app.route("/newhome")
     @app.route("/data")
     @app.route("/data/<dataset>")
     @app.route("/data/<dataset>/<page>")
