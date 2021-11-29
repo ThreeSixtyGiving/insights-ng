@@ -116,3 +116,20 @@ class GeoName(db.Model):
     id = db.Column(db.String(255), primary_key=True)
     name = db.Column(db.String(255), nullable=False, index=True)
     type_ = db.Column(db.String(255), nullable=False, index=True)
+
+
+DATASET_STATS = [
+    "grants_total",
+    "amount_average",
+    "amount_total",
+    "recipients_total"
+]
+
+class DatasetStats(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    dataset = db.Column(
+        db.String(255), nullable=False, index=True,
+        default=settings.DEFAULT_DATASET
+    )
+    name = db.Column(db.String(255), nullable=False, index=True)
+    value = db.Column(db.String(255), nullable=False, index=True)

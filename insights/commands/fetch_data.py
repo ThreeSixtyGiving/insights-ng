@@ -7,10 +7,11 @@ from flask import current_app
 from flask.cli import AppGroup, with_appcontext
 from sqlalchemy import create_engine
 from sqlalchemy.sql import text
+from sqlalchemy.sql import func, distinct
 
 from insights import settings
 from insights.data import get_frontpage_options
-from insights.db import Distribution, GeoName, Grant, Publisher, SourceFile, db
+from insights.db import Distribution, GeoName, Grant, Publisher, SourceFile, DatasetStats, db, DATASET_STATS
 from insights.utils import get_org_schema, to_band
 
 cli = AppGroup("data")
@@ -50,10 +51,10 @@ def fetch_data(dataset, bulk_limit, limit):
         text(
             """
     select data
-    from db_sourcefile ds 
+    from db_sourcefile ds
     where ds.id in (
-        select distinct source_file_id 
-        from view_latest_grant vlg 
+        select distinct source_file_id
+        from view_latest_grant vlg
     )
     """
         )
@@ -270,3 +271,34 @@ def fetch_data(url_template):
                 db.session.commit()
                 count += 1
         click.echo(f"Fetched {count:,.0f} {i}")
+
+
+@cli.command("update_dataset_stats")
+@click.option(
+    "--dataset",
+    default=settings.DEFAULT_DATASET,
+    show_default=True,
+    help="Update the dataset stats")
+@with_appcontext
+def update_dataset_stats(dataset):
+
+    db.session.query(DatasetStats).filter(dataset == dataset).delete()
+
+    stats_q = dict(db.session.query(
+        func.count(Grant.id).label(DATASET_STATS[0]),
+        func.avg(Grant.amountAwarded).label(DATASET_STATS[1]),
+        func.sum(Grant.amountAwarded).label(DATASET_STATS[2]),
+        func.count(distinct(Grant.insights_org_id)).label(DATASET_STATS[3]),
+    ).filter(Grant.dataset == dataset).first())
+
+    for key in stats_q.keys():
+        print(key)
+        db.session.add(
+            DatasetStats(
+                name=key,
+                value=str(stats_q[key]),
+                dataset=dataset
+            )
+        )
+
+    db.session.commit()

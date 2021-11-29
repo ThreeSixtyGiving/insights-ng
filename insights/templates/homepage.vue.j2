@@ -47,6 +47,94 @@
       <h2>Select a 360Giving dataset <br>or <a href="#upload-data">upload a file</a> that meets the 360Giving Standard.</h2>
       <div class="spacer-3"></div>
     </div>
+
+
+ <template v-if="phase == 'one'" >
+        <div class="grid grid--two-columns">
+
+          <chart-card color="teal" v-bind:loading="false">
+            <chart-card-header title="Funders">
+              (number of grants)
+            </chart-card-header>
+            <template v-if="phase == 'one'">
+            <ul class="bar-chart" style="overflow-y: auto; height:300px" >
+              <li class="bar-chart__item"
+                  v-bind:class="[ (filters.funders.indexOf(funder) > -1) || filters.funders.length == 0 ? '' : 'bar-unselected']"
+                  v-for="funder in funderListInit"
+                  v-bind:style="{ '--value': funder.grant_count, '--width': `${(funder.grant_count / datasetSelect.dataset_stats.grants_total) * 100}%`  }"
+              >
+                <label class="bar-chart__label" >
+                  <a href="#" v-on:click.prevent="toggleInArray(filters.funders, funder); ">{{funder.name}}</a>
+                </label>
+                <div class="bar-chart__bar" v-on:click.prevent="toggleInArray(filters.funders, funder); " ><span></span></div>
+              </li>
+            </ul>
+            <input type="text" placeholder="Find a funder" v-model="find.funder" class="search-field" />
+            <div class="spacer-2"></div>
+            <a href="#" v-on:click.prevent="toggleInArray(filters.funders, funder)" v-for="funder in filters.funders" class="filter filter--data-wrangling" style="margin: 5px;" v-bind:title="`Remove ${funder.name}`">{{funder.name}} &times;</a>
+
+            <button class="button button--teal" style="margin-left: auto; display:block;" v-on:click.prevent="phase='two'">Done</button>
+            </template>
+
+            <loading v-show="loading"></loading>
+
+            <ul class="bar-chart" v-if="filters.funders.length > 0 && phase == 'two' && !loading">
+              <li class="bar-chart__item" v-for="funder in filters.funders" v-bind:style="{ '--value': funder.grant_count, '--width': `${(funder.grant_count / summary.grants) * 100}%`  }">
+                <label class="bar-chart__label">
+                  {{funder.name}}
+                </label>
+                <div class="bar-chart__bar"><span></span></div>
+              </li>
+            </ul>
+
+            <button v-if="phase == 'two' && !loading" class="button button--teal" style="margin-left: auto; display:block;" v-on:click.prevent="phase='one'">Edit selection</button>
+          </chart-card>
+
+
+          <chart-card color="teal" v-bind:loading="false">
+            <chart-card-header title="Funder types">
+              (number of grants)
+            </chart-card-header>
+            <template v-if="phase == 'one'">
+            <ul class="bar-chart" style="overflow-y: auto; height:300px" >
+              <li class="bar-chart__item"
+                  v-bind:class="[ (filters.funderTypes.indexOf(funderType) > -1) || filters.funderTypes.length == 0 ? '' : 'bar-unselected']"
+                  v-for="funderType in funderTypeListInit"
+                  v-bind:style="{ '--value': funderType.grant_count, '--width': `${(funderType.grant_count / datasetSelect.dataset_stats.grants_total) * 100}%`  }"
+              >
+                <label class="bar-chart__label" >
+                  <a href="#" v-on:click.prevent="toggleInArray(filters.funderTypeTypes, funderType); ">{{funderType.name}}</a>
+                </label>
+                <div class="bar-chart__bar" v-on:click.prevent="toggleInArray(filters.funderTypes, funderType); " ><span></span></div>
+              </li>
+            </ul>
+            <input type="text" placeholder="Find funderType" v-model="find.funderTypes" class="search-field" />
+            <div class="spacer-2"></div>
+            <a href="#" v-on:click.prevent="toggleInArray(filters.funderTypes, funderType)" v-for="funderType in filters.funderTypes" class="filter filter--data-wrangling" style="margin: 5px;" v-bind:title="`Remove ${funderType.name}`">{{funderType.name}} &times;</a>
+
+            <button class="button button--teal" style="margin-left: auto; display:block;" v-on:click.prevent="phase='two'">Done</button>
+            </template>
+
+            <loading v-show="loading"></loading>
+
+            <ul class="bar-chart" v-if="filters.funderTypes.length > 0 && phase == 'two' && !loading">
+              <pre>disabled</pre>
+              <li class="bar-chart__item" v-for="funderType in filters.funderTypes" v-bind:style="{ '--value': funderType.grant_count, '--width': `${(funderType.grant_count / summary.grants) * 100}%`  }">
+                <label class="bar-chart__label">
+                  {{funderType.name}}
+                </label>
+                <div class="bar-chart__bar"><span></span></div>
+              </li>
+            </ul>
+
+            <button v-if="phase == 'two' && !loading" class="button button--teal" style="margin-left: auto; display:block;" v-on:click.prevent="phase='one'">Edit selection</button>
+          </chart-card>
+
+
+        </div>
+      </template>
+
+
     <ul class="card-list">
       <li class="card-list__item" v-for="(title, index) in datasetSelectSections" v-if="getDatasetOptions(index).length > 0">
         <article class="media-card media-card--teal">

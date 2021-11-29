@@ -1,17 +1,17 @@
 {% extends 'base.html.j2' %}
 
 {% block headscripts %}
-  {{ super() }}
+{{ super() }}
 
-  <link href='https://api.mapbox.com/mapbox.js/v3.3.1/mapbox.css' rel='stylesheet' />
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/map.css') }}" />
+<link href='https://api.mapbox.com/mapbox.js/v3.3.1/mapbox.css' rel='stylesheet' />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/map.css') }}" />
 
 {% endblock headscripts %}
 
 {% block bodyscripts %}
-  {{ super() }}
-  <script>
-    const GRAPHQL_ENDPOINT = {{ url_for('graphql' )|tojson }};
+{{ super() }}
+<script>
+  const GRAPHQL_ENDPOINT = {{ url_for('graphql')|tojson }};
     const BIN_LABELS = {{ bin_labels|tojson }};
     const DATASET = {{ dataset|tojson }};
     const BASE_FILTERS = {{ base_filters|tojson }};
@@ -19,6 +19,7 @@
     const PAGE_URLS = {{ page_urls|tojson }};
     const TITLE = {{ title|tojson }};
     const SUBTITLE = {{ subtitle|tojson }};
+    const DATASET_SELECT = {{ dataset_select|tojson }};
   </script>
   <script type="module" src="{{ url_for('static', filename='js/data-display.js') }}"></script>
 {% endblock bodyscripts %}
@@ -107,6 +108,8 @@
 
       <div class="spacer-3"></div>
 
+      <!-- totals summary boxes -->
+
       <div class="grid grid--four-columns" v-if="summary.currencies">
         <div class="grid__1">
           <div class="base-card base-card--orange">
@@ -153,146 +156,85 @@
       </div>
     </div>
 
+      <!-- / totals summary boxes -->
   </header>
 
-  <div class="filter-panel">
-    <div class="accordion wrapper" v-bind:class="{ 'accordion--expanded': showFilters }">
-      <div class="grid">
-        <div class="grid__1">
-          <button class="button accordion__trigger" v-on:click.prevent="showFilters = !showFilters">Filters</button>
-          <div class="tags" v-if="initialData">
-            <span v-if="filters.awardAmount.min & filters.awardAmount.max" class="tag tag--teal">
-              {{ filters.awardAmount.min | formatCurrency(currencyUsed, false) }} -
-              {{ filters.awardAmount.max | formatCurrency(currencyUsed, false) }}
-              <a v-on:click.prevent="filters.awardAmount = {min: null, max: null}" title="Remove filter"
-                class="tag-remove">&times;</a>
-            </span>
-            <span v-else-if="filters.awardAmount.min" class="tag tag--teal">
-              {{ filters.awardAmount.min | formatCurrency(currencyUsed, false) }}+
-              <a v-on:click.prevent="filters.awardAmount.min = null" title="Remove filter"
-                class="tag-remove">&times;</a>
-            </span>
-            <span v-else-if="filters.awardAmount.max" class="tag tag--teal">
-              0 -
-              {{ filters.awardAmount.max | formatCurrency(currencyUsed, false) }}
-              <a v-on:click.prevent="filters.awardAmount.max = null" title="Remove filter"
-                class="tag-remove">&times;</a>
-            </span>
-            <span v-if="filters.awardDates.min" class="tag tag--teal">Award date after {{ filters.awardDates.min }} <a
-                v-on:click.prevent="filters.awardDates.min = null" href="#" title="Remove filter"
-                class="tag-remove">&times;</a></span>
-            <span v-if="filters.awardDates.max" class="tag tag--teal">Award date before {{ filters.awardDates.max }} <a
-                v-on:click.prevent="filters.awardDates.max = null" href="#" title="Remove filter"
-                class="tag-remove">&times;</a></span>
-            <span v-if="filters.search" class="tag tag--teal">Search for: {{ filters.search }} <a
-                v-on:click.prevent="filters.search = ''" href="#" title="Remove filter"
-                class="tag-remove">&times;</a></span>
-            <span v-if="computedFilters.byFunderType" class="tag tag--teal"
-              v-for="f in computedFilters.byFunderType">Funder type: {{ f }}</span>
-            <span v-if="computedFilters.byFunder" class="tag tag--teal" v-for="f in computedFilters.byFunder">Funder: {{
-              f }}</span>
-            <span v-if="computedFilters.byGrantProgramme" class="tag tag--teal"
-              v-for="f in computedFilters.byGrantProgramme">Grant Programme: {{ f }}</span>
-            <span v-if="computedFilters.byCountryRegion" class="tag tag--teal"
-              v-for="f in computedFilters.byCountryRegion">Country/Region: {{ f }}</span>
-            <span v-if="computedFilters.byOrgType" class="tag tag--teal"
-              v-for="f in computedFilters.byOrgType">Recipient type: {{ f }}</span>
-          </div>
-        </div>
-      </div>
-      <div class="accordion__extra" v-if="initialData">
-        <filter-item title="Amount awarded">
-          <label for="amount-awarded-min">Between</label>
-          <input id="amount-awarded-min" type="number" class="filter-input" placeholder="Minimum"
-            v-model="filters.awardAmount.min">
-          <label for="amount-awarded-max">and</label>
-          <input id="amount-awarded-max" type="number" class="filter-input" placeholder="Maximum"
-            v-model="filters.awardAmount.max">
-        </filter-item>
-
-        <filter-item title="Award date">
-          <label for="award-date-min">From</label>
-          <input id="award-date-min" type="date" class="filter-input" v-model="filters.awardDates.min">
-          <label for="award-date-max">to</label>
-          <input id="award-date-max" type="date" class="filter-input" v-model="filters.awardDates.max">
-        </filter-item>
-
-        <filter-item title="Search">
-          <input id="search" type="search" class="search-field" v-model="filters.search">
-        </filter-item>
-
-        <template v-if="initialData.byFunderType.length > 1">
-          <filter-item title="Funder type">
-            <multi-select v-model="filters.funderTypes" :options="getOptions('byFunderType')" label="label" track-by="value"
-              :multiple="true" :searchable="false" :close-on-select="false" :show-labels="false" placeholder="Funder type">
-            </multi-select>
-          </filter-item>
-        </template>
-
-        <template v-if="initialData.byFunder.length > 1">
-          <filter-item title="Funder">
-            <multi-select v-model="filters.funders" :options="getOptions('byFunder')" label="label" track-by="value"
-              :multiple="true" :searchable="false" :close-on-select="false" :show-labels="false" placeholder="Funder">
-            </multi-select>
-          </filter-item>
-        </template>
-
-        <template v-if="initialData.byGrantProgramme.length > 1">
-          <filter-item title="Grant programme">
-            <multi-select v-model="filters.grantProgrammes" :options="getOptions('byGrantProgramme')" label="label"
-              track-by="value" :multiple="true" :searchable="true" :close-on-select="false" :show-labels="false"
-              placeholder="Grant Programme"></multi-select>
-          </filter-item>
-        </template>
-
-        <template v-if="getOptions('byCountryRegion').length > 1">
-          <filter-item title="Region">
-            <multi-select v-model="filters.area" :options="getOptions('byCountryRegion')" label="label" track-by="value"
-              :multiple="true" :searchable="true" :close-on-select="false" :show-labels="false" placeholder="Country">
-            </multi-select>
-          </filter-item>
-        </template>
-
-        <template v-if="initialData.byOrgType.length > 1">
-          <filter-item title="Recipient type">
-            <multi-select v-model="filters.orgtype" :options="getOptions('byOrgType')" label="label" track-by="value"
-              :multiple="true" :searchable="true" :close-on-select="false" :show-labels="false" placeholder="Recipient type">
-            </multi-select>
-          </filter-item>
-        </template>
-
-        <filter-item title="Recipient size">
-          <label for="org-size-min">Between</label>
-          <input id="org-size-min" type="number" class="filter-input" v-model="filters.orgSize.min">
-          <label for="org-size-max">and</label>
-          <input id="org-size-max" type="number" class="filter-input" v-model="filters.orgSize.max">
-        </filter-item>
-
-        <filter-item title="Recipient age">
-          <label for="org-age-min">Between</label>
-          <input id="org-age-min" type="number" class="filter-input" v-model="filters.orgAge.min">
-          <label for="org-age-max">and</label>
-          <input id="org-age-max" type="number" class="filter-input" v-model="filters.orgAge.max">
-        </filter-item>
-      </div>
-    </div>
-  </div>
   <main class="layout__content">
-
     <div class="layout__content-inner">
       <div class="grid grid--two-columns">
+
+        <!-- Funders -->
+
+          <chart-card color="orange" v-bind:loading="loading" v-if="chartData.byFunder && chartData.byFunder.length > 0">
+            <chart-card-header title="Funders">
+              (number of grants)
+            </chart-card-header>
+            <ul class="bar-chart" v-if="chartData.byFunder">
+                <li ref="byFunderItem" v-bind:data-label="group.label" class="bar-chart__item" v-for="(group, index) in chartBars('byFunder')"
+                  :style="group.style" v-on:click="toggleInArray(filters.funders, group.id)">
+                  <label class="bar-chart__label small">{{ group.label }}</label>
+                  <div class="bar-chart__bar"><span></span></div>
+                </li>
+            </ul>
+            <input type="text" v-model="find.funder" placeholder="Find a funder" class="search-field" v-if="safeLength(chartData.byFunder) + safeLength(inactiveChartData.byFunder) > 10"  />
+            <div class="base-card__note">
+              <p>Based on {{ chartN('byFunder') | formatNumber }} grants.</p>
+              <p v-if="chartMissing('byFunder')">
+                {{ chartMissing('byFunder') | formatNumber }} grants not found.
+              </p>
+            </div>
+        </chart-card>
+
+        <!-- Funder Types -->
+
+        <chart-card color="orange" v-bind:loading="loading" v-if="chartData.byFunderType">
+          <chart-card-header title="Funder types">
+            (number of grants)
+          </chart-card-header>
+          <ul class="bar-chart" v-if="chartData.byFunderType && chartData.byFunderType.length > 0">
+            <li class="bar-chart__item" v-for="(group, index) in chartBars('byFunderType')"
+              :style="group.style"
+              >
+              <label class="bar-chart__label small"><a href="#" v-on:click.prevent="toggleInArray(filters.funderTypes, group.id)">{{ group.label }}</a></label>
+              <div class="bar-chart__bar"><span></span></div>
+            </li>
+          </ul>
+
+          <div class="base-card__note">
+            <p>Based on {{ chartN('byFunderType') | formatNumber }} grants.</p>
+            <p v-if="chartMissing('byFunderType')">
+              {{ chartMissing('byFunderType') | formatNumber }} grants not found.
+            </p>
+          </div>
+        </chart-card>
+
+        <!-- Amount awarded -->
 
         <chart-card color="orange" v-bind:loading="loading">
           <chart-card-header title="Award amount">
           (number of grants)
           </chart-card-header>
           <ul class="bar-chart" v-if="chartData.byAmountAwarded">
-            <li class="bar-chart__item" v-for="group in chartBars('byAmountAwarded', 'grants', 1)" :style="group.style">
-              <label class="bar-chart__label">{{ group.label }}</label>
+            <li class="bar-chart__item" v-for="group in chartBars('byAmountAwarded', 'grants', 1)"
+                :style="group.style"
+                v-on:click="applyAmountAwardedFilter(group)">
+               <label class="bar-chart__label">{{ group.label }}</label>
               <div class="bar-chart__bar"><span></span></div>
             </li>
           </ul>
+
+          <filter-item title="Amount awarded">
+            <label for="amount-awarded-min">Between</label>
+            <input id="amount-awarded-min" type="number" class="filter-input" placeholder="Minimum"
+              v-model="filters.awardAmount.min">
+            <label for="amount-awarded-max">and</label>
+            <input id="amount-awarded-max" type="number" class="filter-input" placeholder="Maximum"
+              v-model="filters.awardAmount.max">
+            <a href="#" v-on:click.prevent="filters.awardAmount.max = null; filters.awardAmount.min = null;" v-if="filters.awardAmount.max || filters.awardAmount.min">Clear amounts</a>
+          </filter-item>
         </chart-card>
+
+        <!-- Award date -->
 
         <chart-card colour="orange" v-bind:loading="loading" v-if="summary.minDate && summary.minDate.slice(0,7) != summary.maxDate.slice(0,7)" >
           <chart-card-header title="Award date">
@@ -302,57 +244,34 @@
           <bar-chart :chart-data="lineChartData('byAwardDate', 'grants', 0, 'month')" v-if="chartData.byAwardDate"
             v-bind:height="100" v-bind:hide-legend="true">
           </bar-chart>
+
+          <filter-item title="Award date">
+            <label for="award-date-min">From</label>
+            <input id="award-date-min" type="date" class="filter-input" v-model="filters.awardDates.min">
+            <label for="award-date-max">to</label>
+            <input id="award-date-max" type="date" class="filter-input" v-model="filters.awardDates.max">
+          </filter-item>
+
         </chart-card>
 
-        <chart-card color="orange" v-bind:loading="loading" v-if="chartData.byFunderType && chartData.byFunderType.length > 1">
-          <chart-card-header title="Funder types">
-            (number of grants)
-          </chart-card-header>
-          <ul class="bar-chart" v-if="chartData.byFunderType">
-            <li class="bar-chart__item" v-for="(group, index) in chartBars('byFunderType')" v-if="index < 10"
-              :style="group.style">
-              <label class="bar-chart__label small">{{ group.label }}</label>
-              <div class="bar-chart__bar"><span></span></div>
-            </li>
-          </ul>
-          <div class="base-card__note">
-            <p>Based on {{ chartN('byFunderType') | formatNumber }} grants.</p>
-            <p v-if="chartMissing('byFunderType')">
-              {{ chartMissing('byFunderType') | formatNumber }} grants not found.
-            </p>
-          </div>
-        </chart-card>
-
-        <chart-card color="orange" v-bind:loading="loading" v-if="chartData.byFunder && chartData.byFunder.length > 1">
-          <chart-card-header title="Funders">
-            (number of grants)
-          </chart-card-header>
-          <ul class="bar-chart" v-if="chartData.byFunder">
-              <li class="bar-chart__item" v-for="(group, index) in chartBars('byFunder')" v-if="index < 10"
-                :style="group.style">
-                <label class="bar-chart__label small">{{ group.label }}</label>
-                <div class="bar-chart__bar"><span></span></div>
-              </li>
-          </ul>
-          <div class="base-card__note">
-            <p>Based on {{ chartN('byFunder') | formatNumber }} grants.</p>
-            <p v-if="chartMissing('byFunder')">
-              {{ chartMissing('byFunder') | formatNumber }} grants not found.
-            </p>
-          </div>
-      </chart-card>
+      <!-- Grant Programmes -->
 
       <chart-card color="orange" v-bind:loading="loading" v-if="chartData.byGrantProgramme && chartN('byGrantProgramme') > 0">
         <chart-card-header title="Grant Programmes">
           (number of grants)
         </chart-card-header>
         <ul class="bar-chart" v-if="chartData.byGrantProgramme">
-          <li class="bar-chart__item" v-for="(group, index) in chartBars('byGrantProgramme')" v-if="index < 10"
-            :style="group.style">
+          <li class="bar-chart__item" v-for="(group, index) in chartBars('byGrantProgramme')"
+            :style="group.style"
+            v-on:click="toggleInArray(filters.grantProgrammes, group.id)"
+            v-bind:data-label="group.label"
+            ref="byGrantProgrammeItem"
+            >
             <label class="bar-chart__label small">{{ group.label }}</label>
             <div class="bar-chart__bar"><span></span></div>
           </li>
         </ul>
+        <input type="text" v-model="find.grantProgramme" placeholder="Find a programme" class="search-field" v-if="safeLength(chartData.byGrantProgramme) + safeLength(inactiveChartData.byGrantProgramme) > 10"  />
         <div class="base-card__note">
           <p>Based on {{ chartN('byGrantProgramme') | formatNumber }} grants.</p>
           <p v-if="chartMissing('byGrantProgramme')">
@@ -370,6 +289,7 @@
           <h3>Grants locations</h3>
         </div>
 
+        <!-- Regions -->
         <chart-card color="red" v-bind:loading="loading" v-if="chartN('byCountryRegion') > 0">
           <chart-card-header title="UK region and country">
           (number of grants)
@@ -377,12 +297,17 @@
           <ul class="bar-chart" v-if="chartData.byCountryRegion">
             <li class="bar-chart__item" v-for="(group, index) in chartBars('byCountryRegion', 'grants', 1, false)"
               :style="group.style">
-              <label class="bar-chart__label small">England - {{ group.label }}</label>
+                <label class="bar-chart__label small">
+                  <a href="#" v-on:click.prevent="toggleInArray(filters.area, group.id)">
+                  England - {{ group.label }}</a>
+                </label>
+
               <div class="bar-chart__bar"><span></span></div>
             </li>
             <li class="bar-chart__item" v-for="(group, index) in chartBars('byCountryRegion', 'grants', 0, false)"
               v-if="group.label != 'England'" :style="group.style">
-              <label class="bar-chart__label small">{{ group.label }}</label>
+              <label class="bar-chart__label small">
+                <a href="#" v-on:click.prevent="toggleInArray(filters.area, group.id)">{{ group.label }}</a></label>
               <div class="bar-chart__bar"><span></span></div>
             </li>
           </ul>
@@ -394,6 +319,7 @@
           </div>
         </chart-card>
 
+        <!-- map -->
         <div class="grid__all">
           <div class="base-card base-card--red base-card--left">
             <div style="padding-left: 4px">
@@ -416,12 +342,13 @@
           </div>
         </div>
 
+        <!-- Source of location information -->
         <chart-card color="red" v-bind:loading="loading" v-if="chartN('byGeoSource') > 0">
           <chart-card-header title="Source of location information">
             (number of grants)
           </chart-card-header>
           <ul class="bar-chart" v-if="chartData.byGeoSource">
-            <li class="bar-chart__item" v-for="(group, index) in chartBars('byGeoSource')" v-if="index < 10"
+            <li class="bar-chart__item" v-for="(group, index) in chartBars('byGeoSource')"
               :style="group.style">
               <label class="bar-chart__label small">{{ group.label }}</label>
               <div class="bar-chart__bar"><span></span></div>
@@ -449,16 +376,22 @@
         <div class="grid__all">
           <h3>Grant recipients</h3>
         </div>
+
+        <!-- Recipient Type -->
         <chart-card color="teal" v-bind:loading="loading">
           <chart-card-header title="Recipient type">
             (number of grants)
           </chart-card-header>
           <ul class="bar-chart" v-if="chartData.byOrgType">
-            <li class="bar-chart__item" v-for="(group, index) in chartBars('byOrgType')" v-if="index < 10" :style="group.style">
+            <li class="bar-chart__item" v-for="(group, index) in chartBars('byOrgType')"
+              :style="group.style"
+              v-on:click="toggleInArray(filters.orgtype, group.id)"
+            >
               <label class="bar-chart__label small">{{ group.label }}</label>
               <div class="bar-chart__bar"><span></span></div>
             </li>
           </ul>
+
           <div class="base-card__note">
             <p>Based on {{ chartN('byOrgType') | formatNumber }} grants.</p>
             <p v-if="chartMissing('byOrgType')">
@@ -472,12 +405,13 @@
           </div>
         </chart-card>
 
+        <!-- Latest Income -->
         <chart-card color="teal" v-bind:loading="loading" size="1" v-if="chartN('byOrgSize') > 0" >
           <chart-card-header title="Latest income of charity recipients">
           (number of grants)
           </chart-card-header>
           <ul class="bar-chart" v-if="chartData.byOrgSize">
-            <li class="bar-chart__item" v-for="(group, index) in chartBars('byOrgSize')" v-if="index < 10"
+            <li class="bar-chart__item" v-for="(group, index) in chartBars('byOrgSize')"
               :style="group.style">
               <label class="bar-chart__label">{{ group.label }}</label>
               <div class="bar-chart__bar"><span></span></div>
@@ -507,11 +441,19 @@
             (number of grants)
           </chart-card-header>
           <ul class="bar-chart" v-if="chartData.byOrgAge">
-            <li class="bar-chart__item" v-for="(group, index) in chartBars('byOrgAge')" v-if="index < 10" :style="group.style">
+            <li class="bar-chart__item" v-for="(group, index) in chartBars('byOrgAge')"  :style="group.style">
               <label class="bar-chart__label">{{ group.label }}</label>
               <div class="bar-chart__bar"><span></span></div>
             </li>
           </ul>
+<!--          <filter-item title="Recipient age">
+            <label for="org-age-min">Between</label>
+            <input id="org-age-min" type="number" class="filter-input" v-model="filters.orgAge.min">
+            <label for="org-age-max">and</label>
+            <input id="org-age-max" type="number" class="filter-input" v-model="filters.orgAge.max">
+          </filter-item>
+        -->
+
           <div class="base-card__note">
             <p>Based on {{ chartN('byOrgAge') | formatNumber }} grants.</p>
             <p>Organisation age at the time of the grant award, based on the registration date of that organisation. Only
@@ -534,7 +476,9 @@
           </p>
         </chart-card>
       </div> <!-- / grid -->
+
     </div>
+
   </main>
 </div> <!-- / vue app -->
 {% endraw %}

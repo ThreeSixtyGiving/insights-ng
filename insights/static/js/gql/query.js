@@ -1,4 +1,4 @@
-export function queryHeader(queryName, queryType){
+export function queryHeader(queryName, queryType) {
   return `
   query ${queryName}(
       $dataset: String!,
@@ -28,6 +28,47 @@ export function queryHeader(queryName, queryType){
           funderTypes: $funderTypes,
           orgSize: $orgSize,
         ) `
+}
+
+export function gqlSingleGraph(graph){
+
+  return `
+  ${queryHeader('insightsData', 'grantAggregates')} {
+        summary {
+        grants
+        recipients
+        funders
+        maxDate
+        minDate
+        currencies {
+          currency
+          total
+          median
+          mean
+          grants
+        }
+      }
+
+      ${graph} {
+        ...chartFields
+      }
+    }
+  }
+
+  fragment chartFields on GrantBucket {
+    bucketGroup {
+      id
+      name
+    }
+    grants
+    recipients
+    currencies {
+      total
+      grants
+    }
+  }
+`;
+
 }
 
 export const GQL = `
@@ -83,7 +124,7 @@ ${queryHeader('insightsData', 'grantAggregates')} {
       }
     }
   }
-  
+
 fragment chartFields on GrantBucket {
   bucketGroup {
     id
@@ -99,12 +140,14 @@ fragment chartFields on GrantBucket {
 `
 
 export function graphqlQuery(query, vars) {
-    const formData = new FormData();
-    formData.append('query', query);
-    formData.append('variables', JSON.stringify(vars));
-    return fetch(GRAPHQL_ENDPOINT, {
-        method: 'POST',
-        mode: 'same-origin',
-        body: formData
-    }).then((response) => response.json());
+  const formData = new FormData();
+  formData.append('query', query);
+  formData.append('variables', JSON.stringify(vars));
+  console.log(query);
+  console.log(vars);
+  return fetch(GRAPHQL_ENDPOINT, {
+    method: 'POST',
+    mode: 'same-origin',
+    body: formData
+  }).then((response) => response.json());
 }

@@ -1,8 +1,8 @@
 {% raw %}
-<script type="text/x-template" id="chart-card-template">
-  <div v-bind:class="'grid__'+size" >
+<script type="text/x-template" id="chart-card-template" >
+  <div v-bind:class="'grid__'+size"  >
       <div class="base-card base-card--left" v-bind:class="'base-card--'+color" >
-          <div class="base-card__content">
+          <div class="base-card__content" >
               <slot></slot>
               <loading v-if="loading"></loading>
           </div>

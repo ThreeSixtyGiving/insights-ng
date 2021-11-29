@@ -1,7 +1,7 @@
 import { lineChart } from './components/line-chart.js';
 import { barChart } from './components/bar-chart.js';
 import { mapboxMap } from './components/map.js';
-import { GQL, graphqlQuery } from './gql/query.js';
+import { GQL, gqlSingleGraph, graphqlQuery } from './gql/query.js';
 import { SOURCE_GQL } from './gql/sources.js';
 import { GEO_GQL } from './gql/geo.js';
 import { formatCurrency, formatDate, formatNumber, getAmountSuffix, formatNumberSuffix } from './components/filters.js';
@@ -26,25 +26,12 @@ Vue.filter('formatNumber', formatNumber);
 Vue.filter('getAmountSuffix', getAmountSuffix);
 Vue.filter('formatNumberSuffix', formatNumberSuffix);
 
-function resetUrlSearchParams(){
-    /* reset all the url params apart from the multi select */
-    let oldParams = new URLSearchParams(window.location.search);
-    let newParams = new URLSearchParams();
-
-    for (const selected of oldParams.getAll("selected")){
-        newParams.append("selected", selected);
-    }
-
-    return newParams;
-}
-
 
 function initialFilters(useQueryParams) {
     var params = new URLSearchParams(window.location.search);
 
     if(!useQueryParams){
-        /* reset all params apart from "selected" */
-        params = resetUrlSearchParams();
+        params = new URLSearchParams();
     }
     return {
         awardAmount: {
@@ -72,6 +59,17 @@ function initialFilters(useQueryParams) {
     }
 }
 
+var chartToFilters = {
+    byGrantProgramme: 'grantProgrammes',
+    byFunder: 'funders',
+    byFunderType: 'funderTypes',
+    byCountryRegion: 'area',
+    byOrgType: 'orgtype',
+}
+
+/* Same as above but k,v swapped */
+var filtersToChart = Object.fromEntries(Object.entries(chartToFilters).map(([key,val]) => [val, key] ));
+
 var app = new Vue({
     el: '#data-display',
     data() {
@@ -80,49 +78,54 @@ var app = new Vue({
             title: TITLE,
             subtitle: SUBTITLE,
             bin_labels: BIN_LABELS,
-            loading: true,
+            loading: false,
+            loadingQ: 0,
             initialData: null,
             chartData: {},
-            summary: {},
+            inactiveChartData: {},
+            summary: {
+                grants: DATASET_SELECT.dataset_stats.grants_total,
+                recipients: DATASET_SELECT.dataset_stats.recipients_total,
+                currencies:[ {
+                    currency: "GBP",
+                    /* FIXME : grants_total includes non GBP */
+                    grants: DATASET_SELECT.dataset_stats.grants_total,
+                    total: DATASET_SELECT.dataset_stats.amount_total,
+                    mean: DATASET_SELECT.dataset_stats.amount_average
+                }],
+            },
             default_currency: 'GBP',
             funders: [],
             base_filters: BASE_FILTERS,
             filters: initialFilters(true),
             source_ids: [],
             sources: [],
-            showFilters: false,
             grants: [],
             mapUrl: PAGE_URLS['map'],
             dataUrl: PAGE_URLS['data'],
+            datasetSelect: DATASET_SELECT,
+            find: { funder: "", grantProgramme: "" },
+            activeFilters: [],
         }
     },
     computed: {
         computedFilters() {
+            /* Take a copy of the filters */
             var filters = JSON.parse(JSON.stringify(this.filters));
-            ['awardAmount', 'awardDates', 'orgSize', 'orgAge'].forEach((f) => {
-                if (filters[f].min === '') { filters[f].min = null; }
-                if (filters[f].max === '') { filters[f].max = null; }
+
+            /* convert the filter data into data for graphql query */
+            ['awardAmount', 'awardDates', 'orgSize', 'orgAge'].forEach((field) => {
+                if (filters[field].min === '') { filters[field].min = null; }
+                if (filters[field].max === '') { filters[field].max = null; }
             });
-            ['area', 'orgtype', 'grantProgrammes', 'funders', 'funderTypes'].forEach((f) => {
-                filters[f] = filters[f].map((v) => typeof v=="string" ? v : v.value );
-                if (Array.isArray(BASE_FILTERS[f])) {
-                    filters[f] = filters[f].concat(BASE_FILTERS[f]);
-                    filters[f] = [...new Set(filters[f])];
+            ['area', 'orgtype', 'grantProgrammes', 'funders', 'funderTypes'].forEach((field) => {
+                filters[field] = filters[field].map((item) => typeof item=="string" ? item : item.value );
+                if (Array.isArray(BASE_FILTERS[field])) {
+                    filters[field] = filters[field].concat(BASE_FILTERS[field]);
+                    filters[field] = [...new Set(filters[field])];
                 }
             });
             return filters;
-        },
-        funderList: function () {
-            if (this.funders.length == 1) {
-                return this.funders[0];
-            }
-            if (this.funders.length < 5) {
-                return this.funders.slice(0, -1).join(', ') + " and " + this.funders.slice(-1);
-            }
-            if (this.funders.length > 0) {
-                return `${formatNumber(this.funders.length)} funders`;
-            }
-            return 'No funders found'
         },
         currencyUsed: function () {
             var currencies = this.summary.currencies.map((c) => c.currency);
@@ -141,24 +144,49 @@ var app = new Vue({
         },
     },
     watch: {
-        'source_ids': function (val, oldVal) {
-            if (val.toString() != oldVal.toString()) {
-                graphqlQuery(SOURCE_GQL, { 'sources': this.source_ids })
-                    .then((data) => { app.sources = data.data.sourceFiles });
+
+        /* TODO make the find. watchers generic */
+        'find.funder': function(){
+            /* Filter the <li> in the graph list for the specified term */
+            var app = this;
+            this.$refs.byFunderItem.forEach((li) => {
+                li.style.display = null;
+                if (li.dataset.label && app.find.funder && !li.dataset.label.toLowerCase().includes(app.find.funder.toLowerCase())){
+                    li.style.display = "none";
+                }
+            });
+        },
+        'find.grantProgramme': function(){
+            /* Filter the <li> in the graph list for the specified term */
+            var app = this;
+            this.$refs.byGrantProgrammeItem.forEach((li) => {
+                li.style.display = null;
+                if (li.dataset.label && app.find.grantProgramme && !li.dataset.label.toLowerCase().includes(app.find.grantProgramme.toLowerCase())){
+                    li.style.display = "none";
+                }
+            });
+        },
+        'loadingQ': function(){
+            if (this.loadingQ > 0){
+                this.loading = true;
+            } else {
+                this.loading= false;
             }
         },
         'filters': {
             handler: debounce(function () {
+                this.find.grantProgramme = "";
+                this.find.funder = "";
                 this.updateUrl();
                 this.updateData();
             }, 1000),
             deep: true,
-            immediate: true,
+            immediate: false,
         },
     },
     methods: {
         updateUrl() {
-            var queryParams = resetUrlSearchParams();
+            var queryParams = new URLSearchParams();
             Object.entries(this.filters)
                 .filter(([k, v]) => v && v.length != 0)
                 .forEach(([k, v]) => {
@@ -194,14 +222,22 @@ var app = new Vue({
             this.filters = initialFilters(false);
         },
         updateData() {
+            /* If no search query params do nothing
+            FIXME: Relying on this method is fragile as anything could be set on
+            window.location.search, we need a way to know if certain filters are active or not
+            */
+            if (!window.location.search){
+                return;
+            }
+
             var app = this;
-            app.loading = true;
+            app.loadingQ++;
+
             graphqlQuery(GQL, {
                 dataset: app.dataset,
                 ...app.base_filters,
                 ...app.computedFilters,
             }).then((data) => {
-                app.loading = false;
                 Object.entries(data.data.grantAggregates).forEach(([key, value]) => {
                     if (key == "summary") {
                         app.summary = value[0];
@@ -213,7 +249,19 @@ var app = new Vue({
                     if (key == "byFunder") {
                         app.funders = value.map((f) => f.bucketGroup[0].name);
                     }
+
                 });
+
+                /* depending on the filters set find out what the data options would have been */
+                if (window.location.search){
+                    ['funders', 'funderTypes', 'area', 'orgtype', 'grantProgrammes'].forEach((filter) => {
+                        if (app.filters[filter].length > 0){
+                            this.dataWithoutFilter(filter);
+                        }
+                    });
+                }
+
+                app.loadingQ--;
             });
             graphqlQuery(GEO_GQL, {
                 dataset: app.dataset,
@@ -222,6 +270,36 @@ var app = new Vue({
             }).then((data) => {
                 app.grants = data.data.grants;
             });
+
+        },
+        dataWithoutFilter(filterName){
+            console.log("Doing with out filter on "+filterName);
+            /* returns the without the filter named applied so that we can display
+            what the options are if it were unselected/unfiltered */
+            var app = this;
+            let copyFilters = { ...this.computedFilters };
+
+            this.loadingQ++;
+
+            /* Remove the filterName filter */
+            copyFilters[filterName] = [] // assuming the filter object is an array for now
+            graphqlQuery(gqlSingleGraph(filtersToChart[filterName]), {
+                dataset: app.dataset,
+                ...app.base_filters,
+                ...copyFilters,
+            }).then((data) => {
+                this.loadingQ--;
+
+                Object.entries(data.data.grantAggregates).forEach(([key, value]) => {
+                    app.inactiveChartData[key] = value;
+                });
+            });
+        },
+        /* Special function to parse the amount awarded chart bins data */
+        applyAmountAwardedFilter(item){
+            let minMax = this.bin_labels.byAmountAwarded[item.label];
+            this.filters.awardAmount.min = minMax[0]+1;
+            this.filters.awardAmount.max = minMax[1];
         },
         lineChartData(chart, field, bucketGroup, date_format) {
             var values = this.chartBars(chart, field, bucketGroup);
@@ -247,25 +325,102 @@ var app = new Vue({
         },
         chartBars(chart, field = 'grants', bucketGroup = 0, sort = true) {
             if (!this.chartData[chart]) { return []; }
+
             var chartData = this.chartData[chart];
             if (chart == 'byAmountAwarded') {
                 chartData = chartData.filter((d) => d.bucketGroup[0].id == this.currencyUsed);
             }
             chartData = chartData.filter((d) => d.bucketGroup[bucketGroup].name);
             var maxValue = Math.max(...chartData.map((d) => d[field]));
-            var values = chartData.map((d) => ({
-                label: d.bucketGroup[bucketGroup].name,
-                value: d[field],
-                style: {
-                    '--value': d[field],
-                    '--width': `${(d[field] / maxValue) * 100}%`
-                }
-            }));
+
+            /* Initialise the graph data to include filters with default 0 value */
+            var values = {}
+
+            /* Look up the filter name for this chart */
+            let chartFilter = chartToFilters[chart];
+
+            /* Initialise all the chart data */
+            /* FIXME does this still need doing ?
+            if (chartFilter){
+
+                this.filters[chartFilter].forEach((item) => (
+                    values[item.id] = {
+                        label: item.name,
+                        id: item.id,
+                        value: 0,
+                        style: {
+                            '--value': 0,
+                            '--width': '0%',
+                        }
+                    }
+                ));
+            }*/
+
+            let duplicateIds = [];
+
+            /* Update or create the data entries */
+            chartData.forEach((data) => {
+                let entry = {
+                    label: data.bucketGroup[bucketGroup].name,
+                    id: data.bucketGroup[bucketGroup].id,
+                    value: data[field],
+                    style: {
+                        '--value': data[field],
+                        '--width': `${(data[field] / maxValue) * 100}%`,
+                    }
+                };
+
+                if (values[data.bucketGroup[bucketGroup].id] && values[data.bucketGroup[bucketGroup].id].value > 0){
+                    /* We have already set a value for this id. Sometimes multiple org-ids with
+                    different data (e.g. org name) cause this */
+                    duplicateIds.push(entry);
+                } else {
+                    values[data.bucketGroup[bucketGroup].id] = entry;              }
+            });
+
+            var inActiveValues = [];
+
+            if (this.inactiveChartData[chart]){
+                this.inactiveChartData[chart].forEach((inActiveData) => {
+
+                    /* Don't add an inactive value of ourselves */
+                    if (values[inActiveData.bucketGroup[bucketGroup].id]){
+                        return;
+                    }
+
+                    let entry = {
+                        label: inActiveData.bucketGroup[bucketGroup].name,
+                        id: inActiveData.bucketGroup[bucketGroup].id,
+                        value: inActiveData[field],
+                        style: {
+                            '--value': inActiveData[field],
+                            '--width': `${(inActiveData[field] / maxValue) * 100}%`,
+                            'opacity': 0.7,
+                            'overflow': 'hidden',
+                        },
+                        inactive: true,
+                    };
+
+                    inActiveValues.push(entry);
+                });
+            }
+
+            /* Convert to an array now that we don't need to look up ids */
+            values = Object.values(values);
+
+            /* Add in duplicated Ids - this appears to be a quirk of the data */
+            values = values.concat(duplicateIds);
+
             if (chart in this.bin_labels) {
-                values.sort((firstEl, secondEl) => this.bin_labels[chart].indexOf(firstEl.label) - this.bin_labels[chart].indexOf(secondEl.label));
+                let labels = Object.keys(this.bin_labels[chart]);
+                values.sort((firstEl, secondEl) => labels.indexOf(firstEl.label) - labels.indexOf(secondEl.label));
             } else if (sort) {
                 values.sort((firstEl, secondEl) => secondEl.value - firstEl.value);
             }
+
+            /* Add the (unsorted) inactive values so that they're below the active ones */
+            values = values.concat(inActiveValues);
+
             return values;
         },
         chartN(chart, field = 'grants', bucketGroup = 0) {
@@ -278,29 +433,26 @@ var app = new Vue({
                 .filter((d) => !d.bucketGroup[bucketGroup].name)
                 .reduce((acc, d) => acc + d[field], 0);
         },
-        getOptions(field) {
-            if (!this.initialData[field]) { return []; }
-            return this.initialData[field]
-                .filter((d) => d.bucketGroup[0].name)
-                .map((d) => ({
-                    value: d.bucketGroup[0].id,
-                    label: d.bucketGroup[0].name,
-                }));
+        toggleInArray(array, item){
+            let idx = array.indexOf(item);
+            if (idx > -1){
+                /* Item exists remove it */
+                array.splice(idx, 2);
+            } else {
+                array.push(item);
+            }
+        },
+        safeLength(array){
+            /* utility for avoiding race conditions on determining length in templates */
+            if (!array){
+                return 0;
+             }
+
+             return array.length;
         }
+
     },
     mounted() {
-        var app = this;
-        graphqlQuery(GQL, {
-            dataset: app.dataset,
-            ...initialFilters(false),
-            ...app.base_filters,
-        }).then((data) => {
-            app.initialData = {};
-            Object.entries(data.data.grantAggregates).forEach(([key, value]) => {
-                if (!["summary", "bySource"].includes(key)) {
-                    app.initialData[key] = value;
-                }
-            });
-        });
+        this.updateData();
     }
 })
