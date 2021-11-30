@@ -151,6 +151,8 @@ var app = new Vue({
         },
         'filters': {
             handler: debounce(function () {
+                this.updateUrl();
+
                 if (window.location.search){
                 /* We have a query in progress switch to phase two */
                   this.phase = "two";
@@ -158,7 +160,6 @@ var app = new Vue({
                   this.phase = "one";
                 }
 
-                this.updateUrl();
                 this.updateData();
             }, 1000),
             deep: true,
