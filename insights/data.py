@@ -1,7 +1,7 @@
 from flask import url_for
 from sqlalchemy import func
 
-from insights.db import GeoName, Grant, Publisher
+from insights.db import GeoName, Grant, Publisher, DatasetStats
 from insights.settings import DEFAULT_DATASET
 
 
@@ -15,14 +15,17 @@ def get_frontpage_options(dataset=DEFAULT_DATASET, with_url=True):
     countries = get_field_counts(Grant.insights_geo_country, dataset=dataset)
     regions = get_field_counts(Grant.insights_geo_region, dataset=dataset)
     local_authorities = get_field_counts(Grant.insights_geo_la, dataset=dataset)
+    dataset_stats = {
+        stat.name: stat.value
+        for stat in DatasetStats.query.filter(dataset == dataset)
+    }
 
     area_names = {g.id: g.name for g in GeoName.query.all()}
     funder_names = get_funder_names(dataset=dataset)
     all_grants = get_field_counts(Grant.dataset, dataset=dataset)
-    print(all_grants[dataset]["grant_count"])
 
     return dict(
-        total_grants=all_grants[dataset]["grant_count"],
+        dataset_stats=dataset_stats,
         publishers=sorted(
             [
                 {

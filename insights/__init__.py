@@ -24,7 +24,7 @@ def create_app():
         if os.environ.get("SECRET_KEY"):
             return os.environ.get("SECRET_KEY")
 
-        print("Warning: Using self generated random key. Set environment var SECRET_KEY", file=sys.stderr)
+        print(" * Warning: Using self generated random key. Set environment var SECRET_KEY", file=sys.stderr)
 
         return ''.join(random.choice(string.ascii_lowercase) for i in range(40))
 

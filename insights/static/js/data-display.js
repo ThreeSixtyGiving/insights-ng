@@ -95,6 +95,7 @@ var app = new Vue({
             mapUrl: PAGE_URLS['map'],
             dataUrl: PAGE_URLS['data'],
             datasetSelect: DATASET_SELECT,
+            phase: "one",
         }
     },
     computed: {
@@ -150,11 +151,18 @@ var app = new Vue({
         },
         'filters': {
             handler: debounce(function () {
+                if (window.location.search){
+                /* We have a query in progress switch to phase two */
+                  this.phase = "two";
+                } else {
+                  this.phase = "one";
+                }
+
                 this.updateUrl();
                 this.updateData();
             }, 1000),
             deep: true,
-            immediate: true,
+            immediate: false,
         },
     },
     methods: {
@@ -195,6 +203,10 @@ var app = new Vue({
             this.filters = initialFilters(false);
         },
         updateData() {
+            /* If no search query params do nothing */
+            if (!window.location.search){
+                return;
+            }
             var app = this;
             app.loading = true;
             graphqlQuery(GQL, {
@@ -287,9 +299,19 @@ var app = new Vue({
                     value: d.bucketGroup[0].id,
                     label: d.bucketGroup[0].name,
                 }));
+        },
+        toggleInArray(array, item){
+            let idx = array.indexOf(item);
+            if (idx > -1){
+                /* Item exists remove it */
+                array.splice(idx, 2);
+            } else {
+                array.push(item);
+            }
         }
+
     },
-    mounted() {
+    mounted() { /*
         var app = this;
         graphqlQuery(GQL, {
             dataset: app.dataset,
@@ -302,6 +324,6 @@ var app = new Vue({
                     app.initialData[key] = value;
                 }
             });
-        });
+        }); */
     }
 })

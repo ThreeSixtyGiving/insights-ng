@@ -281,26 +281,32 @@
   <main class="layout__content">
 
     <div class="layout__content-inner">
-      <template id="phase-one-graphs">
+      <template v-if="phase == 'one' || phase == 'two'" >
         <div class="grid grid--two-columns">
 
           <chart-card color="teal" v-bind:loading="false">
             <chart-card-header title="Funders">
               (number of grants)
             </chart-card-header>
-            <ul class="bar-chart">
-              <li class="bar-chart__item" v-for="funder in datasetSelect['funders']" v-bind:style="{ '--value': funder.grant_count, '--width': `${(funder.grant_count / datasetSelect.total_grants) * 100}%`  }">
-                <label class="bar-chart__label">{{funder.name}}</label>
-                <div class="bar-chart__bar"><span></span></div>
+            <ul class="bar-chart" style="overflow-y: auto; height:300px" v-show="phase == 'one'" >
+              <li class="bar-chart__item" v-for="funder in datasetSelect['funders']" v-bind:style="{ '--value': funder.grant_count, '--width': `${(funder.grant_count / datasetSelect.dataset_stats.grants_total) * 100}%`  }">
+                <label class="bar-chart__label" v-bind:class="{ 'label-selected': (filters.funders.indexOf(funder.id) > -1) }">
+                  <a href="#" v-on:click.prevent="toggleInArray(filters.funders, funder.id); ">{{funder.name}}</a>
+                </label>
+                <div class="bar-chart__bar" v-on:click.prevent="toggleInArray(filters.funders, funder.id); " ><span></span></div>
               </li>
             </ul>
+            <a href="#" v-for="funder in filters.funders" class="filter filter--data-wrangling">{{funder}}</a>
+            <a href="#" v-show="phase == 'two'" v-on:click.prevent="phase='one'">Edit selection</a>
+            <a href="#" v-show="phase == 'one'" v-on:click.prevent="phase='two'">Done</a>
           </chart-card>
 
         </div>
       </template>
 
+      <div class="spacer-3"></div>
 
-      <template id="phase-two-graphs" v-if="filters.funders.length > 0">
+      <template id="phase-two-graphs" v-if="phase == 'two'" >
       <div class="grid grid--two-columns">
 
         <chart-card color="orange" v-bind:loading="loading">
