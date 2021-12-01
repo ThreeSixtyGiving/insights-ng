@@ -62,6 +62,18 @@ flask data fetch
 flask data geonames
 ```
 
+## Update requirements
+
+We target python3.6 for our requirements.
+
+Use `pip-compile` provided by `pip-tools` package to process requirements .in files.
+
+```
+pip install pip-tools
+pip-compile requirements.in 
+pip-compile dev-requirements.in 
+```
+
 ## Run
 
 ### Development server
