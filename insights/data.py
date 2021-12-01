@@ -60,8 +60,9 @@ def get_frontpage_options(dataset=DEFAULT_DATASET, with_url=True):
         ),
         funders=sorted(
             [
-                {
+                {# FIXME for compatibility with graphql filter queries we need a value field we might not actually need id
                     "id": k,
+                    "value": k,
                     "name": funder_names.get(k, k),
                     "url": url_for("data", data_type="funder", data_id=k) if with_url else None,
                     **v,

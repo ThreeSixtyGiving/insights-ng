@@ -288,15 +288,28 @@
             <chart-card-header title="Funders">
               (number of grants)
             </chart-card-header>
-            <ul class="bar-chart" style="overflow-y: auto; height:300px" v-show="phase == 'one'" >
-              <li class="bar-chart__item" v-for="funder in datasetSelect['funders']" v-bind:style="{ '--value': funder.grant_count, '--width': `${(funder.grant_count / datasetSelect.dataset_stats.grants_total) * 100}%`  }">
-                <label class="bar-chart__label" v-bind:class="{ 'label-selected': (filters.funders.indexOf(funder.id) > -1) }">
-                  <a href="#" v-on:click.prevent="toggleInArray(filters.funders, funder.id); ">{{funder.name}}</a>
+            <template v-if="phase == 'one'">
+            <input type="text" placeholder="Find funder" v-model="find.funder" class="filter-input" />
+            <ul class="bar-chart" style="overflow-y: auto; height:300px" >
+              <li class="bar-chart__item" v-for="funder in funderList" v-bind:style="{ '--value': funder.grant_count, '--width': `${(funder.grant_count / datasetSelect.dataset_stats.grants_total) * 100}%`  }">
+                <label class="bar-chart__label" v-bind:class="{ 'label-selected': (filters.funders.indexOf(funder) > -1) }">
+                  <a href="#" v-on:click.prevent="toggleInArray(filters.funders, funder); ">{{funder.name}}</a>
                 </label>
-                <div class="bar-chart__bar" v-on:click.prevent="toggleInArray(filters.funders, funder.id); " ><span></span></div>
+                <div class="bar-chart__bar" v-on:click.prevent="toggleInArray(filters.funders, funder); " ><span></span></div>
               </li>
             </ul>
-            <a href="#" v-for="funder in filters.funders" class="filter filter--data-wrangling">{{funder}}</a>
+            </template>
+<!--
+            <ul class="bar-chart" v-if="filters.funders.length > 0 && phase == 'two'">
+              <li class="bar-chart__item" v-for="funder in filters.funders" v-bind:style="{ '--value': funder.grant_count, '--width': `${(funder.grant_count / summary.grants) * 100}%`  }"></li>
+                <label class="bar-chart__label" v-bind:class="{ 'label-selected': (filters.funders.indexOf(funder) > -1) }">
+                  {{funder}}
+                </label>
+                <div class="bar-chart__bar"><span></span></div>
+              </li>
+            </ul> -->
+
+            <a href="#" v-for="funder in filters.funders" class="filter filter--data-wrangling">{{funder.name}}</a>
             <a href="#" v-show="phase == 'two'" v-on:click.prevent="phase='one'">Edit selection</a>
             <a href="#" v-show="phase == 'one'" v-on:click.prevent="phase='two'">Done</a>
           </chart-card>

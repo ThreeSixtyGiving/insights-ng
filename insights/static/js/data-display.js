@@ -96,11 +96,15 @@ var app = new Vue({
             dataUrl: PAGE_URLS['data'],
             datasetSelect: DATASET_SELECT,
             phase: "one",
+            find: { funder: null },
         }
     },
     computed: {
         computedFilters() {
+            /* Take a copy of the filters */
             var filters = JSON.parse(JSON.stringify(this.filters));
+
+            /* convert the filter data into data for graphql query */
             ['awardAmount', 'awardDates', 'orgSize', 'orgAge'].forEach((f) => {
                 if (filters[f].min === '') { filters[f].min = null; }
                 if (filters[f].max === '') { filters[f].max = null; }
@@ -114,6 +118,7 @@ var app = new Vue({
             });
             return filters;
         },
+      /* Not in use?
         funderList: function () {
             if (this.funders.length == 1) {
                 return this.funders[0];
@@ -125,6 +130,17 @@ var app = new Vue({
                 return `${formatNumber(this.funders.length)} funders`;
             }
             return 'No funders found'
+        },*/
+        funderList: function () {
+            if (this.find.funder) {
+                return this.datasetSelect.funders.filter((v) => {
+                    let searchStr = v.name
+                        .concat(" ", v.id)
+                        .toLowerCase();
+                    return searchStr.includes(this.find.funder.toLowerCase());
+                });
+            }
+            return this.datasetSelect.funders;
         },
         currencyUsed: function () {
             var currencies = this.summary.currencies.map((c) => c.currency);
