@@ -2,6 +2,12 @@ name: tests
 
 on: [push, pull_request]
 
+env:
+  DATABASE_URL: postgresql://postgres:postgres@localhost/insights-ng
+  DATASTORE_URL: ${{ secrets.DATASTORE_URL }}
+  FLASK_APP: insights.wsgi:app
+  FLASK_ENV: development
+
 jobs:
   build:
 
@@ -9,7 +15,19 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9]
+        python-version: [3.8, 3.9]
+    services:
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432/tcp
 
     steps:
     - uses: actions/checkout@v1
@@ -25,12 +43,14 @@ jobs:
       with:
         redis-version: 4.0.9
 
-    - name: Install dependencies
+    - name: Setup
       run: |
         python -m pip install --upgrade pip
         pip install -r dev-requirements.txt
         git submodule update --init --recursive
+        echo "localhost:5432:postgres:postgres:postgres" > ~/.pgpass && chmod 600 ~/.pgpass
+        psql -c 'CREATE DATABASE "insights-ng";' -W -h localhost postgres postgres
+        flask db upgrade
+        flask data fetch --limit 1000
     - name: Test with pytest
-      run: |
-        pip install pytest
-        python -m pytest
+      run: python -m pytest
