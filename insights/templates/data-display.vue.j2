@@ -299,15 +299,16 @@
               </li>
             </ul>
             </template>
-<!--
+
+            <loading :loading="loading"></loading>
             <ul class="bar-chart" v-if="filters.funders.length > 0 && phase == 'two'">
-              <li class="bar-chart__item" v-for="funder in filters.funders" v-bind:style="{ '--value': funder.grant_count, '--width': `${(funder.grant_count / summary.grants) * 100}%`  }"></li>
-                <label class="bar-chart__label" v-bind:class="{ 'label-selected': (filters.funders.indexOf(funder) > -1) }">
-                  {{funder}}
+              <li class="bar-chart__item" v-for="funder in filters.funders" v-bind:style="{ '--value': funder.grant_count, '--width': `${(funder.grant_count / summary.grants) * 100}%`  }">
+                <label class="bar-chart__label">
+                  {{funder.name}}
                 </label>
                 <div class="bar-chart__bar"><span></span></div>
               </li>
-            </ul> -->
+            </ul>
 
             <a href="#" v-for="funder in filters.funders" class="filter filter--data-wrangling">{{funder.name}}</a>
             <a href="#" v-show="phase == 'two'" v-on:click.prevent="phase='one'">Edit selection</a>

@@ -26,25 +26,31 @@ Vue.filter('formatNumber', formatNumber);
 Vue.filter('getAmountSuffix', getAmountSuffix);
 Vue.filter('formatNumberSuffix', formatNumberSuffix);
 
-function resetUrlSearchParams(){
-    /* reset all the url params apart from the multi select */
-    let oldParams = new URLSearchParams(window.location.search);
-    let newParams = new URLSearchParams();
 
-    for (const selected of oldParams.getAll("selected")){
-        newParams.append("selected", selected);
-    }
+function funderIdsToFunderObject(funderIds){
+    /* Takes an array of funderIds (str) and outputs an
+      array of funder objects */
+    let funders = [];
 
-    return newParams;
+    var allFunderIds = DATASET_SELECT.funders.map((funder) =>{
+        return funder.value
+    });
+
+    funderIds.forEach((funderId) => {
+        let funderIdx = allFunderIds.indexOf(funderId);
+        if (funderIdx > -1){
+            funders.push(DATASET_SELECT.funders[funderIdx]);
+        }
+    });
+
+    return funders;
 }
-
 
 function initialFilters(useQueryParams) {
     var params = new URLSearchParams(window.location.search);
 
     if(!useQueryParams){
-        /* reset all params apart from "selected" */
-        params = resetUrlSearchParams();
+        params = new URLSearchParams();
     }
     return {
         awardAmount: {
@@ -67,7 +73,7 @@ function initialFilters(useQueryParams) {
         area: params.getAll("area"),
         orgtype: params.getAll("orgtype"),
         grantProgrammes: params.getAll("grantProgrammes"),
-        funders: params.getAll("funders"),
+        funders: funderIdsToFunderObject(params.getAll("funders")),
         funderTypes: params.getAll("funderTypes"),
     }
 }
@@ -105,15 +111,15 @@ var app = new Vue({
             var filters = JSON.parse(JSON.stringify(this.filters));
 
             /* convert the filter data into data for graphql query */
-            ['awardAmount', 'awardDates', 'orgSize', 'orgAge'].forEach((f) => {
-                if (filters[f].min === '') { filters[f].min = null; }
-                if (filters[f].max === '') { filters[f].max = null; }
+            ['awardAmount', 'awardDates', 'orgSize', 'orgAge'].forEach((field) => {
+                if (filters[field].min === '') { filters[field].min = null; }
+                if (filters[field].max === '') { filters[field].max = null; }
             });
-            ['area', 'orgtype', 'grantProgrammes', 'funders', 'funderTypes'].forEach((f) => {
-                filters[f] = filters[f].map((v) => typeof v=="string" ? v : v.value );
-                if (Array.isArray(BASE_FILTERS[f])) {
-                    filters[f] = filters[f].concat(BASE_FILTERS[f]);
-                    filters[f] = [...new Set(filters[f])];
+            ['area', 'orgtype', 'grantProgrammes', 'funders', 'funderTypes'].forEach((field) => {
+                filters[field] = filters[field].map((item) => typeof item=="string" ? item : item.value );
+                if (Array.isArray(BASE_FILTERS[field])) {
+                    filters[field] = filters[field].concat(BASE_FILTERS[field]);
+                    filters[field] = [...new Set(filters[field])];
                 }
             });
             return filters;
@@ -184,7 +190,7 @@ var app = new Vue({
     },
     methods: {
         updateUrl() {
-            var queryParams = resetUrlSearchParams();
+            var queryParams = new URLSearchParams();
             Object.entries(this.filters)
                 .filter(([k, v]) => v && v.length != 0)
                 .forEach(([k, v]) => {
@@ -328,19 +334,24 @@ var app = new Vue({
         }
 
     },
-    mounted() { /*
-        var app = this;
-        graphqlQuery(GQL, {
-            dataset: app.dataset,
-            ...initialFilters(false),
-            ...app.base_filters,
-        }).then((data) => {
-            app.initialData = {};
-            Object.entries(data.data.grantAggregates).forEach(([key, value]) => {
-                if (!["summary", "bySource"].includes(key)) {
-                    app.initialData[key] = value;
-                }
+    mounted() {
+        this.updateData();
+
+        /* Only fetch data on mounted if we are loading with a predefined filter
+        if (window.location.search) {
+            var app = this;
+            graphqlQuery(GQL, {
+                dataset: app.dataset,
+                ...initialFilters(true),
+                ...app.base_filters,
+            }).then((data) => {
+                app.initialData = {};
+                Object.entries(data.data.grantAggregates).forEach(([key, value]) => {
+                    if (!["summary", "bySource"].includes(key)) {
+                        app.initialData[key] = value;
+                    }
+                });
             });
-        }); */
+        }*/
     }
 })
