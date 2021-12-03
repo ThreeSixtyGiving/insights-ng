@@ -155,8 +155,6 @@ ul.dataset-select>li {
     border-color: var(--color-teal);
 }
 
-.label-selected {
-    font-weight: bold;
-    color: var(--color-orange-dark) !important;
-    border: 1px solid black;
+.bar-unselected {
+    opacity: 0.7;
 }

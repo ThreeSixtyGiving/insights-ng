@@ -78,6 +78,12 @@ function initialFilters(useQueryParams) {
     }
 }
 
+function initialSummaries(){
+    return {
+
+    }
+}
+
 var app = new Vue({
     el: '#data-display',
     data() {
@@ -86,10 +92,20 @@ var app = new Vue({
             title: TITLE,
             subtitle: SUBTITLE,
             bin_labels: BIN_LABELS,
-            loading: true,
+            loading: false,
             initialData: null,
             chartData: {},
-            summary: {},
+            summary: {
+                grants: DATASET_SELECT.dataset_stats.grants_total,
+                recipients: DATASET_SELECT.dataset_stats.recipients_total,
+                currencies:[ {
+                    currency: "GBP",
+                    /* FIXME : grants_total includes non GBP */
+                    grants: DATASET_SELECT.dataset_stats.grants_total,
+                    total: DATASET_SELECT.dataset_stats.amount_total,
+                    mean: DATASET_SELECT.dataset_stats.amount_average
+                }],
+            },
             default_currency: 'GBP',
             funders: [],
             base_filters: BASE_FILTERS,
@@ -102,6 +118,7 @@ var app = new Vue({
             dataUrl: PAGE_URLS['data'],
             datasetSelect: DATASET_SELECT,
             phase: "one",
+            phaseOneStart: null, /* where we started from */
             find: { funder: null },
         }
     },
@@ -124,7 +141,7 @@ var app = new Vue({
             });
             return filters;
         },
-      /* Not in use?
+      /* Not in use?*/
         funderList: function () {
             if (this.funders.length == 1) {
                 return this.funders[0];
@@ -136,8 +153,8 @@ var app = new Vue({
                 return `${formatNumber(this.funders.length)} funders`;
             }
             return 'No funders found'
-        },*/
-        funderList: function () {
+        },
+        funderListInit: function () {
             if (this.find.funder) {
                 return this.datasetSelect.funders.filter((v) => {
                     let searchStr = v.name
@@ -226,10 +243,15 @@ var app = new Vue({
             this.filters = initialFilters(false);
         },
         updateData() {
-            /* If no search query params do nothing */
+            /* If no search query params do nothing
+            FIXME: Relying on this method is fragile as anything could be set on
+            window.location.search, we need a way to know if certain filters are active or not
+            */
             if (!window.location.search){
                 return;
             }
+            this.phase = "two";
+
             var app = this;
             app.loading = true;
             graphqlQuery(GQL, {
