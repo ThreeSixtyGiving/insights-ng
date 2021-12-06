@@ -74,8 +74,16 @@ function initialFilters(useQueryParams) {
         orgtype: params.getAll("orgtype"),
         grantProgrammes: params.getAll("grantProgrammes"),
         funders: funderIdsToFunderObject(params.getAll("funders")),
-        funderTypes: params.getAll("funderTypes"),
+        funderTypes: params.getAll("funderTypes").map((fType) => (
+            { id: fType, value: fType ,label: fType }
+        )),
     }
+}
+
+var chartFilters = {
+    byGrantProgramme: 'grantProgrammes',
+    byFunder: 'funders',
+    byFunderType: 'funderTypes',
 }
 
 function initialSummaries(){
@@ -118,8 +126,7 @@ var app = new Vue({
             dataUrl: PAGE_URLS['data'],
             datasetSelect: DATASET_SELECT,
             phase: "one",
-            phaseOneStart: null, /* where we started from */
-            find: { funder: null },
+            find: { funder: null, funderTypes: null },
         }
     },
     computed: {
@@ -141,7 +148,7 @@ var app = new Vue({
             });
             return filters;
         },
-      /* Not in use?*/
+      /* Not in use?
         funderList: function () {
             if (this.funders.length == 1) {
                 return this.funders[0];
@@ -153,7 +160,7 @@ var app = new Vue({
                 return `${formatNumber(this.funders.length)} funders`;
             }
             return 'No funders found'
-        },
+        },*/
         funderListInit: function () {
             if (this.find.funder) {
                 return this.datasetSelect.funders.filter((v) => {
@@ -164,6 +171,17 @@ var app = new Vue({
                 });
             }
             return this.datasetSelect.funders;
+        },
+        funderTypeListInit: function () {
+            if (this.find.funderTypes) {
+                return this.datasetSelect.fundersTypes.filter((v) => {
+                    let searchStr = v.name
+                        .concat(" ", v.id)
+                        .toLowerCase();
+                    return searchStr.includes(this.find.funderTypes.toLowerCase());
+                });
+            }
+            return this.datasetSelect.funderTypes;
         },
         currencyUsed: function () {
             var currencies = this.summary.currencies.map((c) => c.currency);
@@ -280,6 +298,25 @@ var app = new Vue({
             }).then((data) => {
                 app.grants = data.data.grants;
             });
+
+            this.dataWithoutFilter("funderTypes");
+        },
+        dataWithoutFilter(filterName){
+            /* returns the without the filter named applied so that we can display
+            what the options are if it were unselected/unfiltered */
+            var app = this;
+            let copyFilters = { ...this.computedFilters };
+            copyFilters[filterName] = [] // assuming the filter object is an array for now
+            graphqlQuery(GQL, {
+                dataset: app.dataset,
+                ...app.base_filters,
+                ...copyFilters,
+            }).then((data) => {
+                console.log("MOO");
+                /* This fetches all the data for all the charts which isn't necessary */
+                console.log(data);
+            });
+
         },
         lineChartData(chart, field, bucketGroup, date_format) {
             var values = this.chartBars(chart, field, bucketGroup);
@@ -311,14 +348,55 @@ var app = new Vue({
             }
             chartData = chartData.filter((d) => d.bucketGroup[bucketGroup].name);
             var maxValue = Math.max(...chartData.map((d) => d[field]));
-            var values = chartData.map((d) => ({
-                label: d.bucketGroup[bucketGroup].name,
-                value: d[field],
-                style: {
-                    '--value': d[field],
-                    '--width': `${(d[field] / maxValue) * 100}%`
-                }
-            }));
+
+            /* Initialise the graph data to include filters with default 0 value */
+            var values = {}
+
+            /* Look up the filter name for this chart */
+            let chartFilter = chartFilters[chart];
+
+            if (chartFilter){
+
+                this.filters[chartFilter].forEach((item) => (
+                    values[item.id] = {
+                        label: item.name,
+                        id: item.id,
+                        value: 0,
+                        style: {
+                            '--value': 0,
+                            '--width': '0%',
+                        }
+                    }
+                ));
+            }
+
+            /* Update or create the data entries */
+            let duplicateIds = [];
+
+            chartData.forEach((data) => {
+                let entry = {
+                    label: data.bucketGroup[bucketGroup].name,
+                    id: data.bucketGroup[bucketGroup].id,
+                    value: data[field],
+                    style: {
+                        '--value': data[field],
+                        '--width': `${(data[field] / maxValue) * 100}%`
+                    }
+                };
+
+                if (values[data.bucketGroup[bucketGroup].id] && values[data.bucketGroup[bucketGroup].id].value > 0){
+                    /* We have already set a value for this id. Sometimes multiple org-ids with
+                    different data (e.g. org name) cause this */
+                    duplicateIds.push(entry);
+                } else {
+                    values[data.bucketGroup[bucketGroup].id] = entry;              }
+            });
+
+            /* Convert to an array now that we don't need to look up ids */
+            values = Object.values(values);
+
+            values = values.concat(duplicateIds);
+
             if (chart in this.bin_labels) {
                 values.sort((firstEl, secondEl) => this.bin_labels[chart].indexOf(firstEl.label) - this.bin_labels[chart].indexOf(secondEl.label));
             } else if (sort) {
@@ -337,8 +415,9 @@ var app = new Vue({
                 .reduce((acc, d) => acc + d[field], 0);
         },
         getOptions(field) {
-            if (!this.initialData[field]) { return []; }
-            return this.initialData[field]
+            /*if (!this.initialData[field]) { return []; }*/
+            /*return this.initialData[field]*/
+            return this.chartData[field]
                 .filter((d) => d.bucketGroup[0].name)
                 .map((d) => ({
                     value: d.bucketGroup[0].id,

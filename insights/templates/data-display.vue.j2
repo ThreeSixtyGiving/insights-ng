@@ -108,6 +108,8 @@
 
       <div class="spacer-3"></div>
 
+      <!-- totals summary boxes -->
+
       <div class="grid grid--four-columns" v-if="summary.currencies">
         <div class="grid__1">
           <div class="base-card base-card--orange">
@@ -154,6 +156,7 @@
       </div>
     </div>
 
+      <!-- / totals summary boxes -->
   </header>
  <!--
   <div class="filter-panel">
@@ -284,7 +287,7 @@
     <div class="layout__content-inner">
 
       <!-- phase one -->
-      <template v-if="phase == 'one' || phase == 'two'" >
+      <template v-if="phase == 'one'" >
         <div class="grid grid--two-columns">
 
           <chart-card color="teal" v-bind:loading="false">
@@ -322,16 +325,49 @@
               </li>
             </ul>
 
-            <ul class="bar-chart" v-if="filters.funders.length > 0 && phase == 'two' && !loading">
-              <li class="bar-chart__item" v-for="funder in filters.funders" v-bind:style="{ '--value': funder.grant_count, '--width': `${(funder.grant_count / summary.grants) * 100}%`  }">
+            <button v-if="phase == 'two' && !loading" class="button button--teal" style="margin-left: auto; display:block;" v-on:click.prevent="phase='one'">Edit selection</button>
+          </chart-card>
+
+
+          <chart-card color="teal" v-bind:loading="false">
+            <chart-card-header title="Funder types">
+              (number of grants)
+            </chart-card-header>
+            <template v-if="phase == 'one'">
+            <ul class="bar-chart" style="overflow-y: auto; height:300px" >
+              <li class="bar-chart__item"
+                  v-bind:class="[ (filters.funderTypes.indexOf(funderType) > -1) || filters.funderTypes.length == 0 ? '' : 'bar-unselected']"
+                  v-for="funderType in funderTypeListInit"
+                  v-bind:style="{ '--value': funderType.grant_count, '--width': `${(funderType.grant_count / datasetSelect.dataset_stats.grants_total) * 100}%`  }"
+              >
+                <label class="bar-chart__label" >
+                  <a href="#" v-on:click.prevent="toggleInArray(filters.funderTypeTypes, funderType); ">{{funderType.name}}</a>
+                </label>
+                <div class="bar-chart__bar" v-on:click.prevent="toggleInArray(filters.funderTypes, funderType); " ><span></span></div>
+              </li>
+            </ul>
+            <input type="text" placeholder="Find funderType" v-model="find.funderTypes" class="search-field" />
+            <div class="spacer-2"></div>
+            <a href="#" v-on:click.prevent="toggleInArray(filters.funderTypes, funderType)" v-for="funderType in filters.funderTypes" class="filter filter--data-wrangling" style="margin: 5px;" v-bind:title="`Remove ${funderType.name}`">{{funderType.name}} &times;</a>
+
+            <button class="button button--teal" style="margin-left: auto; display:block;" v-on:click.prevent="phase='two'">Done</button>
+            </template>
+
+            <loading v-show="loading"></loading>
+
+            <ul class="bar-chart" v-if="filters.funderTypes.length > 0 && phase == 'two' && !loading">
+              <pre>disabled</pre>
+              <li class="bar-chart__item" v-for="funderType in filters.funderTypes" v-bind:style="{ '--value': funderType.grant_count, '--width': `${(funderType.grant_count / summary.grants) * 100}%`  }">
                 <label class="bar-chart__label">
-                  {{funder.name}}
+                  {{funderType.name}}
                 </label>
                 <div class="bar-chart__bar"><span></span></div>
               </li>
             </ul>
+
             <button v-if="phase == 'two' && !loading" class="button button--teal" style="margin-left: auto; display:block;" v-on:click.prevent="phase='one'">Edit selection</button>
           </chart-card>
+
 
         </div>
       </template>
@@ -343,9 +379,9 @@
       <template id="phase-two-graphs" v-if="phase == 'two'" >
       <div class="grid grid--two-columns">
 
-        <chart-card color="orange" v-bind:loading="loading" v-if="chartData.byFunder && chartData.byFunder.length > 1">
+        <chart-card color="orange" v-bind:loading="loading" v-if="chartData.byFunder && chartData.byFunder.length > 0">
           <chart-card-header title="Funders">
-            (number of grants test)
+            (number of grants)
           </chart-card-header>
           <ul class="bar-chart" v-if="chartData.byFunder">
               <li class="bar-chart__item" v-for="(group, index) in chartBars('byFunder')" v-if="index < 10"
@@ -360,7 +396,32 @@
               {{ chartMissing('byFunder') | formatNumber }} grants not found.
             </p>
           </div>
+
+            <button v-if="phase == 'two' && !loading" class="button button--teal" style="margin-left: auto; display:block;" v-on:click.prevent="phase='one'">Edit selection</button>
+      </chart-card>
+
+        <chart-card color="orange" v-bind:loading="loading" v-if="chartData.byFunderType">
+          <chart-card-header title="Funder types">
+            (number of grants)
+          </chart-card-header>
+          <ul class="bar-chart" v-if="chartData.byFunderType && chartData.byFunderType.length > 0">
+            <li class="bar-chart__item" v-for="(group, index) in chartBars('byFunderType')" v-if="index < 10"
+              :style="group.style">
+              <label class="bar-chart__label small"><a href="#" v-on:click.prevent="toggleInArray(filters.funderTypes, group.id)">{{ group.label }}</a></label>
+              <div class="bar-chart__bar"><span></span></div>
+            </li>
+          </ul>
+
+          <a v-if="filters.funderTypes.length > 0" href="#" v-on:click.prevent="toggleInArray(filters.funderTypes, filter)"  title="Remove funder type filter" class="filter filter--data-wrangling" v-for="filter in filters.funderTypes">{{filter}} &times;</a>
+          <div class="base-card__note">
+            <p>Based on {{ chartN('byFunderType') | formatNumber }} grants.</p>
+            <p v-if="chartMissing('byFunderType')">
+              {{ chartMissing('byFunderType') | formatNumber }} grants not found.
+            </p>
+          </div>
         </chart-card>
+
+
 
         <chart-card color="orange" v-bind:loading="loading">
           <chart-card-header title="Award amount">
@@ -383,44 +444,6 @@
             v-bind:height="100" v-bind:hide-legend="true">
           </bar-chart>
         </chart-card>
-
-        <chart-card color="orange" v-bind:loading="loading" v-if="chartData.byFunderType && chartData.byFunderType.length > 1">
-          <chart-card-header title="Funder types">
-            (number of grants)
-          </chart-card-header>
-          <ul class="bar-chart" v-if="chartData.byFunderType">
-            <li class="bar-chart__item" v-for="(group, index) in chartBars('byFunderType')" v-if="index < 10"
-              :style="group.style">
-              <label class="bar-chart__label small">{{ group.label }}</label>
-              <div class="bar-chart__bar"><span></span></div>
-            </li>
-          </ul>
-          <div class="base-card__note">
-            <p>Based on {{ chartN('byFunderType') | formatNumber }} grants.</p>
-            <p v-if="chartMissing('byFunderType')">
-              {{ chartMissing('byFunderType') | formatNumber }} grants not found.
-            </p>
-          </div>
-        </chart-card>
-
-        <chart-card color="orange" v-bind:loading="loading" v-if="chartData.byFunder && chartData.byFunder.length > 1">
-          <chart-card-header title="Funders">
-            (number of grants)
-          </chart-card-header>
-          <ul class="bar-chart" v-if="chartData.byFunder">
-              <li class="bar-chart__item" v-for="(group, index) in chartBars('byFunder')" v-if="index < 10"
-                :style="group.style">
-                <label class="bar-chart__label small">{{ group.label }}</label>
-                <div class="bar-chart__bar"><span></span></div>
-              </li>
-          </ul>
-          <div class="base-card__note">
-            <p>Based on {{ chartN('byFunder') | formatNumber }} grants.</p>
-            <p v-if="chartMissing('byFunder')">
-              {{ chartMissing('byFunder') | formatNumber }} grants not found.
-            </p>
-          </div>
-      </chart-card>
 
       <chart-card color="orange" v-bind:loading="loading" v-if="chartData.byGrantProgramme && chartN('byGrantProgramme') > 0">
         <chart-card-header title="Grant Programmes">

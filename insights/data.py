@@ -38,7 +38,7 @@ def get_frontpage_options(dataset=DEFAULT_DATASET, with_url=True):
             ],
             key=lambda x: -x["grant_count"],
         ),
-        funder_types=[
+        funderTypes=[
             {
                 "id": "all",
                 "name": "All grants",
@@ -95,7 +95,7 @@ def get_frontpage_options(dataset=DEFAULT_DATASET, with_url=True):
             ],
             key=lambda x: -x["grant_count"],
         ),
-        local_authorities=sorted(
+        localAuthorities=sorted(
             [
                 {
                     "id": k,
