@@ -30,6 +30,47 @@ export function queryHeader(queryName, queryType) {
         ) `
 }
 
+export function gqlSingleGraph(graph){
+
+  return `
+  ${queryHeader('insightsData', 'grantAggregates')} {
+        summary {
+        grants
+        recipients
+        funders
+        maxDate
+        minDate
+        currencies {
+          currency
+          total
+          median
+          mean
+          grants
+        }
+      }
+
+      ${graph} {
+        ...chartFields
+      }
+    }
+  }
+
+  fragment chartFields on GrantBucket {
+    bucketGroup {
+      id
+      name
+    }
+    grants
+    recipients
+    currencies {
+      total
+      grants
+    }
+  }
+`;
+
+}
+
 export const GQL = `
 ${queryHeader('insightsData', 'grantAggregates')} {
         summary {

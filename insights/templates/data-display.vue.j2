@@ -1,17 +1,17 @@
 {% extends 'base.html.j2' %}
 
 {% block headscripts %}
-  {{ super() }}
+{{ super() }}
 
-  <link href='https://api.mapbox.com/mapbox.js/v3.3.1/mapbox.css' rel='stylesheet' />
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/map.css') }}" />
+<link href='https://api.mapbox.com/mapbox.js/v3.3.1/mapbox.css' rel='stylesheet' />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/map.css') }}" />
 
 {% endblock headscripts %}
 
 {% block bodyscripts %}
-  {{ super() }}
-  <script>
-    const GRAPHQL_ENDPOINT = {{ url_for('graphql' )|tojson }};
+{{ super() }}
+<script>
+  const GRAPHQL_ENDPOINT = {{ url_for('graphql')|tojson }};
     const BIN_LABELS = {{ bin_labels|tojson }};
     const DATASET = {{ dataset|tojson }};
     const BASE_FILTERS = {{ base_filters|tojson }};
@@ -109,6 +109,7 @@
       <div class="spacer-3"></div>
 
       <!-- totals summary boxes -->
+      <h3>{{loading}} {{loadingQ}}</h3>
 
       <div class="grid grid--four-columns" v-if="summary.currencies">
         <div class="grid__1">
@@ -307,7 +308,7 @@
                 <div class="bar-chart__bar" v-on:click.prevent="toggleInArray(filters.funders, funder); " ><span></span></div>
               </li>
             </ul>
-            <input type="text" placeholder="Find funder" v-model="find.funder" class="search-field" />
+            <input type="text" placeholder="Find a funder" v-model="find.funder" class="search-field" />
             <div class="spacer-2"></div>
             <a href="#" v-on:click.prevent="toggleInArray(filters.funders, funder)" v-for="funder in filters.funders" class="filter filter--data-wrangling" style="margin: 5px;" v-bind:title="`Remove ${funder.name}`">{{funder.name}} &times;</a>
 
@@ -384,8 +385,8 @@
             (number of grants)
           </chart-card-header>
           <ul class="bar-chart" v-if="chartData.byFunder">
-              <li class="bar-chart__item" v-for="(group, index) in chartBars('byFunder')" v-if="index < 10"
-                :style="group.style">
+              <li class="bar-chart__item" v-for="(group, index) in chartBars('byFunder')" v-if="index < 99999999"
+                :style="group.style" v-on:click="toggleInArray(filters.funders, group.id)">
                 <label class="bar-chart__label small">{{ group.label }}</label>
                 <div class="bar-chart__bar"><span></span></div>
               </li>
@@ -405,14 +406,14 @@
             (number of grants)
           </chart-card-header>
           <ul class="bar-chart" v-if="chartData.byFunderType && chartData.byFunderType.length > 0">
-            <li class="bar-chart__item" v-for="(group, index) in chartBars('byFunderType')" v-if="index < 10"
-              :style="group.style">
+            <li class="bar-chart__item" v-for="(group, index) in chartBars('byFunderType')" v-if="index < 9999999"
+              :style="group.style"
+              >
               <label class="bar-chart__label small"><a href="#" v-on:click.prevent="toggleInArray(filters.funderTypes, group.id)">{{ group.label }}</a></label>
               <div class="bar-chart__bar"><span></span></div>
             </li>
           </ul>
 
-          <a v-if="filters.funderTypes.length > 0" href="#" v-on:click.prevent="toggleInArray(filters.funderTypes, filter)"  title="Remove funder type filter" class="filter filter--data-wrangling" v-for="filter in filters.funderTypes">{{filter}} &times;</a>
           <div class="base-card__note">
             <p>Based on {{ chartN('byFunderType') | formatNumber }} grants.</p>
             <p v-if="chartMissing('byFunderType')">
@@ -428,8 +429,9 @@
           (number of grants)
           </chart-card-header>
           <ul class="bar-chart" v-if="chartData.byAmountAwarded">
-            <li class="bar-chart__item" v-for="group in chartBars('byAmountAwarded', 'grants', 1)" :style="group.style">
-              <label class="bar-chart__label">{{ group.label }}</label>
+            <li class="bar-chart__item" v-for="group in chartBars('byAmountAwarded', 'grants', 1)"
+                :style="group.style">
+               <label class="bar-chart__label">{{ group.label }}</label>
               <div class="bar-chart__bar"><span></span></div>
             </li>
           </ul>
@@ -480,12 +482,17 @@
           <ul class="bar-chart" v-if="chartData.byCountryRegion">
             <li class="bar-chart__item" v-for="(group, index) in chartBars('byCountryRegion', 'grants', 1, false)"
               :style="group.style">
-              <label class="bar-chart__label small">England - {{ group.label }}</label>
+                <label class="bar-chart__label small">
+                  <a href="#" v-on:click.prevent="toggleInArray(filters.area, group.id)">
+                  England - {{ group.label }}</a>
+                </label>
+
               <div class="bar-chart__bar"><span></span></div>
             </li>
             <li class="bar-chart__item" v-for="(group, index) in chartBars('byCountryRegion', 'grants', 0, false)"
               v-if="group.label != 'England'" :style="group.style">
-              <label class="bar-chart__label small">{{ group.label }}</label>
+              <label class="bar-chart__label small">
+                <a href="#" v-on:click.prevent="toggleInArray(filters.area, group.id)">{{ group.label }}</a></label>
               <div class="bar-chart__bar"><span></span></div>
             </li>
           </ul>

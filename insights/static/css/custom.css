@@ -104,6 +104,21 @@ ul.dataset-select>li {
     min-width: 196px;
 }
 
+.bar-chart {
+   max-height: 400px;
+   overflow-y: auto;
+   overflow-x: hidden;
+   padding-right: 14px;
+}
+
+.bar-chart li, label {
+    cursor: pointer;
+}
+
+.bar-chart label:hover {
+    color: var(--color-orange-dark);
+}
+
 .bar-chart__bar {
     max-height: 25px;
     min-height: 25px;
@@ -155,6 +170,3 @@ ul.dataset-select>li {
     border-color: var(--color-teal);
 }
 
-.bar-unselected {
-    opacity: 0.7;
-}
