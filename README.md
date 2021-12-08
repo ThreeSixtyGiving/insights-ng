@@ -98,3 +98,9 @@ pytest tests
 coverage run -m pytest ./tests
 coverage report
 ```
+
+### Linter
+
+```
+black insights/
+```
