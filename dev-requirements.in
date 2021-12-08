@@ -7,3 +7,4 @@ coverage
 requests_mock
 selenium
 chromedriver-autoinstaller
+coveralls
