@@ -32,3 +32,10 @@ def test_home(browser):
     browser.get(url_for('index', _external=True))
 
     assert 'Insights' in browser.find_element_by_tag_name('body').text
+
+
+@pytest.mark.usefixtures('live_server')
+def test_javascript_errors_in_page(browser):
+    for log in browser.get_log("browser"):
+        assert "SEVERE" not in log['level']
+
