@@ -290,7 +290,9 @@ class Query(graphene.ObjectType):
                     for b in r["bucket_group"]:
                         if not b["id"]:
                             continue
-                        b["name"] = ''.join(map(lambda x: x if x.islower() else " "+x, b["id"])).capitalize()
+                        b["name"] = "".join(
+                            map(lambda x: x if x.islower() else " " + x, b["id"])
+                        ).capitalize()
 
             if k == "by_country_region":
                 return_result[k] = sorted(
