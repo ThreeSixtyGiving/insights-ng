@@ -82,17 +82,25 @@ def fetch_file(f, fileinfo):
         try:
             convert_settings = (
                 lib_cove_config,
-                urljoin(settings.COVE_CONFIG["schema_host"], settings.COVE_CONFIG["schema_item_name"]),
-                urljoin(settings.COVE_CONFIG["schema_host"], settings.COVE_CONFIG["schema_name"]),
+                urljoin(
+                    settings.COVE_CONFIG["schema_host"],
+                    settings.COVE_CONFIG["schema_item_name"],
+                ),
+                urljoin(
+                    settings.COVE_CONFIG["schema_host"],
+                    settings.COVE_CONFIG["schema_name"],
+                ),
             )
-            if fileinfo['filetype'] == "json":
+            if fileinfo["filetype"] == "json":
                 result = convert_json(
                     upload_dir,
                     "",  # upload_url,
                     os.path.join(upload_dir, fileinfo["filename"]),  # file_name,
                     *convert_settings
                 )
-                result['converted_path'] = os.path.join(upload_dir, fileinfo["filename"])
+                result["converted_path"] = os.path.join(
+                    upload_dir, fileinfo["filename"]
+                )
             else:
                 result = convert_spreadsheet(
                     upload_dir,
@@ -103,12 +111,14 @@ def fetch_file(f, fileinfo):
                 )
             if result.get("converted_path"):
 
-                source_file_id = "uploaded_dataset_" + fileinfo['dataset']
-                source_file = db.session.query(SourceFile).filter_by(id=source_file_id).first()
+                source_file_id = "uploaded_dataset_" + fileinfo["dataset"]
+                source_file = (
+                    db.session.query(SourceFile).filter_by(id=source_file_id).first()
+                )
                 if not source_file:
                     source_file = SourceFile(
                         id=source_file_id,
-                        title=request.values.get("source_title", fileinfo['filename']),
+                        title=request.values.get("source_title", fileinfo["filename"]),
                         issued=datetime.datetime.now(),
                         modified=datetime.datetime.now(),
                         license=request.values.get("source_license"),
@@ -118,9 +128,11 @@ def fetch_file(f, fileinfo):
                     db.session.add(source_file)
                     db.session.commit()
 
-                with open(result.get("converted_path"), 'rb') as a:
+                with open(result.get("converted_path"), "rb") as a:
                     data = json.load(a)
-                    rows_saved = save_json_to_db(data, fileinfo["dataset"], source_file_id)
+                    rows_saved = save_json_to_db(
+                        data, fileinfo["dataset"], source_file_id
+                    )
 
                     if rows_saved == 0:
                         return {
@@ -130,7 +142,7 @@ def fetch_file(f, fileinfo):
                     return {
                         **fileinfo,
                         "rows_saved": rows_saved,
-                        "data_url": url_for('data', dataset=fileinfo["dataset"]),
+                        "data_url": url_for("data", dataset=fileinfo["dataset"]),
                     }
             return {
                 **fileinfo,
@@ -149,7 +161,14 @@ def save_json_to_db(data, dataset, source_file_id):
     db.session.query(Grant).filter(Grant.dataset == dataset).delete()
 
     # if any of these fields are missing then we can't include them
-    required_fields = ["id", "title", "description", "currency", "amountAwarded", "awardDate"]
+    required_fields = [
+        "id",
+        "title",
+        "description",
+        "currency",
+        "amountAwarded",
+        "awardDate",
+    ]
 
     def save_objects(objects):
         if not objects:
