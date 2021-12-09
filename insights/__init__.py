@@ -107,10 +107,8 @@ def create_app():
                 "byOrgAge": bins_to_dict(settings.AGE_BIN_LABELS, settings.AGE_BINS),
                 "byOrgSize": bins_to_dict(settings.INCOME_BIN_LABELS, settings.INCOME_BINS),
             },
-
             title=title,
             subtitle=subtitle,
-            dataset_select=get_frontpage_options(), # Optimisation may not need this
             **kwargs,
         )
 
@@ -124,6 +122,8 @@ def create_app():
     def data(
         data_type="data", page="data", dataset=settings.DEFAULT_DATASET, data_id=None
     ):
+
+        # Optimisation - Most of this is now redundant
 
         # regions are areas
         # local_authorities are areas

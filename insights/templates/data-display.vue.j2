@@ -19,7 +19,6 @@
     const PAGE_URLS = {{ page_urls|tojson }};
     const TITLE = {{ title|tojson }};
     const SUBTITLE = {{ subtitle|tojson }};
-    const DATASET_SELECT = {{ dataset_select|tojson }};
   </script>
   <script type="module" src="{{ url_for('static', filename='js/data-display.js') }}"></script>
 {% endblock bodyscripts %}
