@@ -65,7 +65,6 @@ var app = new Vue({
                 '--width': `${(value / this.maxGrantCounts[field]) * 100}%`,
             }
         },
-        },
 
         addFile: function(e){
             let droppedFiles;
@@ -105,5 +104,6 @@ var app = new Vue({
         openFileDialog: function(){
             this.$refs.uploadFileInput.click();
         }
+        },
 
 });
