@@ -33,6 +33,14 @@ function initialFilters(useQueryParams) {
     if(!useQueryParams){
         params = new URLSearchParams();
     }
+
+    let areas = [];
+    /* These keys may be set from the homepage but they're all areas */
+    areas.push(...params.getAll("localAuthorities"));
+    areas.push(...params.getAll("regions"));
+    areas.push(...params.getAll("countries"));
+    areas.push(...params.getAll("area"));
+
     return {
         awardAmount: {
             min: params.get("awardAmount.min"),
@@ -51,7 +59,7 @@ function initialFilters(useQueryParams) {
             max: params.get("orgAge.max"),
         },
         search: params.get("search") || '',
-        area: params.getAll("area"),
+        area: areas,
         orgtype: params.getAll("orgtype"),
         grantProgrammes: params.getAll("grantProgrammes"),
         funders: params.getAll("funders"),
@@ -84,14 +92,13 @@ var app = new Vue({
             chartData: {},
             inactiveChartData: {},
             summary: {
-                grants: DATASET_SELECT.dataset_stats.grants_total,
-                recipients: DATASET_SELECT.dataset_stats.recipients_total,
+                grants: 0,
+                recipients: 0,
                 currencies:[ {
                     currency: "GBP",
-                    /* FIXME : grants_total includes non GBP */
-                    grants: DATASET_SELECT.dataset_stats.grants_total,
-                    total: DATASET_SELECT.dataset_stats.amount_total,
-                    mean: DATASET_SELECT.dataset_stats.amount_average
+                    grants: 0,
+                    total: 0,
+                    mean: 0,
                 }],
             },
             default_currency: 'GBP',
@@ -103,7 +110,6 @@ var app = new Vue({
             grants: [],
             mapUrl: PAGE_URLS['map'],
             dataUrl: PAGE_URLS['data'],
-            datasetSelect: DATASET_SELECT,
             find: { funder: "", grantProgramme: "" },
             activeFilters: [],
         }

@@ -19,7 +19,6 @@
     const PAGE_URLS = {{ page_urls|tojson }};
     const TITLE = {{ title|tojson }};
     const SUBTITLE = {{ subtitle|tojson }};
-    const DATASET_SELECT = {{ dataset_select|tojson }};
   </script>
   <script type="module" src="{{ url_for('static', filename='js/data-display.js') }}"></script>
 {% endblock bodyscripts %}
@@ -296,18 +295,23 @@
           </chart-card-header>
           <ul class="bar-chart" v-if="chartData.byCountryRegion">
             <li class="bar-chart__item" v-for="(group, index) in chartBars('byCountryRegion', 'grants', 1, false)"
-              :style="group.style">
+              :style="group.style"
+              v-on:click.prevent="toggleInArray(filters.area, group.id)"
+              >
                 <label class="bar-chart__label small">
-                  <a href="#" v-on:click.prevent="toggleInArray(filters.area, group.id)">
-                  England - {{ group.label }}</a>
+                  England - {{ group.label }}
                 </label>
 
               <div class="bar-chart__bar"><span></span></div>
             </li>
             <li class="bar-chart__item" v-for="(group, index) in chartBars('byCountryRegion', 'grants', 0, false)"
-              v-if="group.label != 'England'" :style="group.style">
+              v-if="group.label != 'England'"
+              :style="group.style"
+              v-on:click.prevent="toggleInArray(filters.area, group.id)"
+              >
               <label class="bar-chart__label small">
-                <a href="#" v-on:click.prevent="toggleInArray(filters.area, group.id)">{{ group.label }}</a></label>
+                {{ group.label }}
+              </label>
               <div class="bar-chart__bar"><span></span></div>
             </li>
           </ul>
