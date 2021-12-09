@@ -19,16 +19,18 @@ __version__ = "0.1.0"
 
 
 def create_app():
-
     def secret_key():
         if os.environ.get("SECRET_KEY"):
             return os.environ.get("SECRET_KEY")
 
-        print("Warning: Using self generated random key. Set environment var SECRET_KEY", file=sys.stderr)
+        print(
+            "Warning: Using self generated random key. Set environment var SECRET_KEY",
+            file=sys.stderr,
+        )
 
-        return ''.join(random.choice(string.ascii_lowercase) for i in range(40))
+        return "".join(random.choice(string.ascii_lowercase) for i in range(40))
 
-    database_url = os.environ.get("DATABASE_URL", '')
+    database_url = os.environ.get("DATABASE_URL", "")
 
     # dokku uses postgres:// and sqlalchamy requires postgresql:// fix the url here
     if database_url.startswith("postgres://"):
@@ -73,7 +75,9 @@ def create_app():
                 return redirect(fetch_file_from_url(request.args.get("url")))
             except Exception as e:
                 flash("Could not fetch from URL:" + str(e), "error")
-        return render_template("homepage.vue.j2", dataset_select=get_frontpage_options())
+        return render_template(
+            "homepage.vue.j2", dataset_select=get_frontpage_options()
+        )
 
     @app.route("/about")
     def about():
@@ -139,22 +143,27 @@ def create_app():
 
         filters = {}
         title = (
-            "360Giving publishers" if dataset == settings.DEFAULT_DATASET else "Uploaded dataset"
+            "360Giving publishers"
+            if dataset == settings.DEFAULT_DATASET
+            else "Uploaded dataset"
         )
         subtitle = (
             "Grants made by" if dataset == settings.DEFAULT_DATASET else "Grants from"
         )
         if dataset != settings.DEFAULT_DATASET:
             page_urls = {
-                "data": url_for('data', data_type=data_type, dataset=dataset),
-                "map": url_for('data', data_type=data_type, page="map", dataset=dataset),
+                "data": url_for("data", data_type=data_type, dataset=dataset),
+                "map": url_for(
+                    "data", data_type=data_type, page="map", dataset=dataset
+                ),
             }
         else:
             page_urls = {
-                "data": url_for('data', data_type=data_type, data_id=data_id),
-                "map": url_for('data', data_type=data_type, page="map", data_id=data_id),
+                "data": url_for("data", data_type=data_type, data_id=data_id),
+                "map": url_for(
+                    "data", data_type=data_type, page="map", data_id=data_id
+                ),
             }
-
 
         if data_type == "funder" or data_type == "funders":
             if data_type == "funders":
@@ -238,6 +247,6 @@ def create_app():
             page_urls=page_urls,
         )
 
-    app.add_url_rule("/upload", 'upload', view_func=upload_file, methods=['POST'])
+    app.add_url_rule("/upload", "upload", view_func=upload_file, methods=["POST"])
 
     return app

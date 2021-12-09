@@ -54,3 +54,7 @@ jobs:
         flask data fetch --limit 1000
     - name: Test with pytest
       run: python -m pytest
+    
+    - env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: coveralls --service=github
