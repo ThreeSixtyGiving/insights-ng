@@ -5,14 +5,6 @@
   <script>
     const UPLOAD_URL = {{ url_for('upload')|tojson }};
     const DATASET_SELECT = {{ dataset_select|tojson }};
-    const DATASET_SELECT_SECTIONS = {
-      funders: "Funders",
-      funder_types: "Funding organisation type",
-      // publishers: "Publishers",
-      countries: "Countries",
-      regions: "Regions",
-      local_authorities: "Local authorities",
-    };
   </script>
   <script type="module" src="{{ url_for('static', filename='js/homepage.js') }}"></script>
 {% endblock %}
@@ -38,158 +30,120 @@
     </div>
   </header>
 
+{% include 'components/chart-card.vue.j2' %}
 {# Start of homepage.js VueJS application #}
 {% raw %}
-  <main class="layout__content" id="app" v-cloak>
+<div id="app" v-cloak>
+
+  <main class="layout__content" >
     <div class="layout__content-inner">
-      <div class="accordian" v-bind:class="{ datasetModal: 'accordian--expanded' }">
-    <div class="intro-section">
-      <h2>Select a 360Giving dataset <br>or <a href="#upload-data">upload a file</a> that meets the 360Giving Standard.</h2>
-      <div class="spacer-3"></div>
-    </div>
+      <div class="intro-section">
+        <h2>Select a 360Giving dataset <br>or <a href="#upload-data">upload a file</a> that meets the 360Giving Standard.</h2>
+      </div>
 
+      <div class="layout__header wrapper">
+        <div class="grid grid--four-columns">
 
- <template v-if="phase == 'one'" >
-        <div class="grid grid--two-columns">
+          <div class="grid__1">
+            <div class="base-card base-card--orange">
+              <loading v-if="loading"></loading>
+              <div class="base-card__content">
+                <h2 class="base-card__title">{{datasetSelect.dataset_stats.grants_total | formatNumberSuffix
+                  }}{{datasetSelect.dataset_stats.grants_total |
+                  getAmountSuffix(true) }}</h2>
+                <p class="base-card__text">Grants</p>
+              </div>
+            </div>
+          </div>
 
-          <chart-card color="teal" v-bind:loading="false">
-            <chart-card-header title="Funders">
-              (number of grants)
-            </chart-card-header>
-            <template v-if="phase == 'one'">
-            <ul class="bar-chart" style="overflow-y: auto; height:300px" >
-              <li class="bar-chart__item"
-                  v-bind:class="[ (filters.funders.indexOf(funder) > -1) || filters.funders.length == 0 ? '' : 'bar-unselected']"
-                  v-for="funder in funderListInit"
-                  v-bind:style="{ '--value': funder.grant_count, '--width': `${(funder.grant_count / datasetSelect.dataset_stats.grants_total) * 100}%`  }"
-              >
-                <label class="bar-chart__label" >
-                  <a href="#" v-on:click.prevent="toggleInArray(filters.funders, funder); ">{{funder.name}}</a>
-                </label>
-                <div class="bar-chart__bar" v-on:click.prevent="toggleInArray(filters.funders, funder); " ><span></span></div>
-              </li>
-            </ul>
-            <input type="text" placeholder="Find a funder" v-model="find.funder" class="search-field" />
-            <div class="spacer-2"></div>
-            <a href="#" v-on:click.prevent="toggleInArray(filters.funders, funder)" v-for="funder in filters.funders" class="filter filter--data-wrangling" style="margin: 5px;" v-bind:title="`Remove ${funder.name}`">{{funder.name}} &times;</a>
+          <div class="grid__1">
+            <div class="base-card base-card--teal">
+              <loading v-if="loading"></loading>
+              <div class="base-card__content">
+                <h2 class="base-card__title">{{ datasetSelect.dataset_stats.recipients_total | formatNumberSuffix }}{{
+                  datasetSelect.dataset_stats.recipients_total |
+                  getAmountSuffix(true) }}</h2>
+                <p class="base-card__text">Recipients</p>
+              </div>
+            </div>
+          </div>
 
-            <button class="button button--teal" style="margin-left: auto; display:block;" v-on:click.prevent="phase='two'">Done</button>
-            </template>
+          <div class="grid__1">
+            <div class="base-card base-card--yellow">
+              <div class="base-card__content">
+                <h2 class="base-card__title">{{ datasetSelect.dataset_stats.amount_total | formatCurrency("GBP") }}</h2>
+                <p class="base-card__text">{{ datasetSelect.dataset_stats.amount_total | getAmountSuffix }} total</p>
+              </div>
+            </div>
+          </div>
 
-            <loading v-show="loading"></loading>
-
-            <ul class="bar-chart" v-if="filters.funders.length > 0 && phase == 'two' && !loading">
-              <li class="bar-chart__item" v-for="funder in filters.funders" v-bind:style="{ '--value': funder.grant_count, '--width': `${(funder.grant_count / summary.grants) * 100}%`  }">
-                <label class="bar-chart__label">
-                  {{funder.name}}
-                </label>
-                <div class="bar-chart__bar"><span></span></div>
-              </li>
-            </ul>
-
-            <button v-if="phase == 'two' && !loading" class="button button--teal" style="margin-left: auto; display:block;" v-on:click.prevent="phase='one'">Edit selection</button>
-          </chart-card>
-
-
-          <chart-card color="teal" v-bind:loading="false">
-            <chart-card-header title="Funder types">
-              (number of grants)
-            </chart-card-header>
-            <template v-if="phase == 'one'">
-            <ul class="bar-chart" style="overflow-y: auto; height:300px" >
-              <li class="bar-chart__item"
-                  v-bind:class="[ (filters.funderTypes.indexOf(funderType) > -1) || filters.funderTypes.length == 0 ? '' : 'bar-unselected']"
-                  v-for="funderType in funderTypeListInit"
-                  v-bind:style="{ '--value': funderType.grant_count, '--width': `${(funderType.grant_count / datasetSelect.dataset_stats.grants_total) * 100}%`  }"
-              >
-                <label class="bar-chart__label" >
-                  <a href="#" v-on:click.prevent="toggleInArray(filters.funderTypeTypes, funderType); ">{{funderType.name}}</a>
-                </label>
-                <div class="bar-chart__bar" v-on:click.prevent="toggleInArray(filters.funderTypes, funderType); " ><span></span></div>
-              </li>
-            </ul>
-            <input type="text" placeholder="Find funderType" v-model="find.funderTypes" class="search-field" />
-            <div class="spacer-2"></div>
-            <a href="#" v-on:click.prevent="toggleInArray(filters.funderTypes, funderType)" v-for="funderType in filters.funderTypes" class="filter filter--data-wrangling" style="margin: 5px;" v-bind:title="`Remove ${funderType.name}`">{{funderType.name}} &times;</a>
-
-            <button class="button button--teal" style="margin-left: auto; display:block;" v-on:click.prevent="phase='two'">Done</button>
-            </template>
-
-            <loading v-show="loading"></loading>
-
-            <ul class="bar-chart" v-if="filters.funderTypes.length > 0 && phase == 'two' && !loading">
-              <pre>disabled</pre>
-              <li class="bar-chart__item" v-for="funderType in filters.funderTypes" v-bind:style="{ '--value': funderType.grant_count, '--width': `${(funderType.grant_count / summary.grants) * 100}%`  }">
-                <label class="bar-chart__label">
-                  {{funderType.name}}
-                </label>
-                <div class="bar-chart__bar"><span></span></div>
-              </li>
-            </ul>
-
-            <button v-if="phase == 'two' && !loading" class="button button--teal" style="margin-left: auto; display:block;" v-on:click.prevent="phase='one'">Edit selection</button>
-          </chart-card>
-
+          <div class="grid__1">
+            <div class="base-card base-card--yellow">
+              <div class="base-card__content">
+                <h2 class="base-card__title">{{ datasetSelect.dataset_stats.amount_average | formatCurrency("GBP") }}{{
+                  datasetSelect.dataset_stats.amount_average |
+                  getAmountSuffix(true) }}</h2>
+                <p class="base-card__text">Average Grant*</p>
+              </div>
+            </div>
+          </div>
 
         </div>
-      </template>
+      </div>
+    </div>
 
+    <chart-card color="orange" v-bind:loading="loading" v-for="(dataset, key) in datasetSelectSections" class="spacer-3">
+      <chart-card-header v-bind:title="dataset">
+        (number of grants)
+      </chart-card-header>
+      <ul class="bar-chart" >
+        <li class="bar-chart__item" v-for="(group, index) in datasetSelect[key]"
+          v-bind:title="group.grant_count"
+          v-bind:style="barStyle(key, group.grant_count)"
+          >
+          <label class="bar-chart__label small"><a v-bind:href="'/data?'+key+'='+group.id">{{ group.name }}</a></label>
+          <div class="bar-chart__bar"><span></span></div>
+        </li>
+      </ul>
 
-    <ul class="card-list">
-      <li class="card-list__item" v-for="(title, index) in datasetSelectSections" v-if="getDatasetOptions(index).length > 0">
-        <article class="media-card media-card--teal">
+      <div class="base-card__note">
+        <p>footter</p>
+     </div>
+    </chart-card>
+
+    <div class="card-list">
+      <div class="card-list__item">
+      <article class="media-card media-card--red media-card--self-contained" id="upload-data">
+        <div class="media-card__content">
+          <header class="media-card__header">
+            <h3 class="media-card__heading">Upload your own file</h3>
+          </header>
+          <p>Upload a file that meets the <a href="https://standard.threesixtygiving.org/">360Giving Data Standard</a>.</p>
+          <button class="button button--red modal__trigger" v-on:click.stop="uploadModal = !uploadModal"
+            data-id="modal-01">Upload Dataset</button>
+        </div>
+      </article>
+      </div>
+
+      <div class="card-list__item">
+        <article class="media-card media-card--orange media-card--self-contained">
           <div class="media-card__content">
             <header class="media-card__header">
-              <h3 class="media-card__heading">{{ title }}</h3>
+              <h3 class="media-card__heading">Data Sources</h3>
             </header>
-            <template v-if="getDatasetOptions(index).length > 0" >
-
-              <multi-select v-model="multiSelect[index]" :option-height="100" :searchable="true" :close-on-select="false" :multiple="true" :taggable="true" :options="datasetSelect[index]" label="name" track-by="id" :placeholder="'Select '+title.toLowerCase()" v-on:select="multiSelectSelected(index, $event)">
-                <template slot="option" slot-scope="props">
-                  {{props.option.name}} ({{props.option.grant_count|formatNumber}})
-                </template>
-             </multi-select>
-
-
-            <p v-if="multiSelectGrantTotals[index].totalGrants > 0">
-             Total grants: {{multiSelectGrantTotals[index].totalGrants|formatNumber}}
-            </p>
-
-              <div class="spacer-3"></div>
-              <button class="button button--teal" v-on:click="viewInsights(index, $event)">View Insights</button>
-            </template>
-            <ul v-else class="dataset-select">
-              <li v-for="item in getDatasetOptions(index)">
-                <a v-bind:href="item.url" class="filter filter--data-wrangling"><span class="">{{ item.name }}</span> ({{ item.grant_count|formatNumber }})</a>
-              </li>
-            </ul>
+            <p>Charity data is sourced from <a href="https://findthatcharity.uk/" target="_blank"
+                rel="noreferrer">findthatcharity.uk</a> and postcode data from <a href="https://findthatpostcode.uk/"
+                target="_blank" rel="noreferrer">postcodes.findthatcharity.uk</a>. Company data is fetched using Companies
+              House URIs. All external data is used under the <a
+                href="http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/" target="_blank"
+                rel="noreferrer">Open Government Licence</a>.</p>
+            <p><a href="https://insights.threesixtygiving.org/about#data-sources">More about data sources</a></p>
           </div>
         </article>
-      </li>
-      <li class="card-list__item">
-  <article class="media-card media-card--red media-card--self-contained" id="upload-data">
-    <div class="media-card__content">
-      <header class="media-card__header">
-        <h3 class="media-card__heading">Upload your own file</h3>
-      </header>
-      <p>Upload a file that meets the <a href="https://standard.threesixtygiving.org/" >360Giving Data Standard</a>.</p>
-      <button class="button button--red modal__trigger" v-on:click.stop="uploadModal = !uploadModal" data-id="modal-01">Upload Dataset</button>
+      </div>
     </div>
-  </article>
-      </li>
-      <li class="card-list__item">
-  <article class="media-card media-card--orange media-card--self-contained">
-    <div class="media-card__content">
-      <header class="media-card__header">
-        <h3 class="media-card__heading">Data Sources</h3>
-      </header>
-      <p>Charity data is sourced from <a href="https://findthatcharity.uk/" target="_blank" rel="noreferrer">findthatcharity.uk</a> and postcode data from <a href="https://findthatpostcode.uk/" target="_blank" rel="noreferrer">postcodes.findthatcharity.uk</a>. Company data is fetched using Companies House URIs. All external data is used under the <a href="http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/" target="_blank" rel="noreferrer">Open Government Licence</a>.</p>
-      <p><a href="https://insights.threesixtygiving.org/about#data-sources">More about data sources</a></p>
-    </div>
-  </article>
-      </li>
-    </ul>
-  </div>
+
+  <div class="spacer-3"></div>
 
   <!-- upload file modal -->
   <div id="modal-01" class="modal" v-bind:class="{ 'modal--shown': uploadModal }" v-if="uploadModal">
@@ -239,6 +193,7 @@
   <!-- / upload modal -->
 
   </main>
+</div> <!-- / app -->
 {% endraw %}
 {# End of homepage.js VueJS application #}
 {% endblock content %}

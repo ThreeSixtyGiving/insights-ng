@@ -1,17 +1,13 @@
-import { formatNumber } from './components/filters.js';
+import { formatCurrency, formatDate, formatNumber, getAmountSuffix, formatNumberSuffix } from './components/filters.js';
 
+Vue.filter('formatCurrency', formatCurrency);
+Vue.filter('formatDate', formatDate);
 Vue.filter('formatNumber', formatNumber);
+Vue.filter('getAmountSuffix', getAmountSuffix);
+Vue.filter('formatNumberSuffix', formatNumberSuffix);
+
 
 Vue.component('multi-select', window.VueMultiselect.default)
-
-function initMultiSelectGrantTotals(){
-    let ret = {}
-    for (const field in DATASET_SELECT_SECTIONS){
-        ret[field] = { totalGrants: 0}
-    }
-
-    return ret;
-}
 
 var app = new Vue({
     el: '#app',
@@ -27,10 +23,15 @@ var app = new Vue({
             uploadSourceLicenseName: null,
             uploadError: null,
             datasetSelect: DATASET_SELECT,
-            datasetSelectSections: DATASET_SELECT_SECTIONS,
-            maxListLength: 10,
-            multiSelect: {},
-            multiSelectGrantTotals: initMultiSelectGrantTotals(),
+            datasetSelectSections: {
+                funders: "Funders",
+                funderTypes: "Funding organisation type",
+                // publishers: "Publishers",
+                countries: "Countries",
+                regions: "Regions",
+                localAuthorities: "Local authorities",
+            },
+            maxGrantCounts: {}, /* cache of max count */
         }
     },
     methods: {
@@ -54,9 +55,18 @@ var app = new Vue({
 
                 window.location = `${field}/?${query.toString()}`;
             }
-        }
-
         },
+        barStyle: function(field, value){
+            if (!this.maxGrantCounts[field]){
+                this.maxGrantCounts[field] = Math.max(...Object.values (this.datasetSelect.funders).map((dataOb) => dataOb.grant_count))
+            }
+            return  {
+                '--value': value,
+                '--width': `${(value / this.maxGrantCounts[field]) * 100}%`,
+            }
+        },
+        },
+
         addFile: function(e){
             let droppedFiles;
             if(e.dataTransfer){
