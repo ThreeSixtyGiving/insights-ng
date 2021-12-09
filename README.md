@@ -1,6 +1,8 @@
 Insights
 ========
 
+[![Coverage Status](https://coveralls.io/repos/github/ThreeSixtyGiving/insights-ng/badge.svg)](https://coveralls.io/github/ThreeSixtyGiving/insights-ng)
+
 ## Installation
 
 ### Local
@@ -95,4 +97,10 @@ pytest tests
 ```
 coverage run -m pytest ./tests
 coverage report
+```
+
+### Linter
+
+```
+black insights/
 ```
