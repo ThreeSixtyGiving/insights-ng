@@ -62,7 +62,9 @@
               </template>
             </template>
           </h2>
-          <loading v-if="loading"></loading>
+         <div class="fix-spinner-position">
+            <loading v-if="loading"></loading>
+         </div>
         </hgroup>
         <p class="header-group__excerpt" v-if="summary.currencies">
           <template v-if="summary.currencies.length > 1">
