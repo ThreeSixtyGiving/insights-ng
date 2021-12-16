@@ -100,14 +100,17 @@
         <li class="bar-chart__item" v-for="(group, index) in datasetSelect[key]"
           v-bind:title="group.grant_count"
           v-bind:style="barStyle(key, group.grant_count)"
+          v-bind:ref="key"
+          v-bind:data-label="group.name"
           >
           <label class="bar-chart__label small"><a v-bind:href="'/data?'+key+'='+group.id">{{ group.name }}</a></label>
           <div class="bar-chart__bar"><span></span></div>
         </li>
       </ul>
+      <input v-if="datasetSelect[key].length > 10" class="search-field" v-model="find[key]" />
 
       <div class="base-card__note">
-        <p>footter</p>
+        <p>Total {{dataset}} {{datasetSelect[key].length}}</p>
      </div>
     </chart-card>
 

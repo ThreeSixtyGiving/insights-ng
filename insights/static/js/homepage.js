@@ -31,8 +31,38 @@ var app = new Vue({
                 regions: "Regions",
                 localAuthorities: "Local authorities",
             },
+            find: {
+                funders: "",
+                funderTypes: "",
+                countries: "",
+                regions: "",
+                localAuthorities: "",
+            },
             maxGrantCounts: {}, /* cache of max count */
         }
+    },
+    watch: {
+        find: {
+            deep: true,
+            handler: function(){
+                for (let field in this.find){
+                    if (this.find[field].length == 0){
+                        continue;
+                    }
+                    /* Filter the <li> in the graph list for the specified term */
+                    var app = this;
+                    this.$refs[field].forEach((li) => {
+                        li.style.display = null;
+                        if (li.dataset.label && app.find[field] && !li.dataset.label.toLowerCase().includes(app.find[field].toLowerCase())){
+                            li.style.display = "none";
+                        }
+                    });
+
+                    console.log(this.find[field]);
+                }
+            }
+        }
+
     },
     methods: {
         getDatasetOptions: function (field) {

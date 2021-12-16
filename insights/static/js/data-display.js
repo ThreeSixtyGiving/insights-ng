@@ -33,6 +33,14 @@ function initialFilters(useQueryParams) {
     if(!useQueryParams){
         params = new URLSearchParams();
     }
+
+    let areas = [];
+    /* These keys may be set from the homepage but they're all areas */
+    areas.push(...params.getAll("localAuthorities"));
+    areas.push(...params.getAll("regions"));
+    areas.push(...params.getAll("countries"));
+    areas.push(...params.getAll("area"));
+
     return {
         awardAmount: {
             min: params.get("awardAmount.min"),
@@ -51,7 +59,7 @@ function initialFilters(useQueryParams) {
             max: params.get("orgAge.max"),
         },
         search: params.get("search") || '',
-        area: params.getAll("area"),
+        area: areas,
         orgtype: params.getAll("orgtype"),
         grantProgrammes: params.getAll("grantProgrammes"),
         funders: params.getAll("funders"),
