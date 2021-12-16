@@ -102,8 +102,9 @@
           v-bind:style="barStyle(key, group.grant_count)"
           v-bind:ref="key"
           v-bind:data-label="group.name"
+          v-on:click="openDataPage(key, group.id)"
           >
-          <label class="bar-chart__label small"><a v-bind:href="'/data?'+key+'='+group.id">{{ group.name }}</a></label>
+          <label class="bar-chart__label small">{{ group.name }}</label>
           <div class="bar-chart__bar"><span></span></div>
         </li>
       </ul>

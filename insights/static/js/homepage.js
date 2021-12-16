@@ -68,23 +68,8 @@ var app = new Vue({
         getDatasetOptions: function (field) {
             return this.datasetSelect[field];
         },
-
-        multiSelectSelected: function(field, event){
-            this.multiSelectGrantTotals[field].totalGrants += event.grant_count;
-        },
-
-        viewInsights: function(field, event){
-            if (this.multiSelect[field].length === 1){
-                window.location = this.multiSelect[field][0].url;
-            } else {
-                let query = new URLSearchParams();
-
-                for (const data of this.multiSelect[field]){
-                    query.append("selected", data.id);
-                }
-
-                window.location = `${field}/?${query.toString()}`;
-            }
+        openDataPage(filterK, filterV){
+            window.location = `/data?${filterK}=${filterV}`;
         },
         barStyle: function(field, value){
             if (!this.maxGrantCounts[field]){
