@@ -6,8 +6,12 @@ Vue.filter('formatNumber', formatNumber);
 Vue.filter('getAmountSuffix', getAmountSuffix);
 Vue.filter('formatNumberSuffix', formatNumberSuffix);
 
+import { choropleth } from './components/choropleth.js';
 
-Vue.component('multi-select', window.VueMultiselect.default)
+import { mapboxMap } from './components/map.js';
+Vue.component('mapbox-map', mapboxMap);
+Vue.component('choropleth', choropleth);
+Vue.component('multi-select', window.VueMultiselect.default);
 
 var app = new Vue({
     el: '#app',
@@ -73,7 +77,7 @@ var app = new Vue({
         },
         barStyle: function(field, value){
             if (!this.maxGrantCounts[field]){
-                this.maxGrantCounts[field] = Math.max(...Object.values (this.datasetSelect.funders).map((dataOb) => dataOb.grant_count))
+                this.maxGrantCounts[field] = Math.max(...Object.values (this.datasetSelect[field]).map((dataOb) => dataOb.grant_count))
             }
             return  {
                 '--value': value,

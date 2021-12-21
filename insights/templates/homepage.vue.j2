@@ -2,9 +2,15 @@
 
 {% block bodyscripts %}
   {{ super() }}
+
+<link href='https://api.mapbox.com/mapbox.js/v3.3.1/mapbox.css' rel='stylesheet' />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/map.css') }}" />
+
+
   <script>
     const UPLOAD_URL = {{ url_for('upload')|tojson }};
     const DATASET_SELECT = {{ dataset_select|tojson }};
+    const MAPBOX_ACCESS_TOKEN = {{ config.MAPBOX_ACCESS_TOKEN|tojson }};
   </script>
   <script type="module" src="{{ url_for('static', filename='js/homepage.js') }}"></script>
 {% endblock %}
@@ -30,7 +36,9 @@
     </div>
   </header>
 
+
 {% include 'components/chart-card.vue.j2' %}
+{% include 'components/loading.vue.j2' %}
 {# Start of homepage.js VueJS application #}
 {% raw %}
 <div id="app" v-cloak>
@@ -114,6 +122,15 @@
         <p>Total {{dataset}} {{datasetSelect[key].length}}</p>
      </div>
     </chart-card>
+
+    <!-- choropleth -->
+    <div class="spacer-3 grid__2">
+      <div class="base-card base-card--teal base-card--left">
+        <div style="padding-left: 4px">
+          <choropleth class="base-card__content" container="ch-1" height="500px"></choropleth>
+        </div>
+      </div>
+    </div>
 
     <div class="card-list">
       <div class="card-list__item">
