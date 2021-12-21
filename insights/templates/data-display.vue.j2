@@ -11,7 +11,7 @@
 {% block bodyscripts %}
 {{ super() }}
 <script>
-  const GRAPHQL_ENDPOINT = {{ url_for('graphql')|tojson }};
+    const GRAPHQL_ENDPOINT = {{ url_for('graphql')|tojson }};
     const BIN_LABELS = {{ bin_labels|tojson }};
     const DATASET = {{ dataset|tojson }};
     const BASE_FILTERS = {{ base_filters|tojson }};
