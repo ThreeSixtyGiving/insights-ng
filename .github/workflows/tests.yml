@@ -7,6 +7,7 @@ env:
   DATASTORE_URL: ${{ secrets.DATASTORE_URL }}
   FLASK_APP: insights.wsgi:app
   FLASK_ENV: development
+  MAPBOX_ACCESS_TOKEN: ${{ secrets.MAPBOX_ACCESS_TOKEN }}
 
 jobs:
   build:
@@ -54,7 +55,7 @@ jobs:
         flask data fetch --limit 1000
     - name: Test with pytest
       run: python -m pytest
-    
+
     - env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: coveralls --service=github
