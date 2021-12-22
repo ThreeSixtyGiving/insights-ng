@@ -37,5 +37,5 @@ def test_home(browser):
 @pytest.mark.usefixtures('live_server')
 def test_javascript_errors_in_page(browser):
     for log in browser.get_log("browser"):
-        assert "SEVERE" not in log['level']
+        assert "SEVERE" not in log['level'], f"found {log}"
 
