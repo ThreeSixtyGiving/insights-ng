@@ -11,7 +11,16 @@ from sqlalchemy.sql import func, distinct
 
 from insights import settings
 from insights.data import get_frontpage_options
-from insights.db import Distribution, GeoName, Grant, Publisher, SourceFile, DatasetStats, db, DATASET_STATS
+from insights.db import (
+    Distribution,
+    GeoName,
+    Grant,
+    Publisher,
+    SourceFile,
+    DatasetStats,
+    db,
+    DATASET_STATS,
+)
 from insights.utils import get_org_schema, to_band
 
 cli = AppGroup("data")
@@ -278,27 +287,26 @@ def fetch_data(url_template):
     "--dataset",
     default=settings.DEFAULT_DATASET,
     show_default=True,
-    help="Update the dataset stats")
+    help="Update the dataset stats",
+)
 @with_appcontext
 def update_dataset_stats(dataset):
 
     db.session.query(DatasetStats).filter(dataset == dataset).delete()
 
-    stats_q = dict(db.session.query(
-        func.count(Grant.id).label(DATASET_STATS[0]),
-        func.avg(Grant.amountAwarded).label(DATASET_STATS[1]),
-        func.sum(Grant.amountAwarded).label(DATASET_STATS[2]),
-        func.count(distinct(Grant.insights_org_id)).label(DATASET_STATS[3]),
-    ).filter(Grant.dataset == dataset).first())
+    stats_q = dict(
+        db.session.query(
+            func.count(Grant.id).label(DATASET_STATS[0]),
+            func.avg(Grant.amountAwarded).label(DATASET_STATS[1]),
+            func.sum(Grant.amountAwarded).label(DATASET_STATS[2]),
+            func.count(distinct(Grant.insights_org_id)).label(DATASET_STATS[3]),
+        )
+        .filter(Grant.dataset == dataset)
+        .first()
+    )
 
     for key in stats_q.keys():
         print(key)
-        db.session.add(
-            DatasetStats(
-                name=key,
-                value=str(stats_q[key]),
-                dataset=dataset
-            )
-        )
+        db.session.add(DatasetStats(name=key, value=str(stats_q[key]), dataset=dataset))
 
     db.session.commit()

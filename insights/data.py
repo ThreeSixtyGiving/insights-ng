@@ -16,8 +16,7 @@ def get_frontpage_options(dataset=DEFAULT_DATASET, with_url=True):
     regions = get_field_counts(Grant.insights_geo_region, dataset=dataset)
     local_authorities = get_field_counts(Grant.insights_geo_la, dataset=dataset)
     dataset_stats = {
-        stat.name: stat.value
-        for stat in DatasetStats.query.filter(dataset == dataset)
+        stat.name: stat.value for stat in DatasetStats.query.filter(dataset == dataset)
     }
 
     area_names = {g.id: g.name for g in GeoName.query.all()}
@@ -64,7 +63,7 @@ def get_frontpage_options(dataset=DEFAULT_DATASET, with_url=True):
         ),
         funders=sorted(
             [
-                {# FIXME for compatibility with graphql filter queries we need a value field we might not actually need id
+                {  # FIXME for compatibility with graphql filter queries we need a value field we might not actually need id
                     "id": k,
                     "value": k,
                     "name": funder_names.get(k, k),

@@ -90,11 +90,10 @@ def create_app():
         template="data-display.vue.j2",
         **kwargs
     ):
-
         def bins_to_dict(labels, amounts):
             ret = {}
-            for i,label in enumerate(labels):
-                ret[label] = [amounts[i], amounts[i+1]]
+            for i, label in enumerate(labels):
+                ret[label] = [amounts[i], amounts[i + 1]]
 
             return ret
 
@@ -103,9 +102,13 @@ def create_app():
             dataset=dataset,
             base_filters=filters,
             bin_labels={
-                "byAmountAwarded": bins_to_dict(settings.AMOUNT_BIN_LABELS, settings.AMOUNT_BINS),
+                "byAmountAwarded": bins_to_dict(
+                    settings.AMOUNT_BIN_LABELS, settings.AMOUNT_BINS
+                ),
                 "byOrgAge": bins_to_dict(settings.AGE_BIN_LABELS, settings.AGE_BINS),
-                "byOrgSize": bins_to_dict(settings.INCOME_BIN_LABELS, settings.INCOME_BINS),
+                "byOrgSize": bins_to_dict(
+                    settings.INCOME_BIN_LABELS, settings.INCOME_BINS
+                ),
             },
             title=title,
             subtitle=subtitle,
