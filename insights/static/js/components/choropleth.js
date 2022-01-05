@@ -66,8 +66,12 @@ export const choropleth = {
 
                 geoJson.features.forEach((feature) => {
                     let name = feature.properties.nuts118nm.replace(" (England)", "");
-                    feature.properties.grantCount = regionsCountries[name].grantCount;
-                    feature.properties.areaId = regionsCountries[name].areaId;
+
+                    /* Not every region in the geojson will correspond with one in our data */
+                    if (regionsCountries[name]) {
+                        feature.properties.grantCount = regionsCountries[name].grantCount;
+                        feature.properties.areaId = regionsCountries[name].areaId;
+                    }
                 });
 
 
