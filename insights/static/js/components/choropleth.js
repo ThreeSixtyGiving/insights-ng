@@ -79,7 +79,7 @@ export const choropleth = {
 
                 fl.bindPopup(function(layer){
                     let name_field = Object.keys(layer.feature.properties).find(el => el.endsWith("nm"));
-                    return `<a href="/data?area=${layer.feature.properties.areaId}">${layer.feature.properties[name_field]} <br/>
+                    return `<a href="/data?area=${layer.feature.properties.areaId}">${layer.feature.properties[name_field]}</a>:
                     ${layer.feature.properties.grantCount} grants`;
                 });
 
