@@ -8,7 +8,7 @@
 
 
   <script>
-    const UPLOAD_URL = {{ url_for('upload')|tojson }};
+    {# Upload functionality disabled for now const UPLOAD_URL = {{ url_for('upload')|tojson }}; #}
     const DATASET_SELECT = {{ dataset_select|tojson }};
     const MAPBOX_ACCESS_TOKEN = {{ config.MAPBOX_ACCESS_TOKEN|tojson }};
   </script>
@@ -46,7 +46,7 @@
   <main class="layout__content" >
     <div class="layout__content-inner">
       <div class="intro-section">
-        <h2>Select a 360Giving dataset <br>or <a href="#upload-data">upload a file</a> that meets the 360Giving Standard.</h2>
+        <h2>Select a 360Giving dataset</h2>
       </div>
 
       <div class="layout__header wrapper">
@@ -116,21 +116,38 @@
           <div class="bar-chart__bar"><span></span></div>
         </li>
       </ul>
-      <input v-if="datasetSelect[key].length > 10" class="search-field" v-model="find[key]" />
+      <input v-if="datasetSelect[key].length > 10" class="search-field" v-model="find[key]" v-bind:placeholder="'Find '+dataset" />
 
       <div class="base-card__note">
-        <p>Total {{dataset}} {{datasetSelect[key].length}}</p>
+        <p>Total {{dataset}} {{datasetSelect[key].length}}. <a v-if="dataset == 'Regions' || dataset == 'Countries' || dataset == 'Local authorities'" href="#map">Map.</a></p>
      </div>
     </chart-card>
 
     <!-- choropleth -->
-    <div class="spacer-3 grid__2">
-      <div class="base-card base-card--teal base-card--left">
-        <div style="padding-left: 4px">
-          <choropleth class="base-card__content" container="ch-1" height="500px"></choropleth>
-        </div>
-      </div>
-    </div>
+    <chart-card color="teal">
+      <chart-card-header title="Map"></chart-card-header>
+      <a name="map"></a>
+      <choropleth class="base-card__content" container="ch-1" height="500px"></choropleth>
+    </chart-card>
+
+
+    <div class="spacer-3"></div>
+
+    <chart-card color="orange">
+      <chart-card-header title="Data sources"></chart-card-header>
+      <p>Charity data is sourced from <a href="https://findthatcharity.uk/" target="_blank"
+          rel="noreferrer">findthatcharity.uk</a> and postcode data from <a href="https://findthatpostcode.uk/"
+          target="_blank" rel="noreferrer">postcodes.findthatcharity.uk</a>. Company data is fetched using Companies
+        House URIs. All external data is used under the <a
+          href="http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/" target="_blank"
+          rel="noreferrer">Open Government Licence</a>.</p>
+      <p><a href="https://insights.threesixtygiving.org/about#data-sources">More about data sources</a></p>
+
+    </chart-card>
+
+    <div class="spacer-3"></div>
+
+  <!-- upload
 
     <div class="card-list">
       <div class="card-list__item">
@@ -146,27 +163,6 @@
       </article>
       </div>
 
-      <div class="card-list__item">
-        <article class="media-card media-card--orange media-card--self-contained">
-          <div class="media-card__content">
-            <header class="media-card__header">
-              <h3 class="media-card__heading">Data Sources</h3>
-            </header>
-            <p>Charity data is sourced from <a href="https://findthatcharity.uk/" target="_blank"
-                rel="noreferrer">findthatcharity.uk</a> and postcode data from <a href="https://findthatpostcode.uk/"
-                target="_blank" rel="noreferrer">postcodes.findthatcharity.uk</a>. Company data is fetched using Companies
-              House URIs. All external data is used under the <a
-                href="http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/" target="_blank"
-                rel="noreferrer">Open Government Licence</a>.</p>
-            <p><a href="https://insights.threesixtygiving.org/about#data-sources">More about data sources</a></p>
-          </div>
-        </article>
-      </div>
-    </div>
-
-  <div class="spacer-3"></div>
-
-  <!-- upload file modal -->
   <div id="modal-01" class="modal" v-bind:class="{ 'modal--shown': uploadModal }" v-if="uploadModal">
     <div class="modal__overlay modal__trigger" data-id="modal-01"></div>
     <div class="modal__window">
@@ -211,7 +207,7 @@
       </div>
     </div>
   </div>
-  <!-- / upload modal -->
+   / upload modal -->
 
   </main>
 </div> <!-- / app -->

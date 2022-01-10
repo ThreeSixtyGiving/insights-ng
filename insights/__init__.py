@@ -259,6 +259,7 @@ def create_app():
             page_urls=page_urls,
         )
 
-    app.add_url_rule("/upload", "upload", view_func=upload_file, methods=["POST"])
+    # Upload functionality disabled for now
+    # app.add_url_rule("/upload", "upload", view_func=upload_file, methods=["POST"])
 
     return app
