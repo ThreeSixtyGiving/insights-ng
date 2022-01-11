@@ -1,10 +1,11 @@
 
 export const choropleth = {
-    props: ['container', 'activeAreaIds', 'height'],
+    props: ['container', 'height'],
     data: function () {
         return {
             map: null,
             regionCountryLayer: null,
+            laLayer: null,
             mapbox_access_token: MAPBOX_ACCESS_TOKEN,
         };
     },
@@ -12,17 +13,17 @@ export const choropleth = {
         updateMap() {
 
             var component = this;
+            var maxGrantCount = 0;
 
             function getColor(d) {
-                d = d / 1000;
-                /* Leaflet choropleth example */
-                return d > 1000 ? '#800026' :
-                    d > 500 ? '#BD0026' :
-                        d > 200 ? '#E31A1C' :
-                            d > 100 ? '#FC4E2A' :
-                                d > 50 ? '#FD8D3C' :
-                                    d > 20 ? '#FEB24C' :
-                                        d > 10 ? '#FED976' : '#FFEDA0';
+                d = d / maxGrantCount;
+                return d > 0.9 ? '#800026' :
+                    d > 0.8 ? '#BD0026' :
+                        d > 0.7 ? '#E31A1C' :
+                            d > 0.6 ? '#FC4E2A' :
+                                d > 0.5 ? '#FD8D3C' :
+                                    d > 0.3 ? '#FEB24C' :
+                                        d > 0.1 ? '#FED976' : '#FFEDA0';
             }
 
             function defaultStyle(feature) {
@@ -38,64 +39,93 @@ export const choropleth = {
 
             }
 
-            async function make(){
+            async function makeLayer(layer, dataSelect, geoJsonUrl, addToMap){
 
-                let res = await fetch("/static/geo/country_region.geojson");
+                let res = await fetch(geoJsonUrl);
                 let geoJson = await res.json()
 
-                /* Add grant data to geojson */
-                let regionsCountries = {};
+                let areaSelectLookup = {};
 
-                DATASET_SELECT["regions"].forEach((region) => {
 
-                    regionsCountries[region.name] = {
-                        grantCount: region.grant_count,
-                        areaId: region.id
-                    };
+                dataSelect.forEach((dataSelect) => {
+                  /* Create a lookup object for name->id with grant count */
 
-                });
+                    DATASET_SELECT[dataSelect].forEach((area) => {
 
-                DATASET_SELECT["countries"].forEach((country) => {
-
-                    regionsCountries[country.name] = {
-                        grantCount: country.grant_count,
-                        areaId: country.id,
-                    };
-
+                        areaSelectLookup[area.name] = {
+                            grantCount: area.grant_count,
+                            areaId: area.id
+                        };
+                    });
                 });
 
                 geoJson.features.forEach((feature) => {
-                    let name = feature.properties.nuts118nm.replace(" (England)", "");
+                    let name = "";
+
+                    if (feature.properties.nuts118nm){
+                        name = feature.properties.nuts118nm.replace(" (England)", "");
+                    } else if (feature.properties.CTYUA20NM) {
+                        name = feature.properties.CTYUA20NM;
+                    } else if (feature.properties.LAD20NM){
+                        name = feature.properties.LAD20NM;
+                    }
 
                     /* Not every region in the geojson will correspond with one in our data */
-                    if (regionsCountries[name]) {
-                        feature.properties.grantCount = regionsCountries[name].grantCount;
-                        feature.properties.areaId = regionsCountries[name].areaId;
+                    if (areaSelectLookup[name]) {
+                        feature.properties.name = name;
+                        feature.properties.grantCount = areaSelectLookup[name].grantCount;
+
+                        if (areaSelectLookup[name].grantCount > maxGrantCount){
+                            maxGrantCount = areaSelectLookup[name].grantCount;
+                        }
+
+                        feature.properties.areaId = areaSelectLookup[name].areaId;
+                    } else {
+                        feature.properties.name = name;
+                        feature.properties.grantCount = 0;
                     }
                 });
 
 
-                let fl = L.geoJson(geoJson, {style: defaultStyle}).addTo(component.map);
+                component[layer] = L.geoJson(geoJson, {style: defaultStyle})
 
-                fl.bindPopup(function(layer){
-                    let name_field = Object.keys(layer.feature.properties).find(el => el.endsWith("nm"));
-                    return `<a href="/data?area=${layer.feature.properties.areaId}">${layer.feature.properties[name_field]}</a>:
+                component[layer].bindPopup(function(layer){
+                    return `<a href="/data?area=${layer.feature.properties.areaId}">${layer.feature.properties.name}</a>:
                     ${layer.feature.properties.grantCount} grants`;
                 });
 
-                component.regionCountryLayer = fl;
+                if (addToMap){
+                    component[layer].addTo(component.map);
+                }
             }
 
-            make();
-        }
-    },
-    watch: {
-        markers: {
-            handler: function () {
-                this.updateMarkers();
-            },
-            deep: true,
+            makeLayer("laLayer", ["localAuthorities"], "/static/geo/lalt.geojson", false);
+            makeLayer("regionCountryLayer", ["regions", "countries"], "/static/geo/country_region.geojson", true);
         },
+
+        zoom(){
+            /* Toggle the two layers based on zoom level */
+            if (this.map.getZoom() > 9){
+                /* more detailed layer*/
+                if (this.map.hasLayer(this.regionCountryLayer)){
+                    this.regionCountryLayer.remove();
+                }
+
+                if (!this.map.hasLayer(this.laLayer)){
+                    this.laLayer.addTo(this.map);
+                }
+
+            } else {
+                /* low detail layer */
+                if (!this.map.hasLayer(this.regionCountryLayer)){
+                    this.regionCountryLayer.addTo(this.map);
+                }
+
+                if (this.map.hasLayer(this.laLayer)){
+                    this.laLayer.remove();
+                }
+            }
+        }
     },
     mounted() {
         L.mapbox.accessToken = this.mapbox_access_token;
@@ -105,15 +135,14 @@ export const choropleth = {
         }).setView([52.48, -1.9025], 7);
         L.mapbox.styleLayer('mapbox://styles/davidkane/cjvnt2h0007hm1clrbd20bbug').addTo(map);
 
-
         // disable scroll when map isn't focused
         map.scrollWheelZoom.disable();
         map.on('focus', function () { map.scrollWheelZoom.enable(); });
         map.on('blur', function () { map.scrollWheelZoom.disable(); });
+        map.on('zoomend', this.zoom);
 
         // ensure mapbox logo is shown (for attribution)
         document.querySelector('.mapbox-logo').classList.add('mapbox-logo-true');
-
 
         this.map = map;
 
