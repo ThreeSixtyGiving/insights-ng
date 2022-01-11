@@ -18,8 +18,10 @@ from insights.db import (
     Publisher,
     SourceFile,
     DatasetStats,
+    OrgIdIds,
     db,
     DATASET_STATS,
+    get_or_create,
 )
 from insights.utils import get_org_schema, to_band
 
@@ -184,6 +186,10 @@ def fetch_data(dataset, bulk_limit, limit):
 
             if not row["insights_org_id"]:
                 row["insights_org_id"] = row["recipientOrganization_id"]
+
+            row["insights_org_id_int"] = get_or_create(
+                db.session, OrgIdIds, org_id=row["insights_org_id"]
+            ).id
 
             org_id_schema, org_id_value = get_org_schema(row["insights_org_id"])
             row["insights_org_type"] = "Identifier not recognised"

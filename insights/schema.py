@@ -231,7 +231,9 @@ class Query(graphene.ObjectType):
                 agg_cols.append(func.count(GrantModel.id).label("grants"))
             if "recipients" in operations[k] or "bucket" in operations[k]:
                 agg_cols.append(
-                    func.count(distinct(GrantModel.insights_org_id)).label("recipients")
+                    func.count(distinct(GrantModel.insights_org_id_int)).label(
+                        "recipients"
+                    )
                 )
             if "funders" in operations[k] or "bucket" in operations[k]:
                 agg_cols.append(
