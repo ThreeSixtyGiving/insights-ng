@@ -64,6 +64,7 @@ class Grant(db.Model):
 
     # insights specific fields - organisation
     insights_org_id = db.Column(db.String(255), nullable=True)
+    insights_org_id_int = db.Column(db.Integer, nullable=True)
     insights_org_registered_date = db.Column(db.Date, nullable=True)
     insights_org_latest_income = db.Column(db.Integer, nullable=True)
     insights_org_type = db.Column(db.String(255), nullable=True, index=True)
@@ -128,3 +129,11 @@ class DatasetStats(db.Model):
     )
     name = db.Column(db.String(255), nullable=False, index=True)
     value = db.Column(db.String(255), nullable=False, index=True)
+
+
+class OrgIdIds(db.Model):
+    """For faster distinct and sorting on org-ids keep a table of them to
+    generate a unique int for each one"""
+
+    id = db.Column(db.Integer, primary_key=True)
+    org_id = db.Column(db.String(255), nullable=False, index=True)
