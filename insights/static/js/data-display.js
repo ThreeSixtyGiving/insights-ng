@@ -421,6 +421,7 @@ var app = new Vue({
                 values.sort((firstEl, secondEl) => labels.indexOf(firstEl.label) - labels.indexOf(secondEl.label));
             } else if (sort) {
                 values.sort((firstEl, secondEl) => secondEl.value - firstEl.value);
+                inActiveValues.sort((firstEl, secondEl) => secondEl.value - firstEl.value);
             }
 
             /* Add the (unsorted) inactive values so that they're below the active ones */
