@@ -171,7 +171,7 @@
                 <li ref="byFunderItem" v-bind:data-label="group.label" class="bar-chart__item" v-for="(group, index) in chartBars('byFunder')"
                   :style="group.style" v-on:click="toggleInArray(filters.funders, group.id)">
                   <label class="bar-chart__label small">{{ group.label }}</label>
-                  <div class="bar-chart__bar"><span></span></div>
+                  <div class="bar-chart__bar" v-bind:class="{ 'inactive-bar': group.inactive }"><span></span></div>
                 </li>
             </ul>
             <input type="text" v-model="find.funder" placeholder="Find a funder" class="search-field" v-if="safeLength(chartData.byFunder) + safeLength(inactiveChartData.byFunder) > 10"  />
@@ -192,9 +192,10 @@
           <ul class="bar-chart" v-if="chartData.byFunderType && chartData.byFunderType.length > 0">
             <li class="bar-chart__item" v-for="(group, index) in chartBars('byFunderType')"
               :style="group.style"
+              v-on:click="toggleInArray(filters.funderTypes, group.id)"
               >
-              <label class="bar-chart__label small"><a href="#" v-on:click.prevent="toggleInArray(filters.funderTypes, group.id)">{{ group.label }}</a></label>
-              <div class="bar-chart__bar"><span></span></div>
+              <label class="bar-chart__label small">{{ group.label }}</a></label>
+              <div class="bar-chart__bar" v-bind:class="{ 'inactive-bar': group.inactive }"><span></span></div>
             </li>
           </ul>
 
@@ -217,7 +218,7 @@
                 :style="group.style"
                 v-on:click="applyAmountAwardedFilter(group)">
                <label class="bar-chart__label">{{ group.label }}</label>
-              <div class="bar-chart__bar"><span></span></div>
+              <div class="bar-chart__bar" v-bind:class="{ 'inactive-bar': group.inactive }"><span></span></div>
             </li>
           </ul>
 
@@ -266,7 +267,7 @@
             ref="byGrantProgrammeItem"
             >
             <label class="bar-chart__label small">{{ group.label }}</label>
-            <div class="bar-chart__bar"><span></span></div>
+            <div class="bar-chart__bar" v-bind:class="{ 'inactive-bar': group.inactive }"><span></span></div>
           </li>
         </ul>
         <input type="text" v-model="find.grantProgramme" placeholder="Find a programme" class="search-field" v-if="safeLength(chartData.byGrantProgramme) + safeLength(inactiveChartData.byGrantProgramme) > 10"  />
@@ -301,7 +302,7 @@
                   England - {{ group.label }}
                 </label>
 
-              <div class="bar-chart__bar"><span></span></div>
+              <div class="bar-chart__bar" v-bind:class="{ 'inactive-bar': group.inactive }"><span></span></div>
             </li>
             <li class="bar-chart__item" v-for="(group, index) in chartBars('byCountryRegion', 'grants', 0, false)"
               v-if="group.label != 'England'"
@@ -311,7 +312,7 @@
               <label class="bar-chart__label small">
                 {{ group.label }}
               </label>
-              <div class="bar-chart__bar"><span></span></div>
+              <div class="bar-chart__bar" v-bind:class="{ 'inactive-bar': group.inactive }"><span></span></div>
             </li>
           </ul>
           <div class="base-card__note">
@@ -391,7 +392,7 @@
               v-on:click="toggleInArray(filters.orgtype, group.id)"
             >
               <label class="bar-chart__label small">{{ group.label }}</label>
-              <div class="bar-chart__bar"><span></span></div>
+              <div class="bar-chart__bar" v-bind:class="{ 'inactive-bar': group.inactive }"><span></span></div>
             </li>
           </ul>
 
@@ -446,7 +447,7 @@
           <ul class="bar-chart" v-if="chartData.byOrgAge">
             <li class="bar-chart__item" v-for="(group, index) in chartBars('byOrgAge')"  :style="group.style">
               <label class="bar-chart__label">{{ group.label }}</label>
-              <div class="bar-chart__bar"><span></span></div>
+              <div class="bar-chart__bar" v-bind:class="{ 'inactive-bar': group.inactive }"><span></span></div>
             </li>
           </ul>
 <!--          <filter-item title="Recipient age">

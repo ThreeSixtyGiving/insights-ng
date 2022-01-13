@@ -401,7 +401,6 @@ var app = new Vue({
                         style: {
                             '--value': inActiveData[field],
                             '--width': `${(inActiveData[field] / maxValue) * 100}%`,
-                            'opacity': 0.7,
                             'overflow': 'hidden',
                         },
                         inactive: true,
