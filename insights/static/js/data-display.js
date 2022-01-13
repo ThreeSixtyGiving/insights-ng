@@ -78,6 +78,10 @@ var chartToFilters = {
 /* Same as above but k,v swapped */
 var filtersToChart = Object.fromEntries(Object.entries(chartToFilters).map(([key,val]) => [val, key] ));
 
+function clamp(num, min, max){
+    return Math.min(Math.max(num, min), max);
+}
+
 var app = new Vue({
     el: '#data-display',
     data() {
@@ -372,7 +376,7 @@ var app = new Vue({
                     value: data[field],
                     style: {
                         '--value': data[field],
-                        '--width': `${(data[field] / maxValue) * 100}%`,
+                        '--width': `${clamp(((data[field] / maxValue) * 100), 0.1, 100)}%`,
                     }
                 };
 
@@ -400,7 +404,7 @@ var app = new Vue({
                         value: inActiveData[field],
                         style: {
                             '--value': inActiveData[field],
-                            '--width': `${(inActiveData[field] / maxValue) * 100}%`,
+                            '--width': `${ clamp(((inActiveData[field] / maxValue) * 100), 0.1, 100)}%`,
                             'overflow': 'hidden',
                         },
                         inactive: true,
