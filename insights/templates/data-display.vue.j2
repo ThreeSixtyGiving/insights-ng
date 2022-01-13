@@ -30,7 +30,6 @@
 {% include 'components/chart-card.vue.j2' %}
 {% include 'components/filter-item.vue.j2' %}
 
-<!-- fixme -->
 <header class="layout__header wrapper" v-if="summary">
   {% include 'components/flash-messages.html.j2' %}
 </header>
@@ -114,7 +113,6 @@
       <div class="grid grid--four-columns" v-if="summary.currencies">
         <div class="grid__1">
           <div class="base-card base-card--orange">
-            <loading v-if="loading"></loading>
             <div class="base-card__content">
               <h2 class="base-card__title">{{ summary.grants | formatNumberSuffix }}{{ summary.grants |
                 getAmountSuffix(true) }}</h2>
@@ -125,7 +123,6 @@
 
         <div class="grid__1">
           <div class="base-card base-card--teal">
-            <loading v-if="loading"></loading>
             <div class="base-card__content">
               <h2 class="base-card__title">{{ summary.recipients | formatNumberSuffix }}{{ summary.recipients |
                 getAmountSuffix(true) }}</h2>
