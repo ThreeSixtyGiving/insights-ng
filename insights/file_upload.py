@@ -17,6 +17,7 @@ import requests
 from insights import settings
 from insights.db import Grant, db, SourceFile
 from insights.utils import get_org_schema, to_band
+from insights.commands.fetch_data import process_row
 
 
 class FileImportError(Exception):
@@ -44,7 +45,6 @@ def upload_file():
 
 
 def fetch_file_from_url(url):
-
     if urlparse(url).netloc not in current_app.config.get("URL_FETCH_ALLOW_LIST"):
         raise FileImportError("Fetching from that URL is not supported")
 
@@ -181,6 +181,15 @@ def save_json_to_db(data, dataset, source_file_id):
 
     for row in data.get("grants", []):
         try:
+            location_lookup = row.get("additional_data", {}).get(
+                "locationLookup", [{}]
+            )[0]
+            try:
+                recipient_org_infos = row.get("additional_data", {}).get(
+                    "recipientOrgInfos", []
+                )[0]
+            except IndexError:
+                recipient_org_infos = {}
             grant = dict(
                 dataset=dataset,
                 grant_id=row["id"],
@@ -215,33 +224,32 @@ def save_json_to_db(data, dataset, source_file_id):
                 source_file_id=source_file_id,
                 publisher_id=None,
                 # insights specific fields - geography,
-                insights_geo_region=None,
-                insights_geo_la=None,
-                insights_geo_country=None,
-                insights_geo_lat=None,
-                insights_geo_long=None,
-                insights_geo_source=None,
+                insights_geo_region=location_lookup.get("rgncd"),
+                insights_geo_la=location_lookup.get("ladcd"),
+                insights_geo_country=location_lookup.get("ctrycd"),
+                insights_geo_lat=location_lookup.get("latitude"),
+                insights_geo_long=location_lookup.get("longitude"),
+                insights_geo_source=location_lookup.get("source"),
                 # insights specific fields - organisation,
+                # should this use recipientOrgInfos....
                 insights_org_id=row.get("recipientOrganization", [{}])[0].get("id"),
-                insights_org_registered_date=None,
-                insights_org_latest_income=None,
+                ## TODO should this have an insights prefix?
+                organisationType=recipient_org_infos.get("orgnisationType"),
+                insights_org_registered_date=recipient_org_infos.get("dateRegistered"),
+                insights_org_latest_income=None
+                if recipient_org_infos.get("latestIncome") in ["", None]
+                else int(recipient_org_infos.get("latestIncome")),
                 insights_org_type=None,
-                insights_funding_org_type=None,
-                # insights specific fields - bands,
-                insights_band_age=None,
-                insights_band_income=None,
-                insights_band_amount=to_band(
-                    row["amountAwarded"],
-                    settings.AMOUNT_BINS,
-                    settings.AMOUNT_BIN_LABELS,
+                insights_funding_org_type=row.get("additional_data", {}).get(
+                    "TSGFundingOrgType"
                 ),
             )
         except KeyError:
             print("Could not import grant record")
             continue
-        for f in ["awardDate", "plannedDates_startDate", "plannedDates_endDate"]:
-            if grant[f] and isinstance(grant[f], str):
-                grant[f] = datetime.datetime.strptime(grant[f][0:10], "%Y-%m-%d")
+
+        process_row(grant)
+
         grants.append(grant)
         rows += 1
         if len(grants) > 1000:

@@ -73,7 +73,7 @@ def create_app():
             try:
                 return redirect(fetch_file_from_url(request.args.get("url")))
             except Exception as e:
-                flash("Could not fetch from URL:" + str(e), "error")
+                flash("Could not fetch from URL:" + repr(e), "error")
         return render_template(
             "homepage.vue.j2", dataset_select=get_frontpage_options()
         )
