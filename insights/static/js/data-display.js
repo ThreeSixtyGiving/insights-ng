@@ -271,7 +271,7 @@ var app = new Vue({
         updateData() {
             /* If no search filters do nothing */
 
-            if (!this.filtersApplied.length){
+            if (!this.filtersApplied.length && this.dataset == 'main'){
                 return;
             }
 

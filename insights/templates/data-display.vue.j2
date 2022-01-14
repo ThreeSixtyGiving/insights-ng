@@ -25,6 +25,7 @@
 
 {% block content %}
 
+
 {# We don't use a build system so we use the existing templating system to load Vue components #}
 {% include 'components/loading.vue.j2' %}
 {% include 'components/chart-card.vue.j2' %}
@@ -159,8 +160,7 @@
 
   <main class="layout__content">
     <div class="layout__content-inner">
-
-      <div class="box box--orange" v-if="!filtersApplied.length">
+      <div class="box box--orange" v-if="!filtersApplied.length && dataset == 'main'">
           <h3>No Dataset selected</h3>
           <p>There are currently no 360Giving datasets selected. <a href="/">Select a dataset.</a></p>
       </div>
