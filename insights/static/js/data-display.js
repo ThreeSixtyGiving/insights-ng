@@ -67,6 +67,18 @@ function initialFilters(useQueryParams) {
     }
 }
 
+var filtersToTitles = {
+    awardAmount: "Award amounts",
+    awardDates: "Award dates",
+    orgSize: "Size of recipient organisations",
+    orgAge: "Age of recipient organisations",
+    orgtype: "Recipient type",
+    grantProgrammes: "Grant programmes",
+    funders: "Funders",
+    funderTypes: "Funder types",
+    area: "Region",
+}
+
 var chartToFilters = {
     byGrantProgramme: 'grantProgrammes',
     byFunder: 'funders',
@@ -115,7 +127,7 @@ var app = new Vue({
             mapUrl: PAGE_URLS['map'],
             dataUrl: PAGE_URLS['data'],
             find: { funder: "", grantProgramme: "" },
-            activeFilters: [],
+            filtersToTitles: filtersToTitles,
         }
     },
     computed: {
@@ -136,6 +148,22 @@ var app = new Vue({
                 }
             });
             return filters;
+        },
+        filtersApplied(){
+            let activeFilters = [];
+
+            if (!window.location.search){
+                return activeFilters;
+            }
+
+            for (let filter in this.computedFilters){
+                if (this.computedFilters[filter].length || this.computedFilters[filter].min || this.computedFilters[filter].max){
+                    if (activeFilters.indexOf(filter) == -1){
+                        activeFilters.push(filter);
+                    }
+                }
+            }
+            return activeFilters;
         },
         currencyUsed: function () {
             var currencies = this.summary.currencies.map((c) => c.currency);
@@ -228,15 +256,22 @@ var app = new Vue({
             }
             history.pushState(this.filters, '', "?" + queryParams.toString());
         },
-        resetFilters() {
-            this.filters = initialFilters(false);
+        resetFilter(name) {
+            if (this.filters[name].min || this.filters[name].max){
+                this.filters[name].min = 0;
+                this.filters[name].max = 0;
+            } else if (Array.isArray(this.filters[name])) {
+                this.filters[name] = [];
+            } else if (typeof(this.filters[name] === 'string')){
+                this.filters[name] = '';
+            } else {
+                this.filters[name] = null;
+            }
         },
         updateData() {
-            /* If no search query params do nothing
-            FIXME: Relying on this method is fragile as anything could be set on
-            window.location.search, we need a way to know if certain filters are active or not
-            */
-            if (!window.location.search){
+            /* If no search filters do nothing */
+
+            if (!this.filtersApplied.length){
                 return;
             }
 
@@ -263,7 +298,7 @@ var app = new Vue({
                 });
 
                 /* depending on the filters set find out what the data options would have been */
-                if (window.location.search){
+                if (this.filtersApplied.length){
                     ['funders', 'funderTypes', 'area', 'orgtype', 'grantProgrammes'].forEach((filter) => {
                         if (app.filters[filter].length > 0){
                             this.dataWithoutFilter(filter);

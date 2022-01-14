@@ -159,7 +159,22 @@
 
   <main class="layout__content">
     <div class="layout__content-inner">
+
+      <div class="box box--orange" v-if="!filtersApplied.length">
+          <h3>No Dataset selected</h3>
+          <p>There are currently no 360Giving datasets selected. <a href="/">Select a dataset.</a></p>
+      </div>
+
+      <template v-else>
+
       <div class="grid grid--two-columns">
+
+        <chart-card color="teal">
+        <chart-card-header title="Dataset filters">
+          <a href="/" title="See all available datasets">(back to dataset selection)</a>
+        </chart-card-header>
+          <a href="#" v-bind:title="'Remove dataset filter '+filtersToTitles[filter]" class="filter filter--data-wrangling" v-for="filter in filtersApplied" v-on:click.prevent="resetFilter(filter)">{{filtersToTitles[filter]}} &times;</a>
+        </chart-card>
 
         <!-- Funders -->
 
@@ -256,7 +271,7 @@
       <!-- Grant Programmes -->
 
       <chart-card color="orange" v-bind:loading="loading" v-if="chartData.byGrantProgramme && chartN('byGrantProgramme') > 0">
-        <chart-card-header title="Grant Programmes">
+        <chart-card-header title="Grant programmes">
           (number of grants)
         </chart-card-header>
         <ul class="bar-chart" v-if="chartData.byGrantProgramme">
@@ -481,8 +496,9 @@
         </chart-card>
       </div> <!-- / grid -->
 
-    </div>
+      </template>
 
+    </div> <!-- / layout content inner -->
   </main>
 </div> <!-- / vue app -->
 {% endraw %}
