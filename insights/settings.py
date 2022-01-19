@@ -136,3 +136,5 @@ CONTENT_TYPE_MAP = {
 URL_FETCH_ALLOW_LIST = [
     "grantnav.threesixtygiving.org",
 ]
+
+DATASET_EXPIRY_DAYS = 7

@@ -8,7 +8,7 @@ from flask import Flask, abort, render_template, url_for, request, redirect, fla
 from flask_graphql import GraphQLView
 
 from insights import settings
-from insights.commands import fetch_data
+from insights.commands import fetch_data, expire
 from insights.data import get_frontpage_options, get_funder_names
 from insights.db import GeoName, Publisher, db, migrate
 from insights.schema import schema
@@ -49,6 +49,7 @@ def create_app():
     migrate.init_app(app, db)
 
     app.cli.add_command(fetch_data.cli)
+    app.cli.add_command(expire.cli)
 
     app.add_url_rule(
         "/graphql",
