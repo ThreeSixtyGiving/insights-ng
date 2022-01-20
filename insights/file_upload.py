@@ -181,9 +181,12 @@ def save_json_to_db(data, dataset, source_file_id):
 
     for row in data.get("grants", []):
         try:
-            location_lookup = row.get("additional_data", {}).get(
-                "locationLookup", [{}]
-            )[0]
+            try:
+                location_lookup = row.get("additional_data", {}).get(
+                    "locationLookup", []
+                )[0]
+            except IndexError:
+                location_lookup = {}
             try:
                 recipient_org_infos = row.get("additional_data", {}).get(
                     "recipientOrgInfos", []
