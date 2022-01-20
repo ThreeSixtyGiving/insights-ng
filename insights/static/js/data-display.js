@@ -180,6 +180,47 @@ var app = new Vue({
             if (grants.length == 0) { return null; }
             return grants;
         },
+        grantnavUrl: function () {
+            // TODO, look this up from the config
+            var url = 'https://grantnav.threesixtygiving.org/search?';
+
+            var searchParams = new URLSearchParams();
+
+            if (this.filters.awardDates.min || this.filters.awardDates.max || this.filters.orgtype.length) {
+                return null;
+            }
+
+            if (this.filters.awardAmount.min) {
+                searchParams.append('min_amount', this.filters.awardAmount.min);
+            }
+            if (this.filters.awardAmount.max) {
+                searchParams.append('max_amount', this.filters.awardAmount.max);
+            }
+
+            var text_query = '';
+            this.filters.area.forEach((area) => {
+                var area_prefix = area.slice(0, 3);
+                if (['E06', 'E07', 'E08', 'E09', 'N09', 'S12', 'W06'].includes(area_prefix)) {
+                    text_query += ' additional_data.recipientDistrictGeoCode:' + area;
+                } else if (['E12'].includes(area_prefix)) {
+                    text_query += ' additional_data.recipientOrganizationLocation.rgn:' + area;
+                } else if (['E92', 'N92', 'S92', 'W92'].includes(area_prefix)) {
+                    text_query += ' additional_data.recipientOrganizationLocation.ctry:' + area;
+                }
+            });
+            searchParams.append('query', text_query);
+
+            this.filters.funderTypes.forEach((funderType) => {
+                searchParams.append('fundingOrganizationTSGType', funderType)
+            });
+            this.filters.funders.forEach((funder) => {
+                searchParams.append('fundingOrganization', funder);
+            });
+            this.filters.grantProgrammes.forEach((grantProgramme) => {
+                searchParams.append('grantProgramme', grantProgramme);
+            });
+            return url + searchParams.toString();
+        },
     },
     watch: {
 

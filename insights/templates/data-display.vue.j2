@@ -81,6 +81,14 @@
                 }}</a> licence.</template></template>
           <template v-else-if="sources.length == 1">Original filename: <code>{{ sources[0].title }}</code></template>
         </p>
+        <p>
+          <template v-if="grantnavUrl">
+            <a v-bind:href="grantnavUrl">See this in GrantNav</a>.
+          </template>
+          <template v-else>
+            Could not generate a link to GrantNav, as you query uses filters it does not support.
+          </template>
+        </p>
         <template v-if="sources.length > 1">
           <details class="header-group__excerpt">
             <summary>Data sources</summary>
