@@ -83,7 +83,7 @@ def process_row(row):
         "plannedDates_startDate",
         "plannedDates_endDate",
     ]:
-        if not row[f]:
+        if row[f] is None:
             continue
         try:
             row[f] = datetime.date.fromisoformat(row[f][0:10])
