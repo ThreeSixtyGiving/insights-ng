@@ -291,7 +291,7 @@
               </select>
             </span>
             <span>
-              <input id="award-date-min-year" type="text" class="filter-input" v-model="filters.awardDates.min.year">
+              <input id="award-date-min-year" type="text" class="filter-input" style="width: 6ch" placeholder="yyyy" minlength="4" maxlength="4" v-model="filters.awardDates.min.year" required>
             </span>
             <label for="award-date-max">to</label>
             <span>
@@ -312,7 +312,7 @@
               </select>
             </span>
             <span>
-              <input id="award-date-max-year" type="text" class="filter-input" v-model="filters.awardDates.max.year">
+              <input id="award-date-max-year" type="text" class="filter-input" style="width: 6ch" placeholder="yyyy" minlength="4" maxlength="4" v-model="filters.awardDates.max.year" required>
             </span>
           </filter-item>
 

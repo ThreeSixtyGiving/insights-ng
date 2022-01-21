@@ -282,6 +282,17 @@ var app = new Vue({
             handler: debounce(function () {
                 this.find.grantProgramme = "";
                 this.find.funder = "";
+
+                /* if either the min/max month or year is set make sure both are present before continuing */
+                for (let range of ["min", "max"]){
+                    if (this.filters.awardDates[range].month || this.filters.awardDates[range].year){
+                        if (!this.filters.awardDates[range].month && this.safeLength(this.filters.awardDates[range].year) == 4 ||
+                            this.filters.awardDates[range].month && this.safeLength(this.filters.awardDates[range].year) != 4){
+                            return;
+                        }
+                    }
+                }
+
                 this.updateUrl();
                 this.updateData();
             }, 1000),
