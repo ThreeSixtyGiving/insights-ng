@@ -269,9 +269,47 @@
 
           <filter-item title="Award date">
             <label for="award-date-min">From</label>
-            <input id="award-date-min" type="date" class="filter-input" v-model="filters.awardDates.min">
+            <span>
+              <select id="award-date-min-month" name="month" class="filter-input" v-model="filters.awardDates.min.month">
+                <option selected></option>
+                <option value="01">January</option>
+                <option value="02">February</option>
+                <option value="03">March</option>
+                <option value="04">April</option>
+                <option value="05">May</option>
+                <option value="06">June</option>
+                <option value="07">July</option>
+                <option value="08">August</option>
+                <option value="09">September</option>
+                <option value="10">October</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
+              </select>
+            </span>
+            <span>
+              <input id="award-date-min-year" type="text" class="filter-input" v-model="filters.awardDates.min.year">
+            </span>
             <label for="award-date-max">to</label>
-            <input id="award-date-max" type="date" class="filter-input" v-model="filters.awardDates.max">
+            <span>
+              <select id="award-date-max-month" name="month" class="filter-input" v-model="filters.awardDates.max.month">
+                <option selected></option>
+                <option value="01">January</option>
+                <option value="02">February</option>
+                <option value="03">March</option>
+                <option value="04">April</option>
+                <option value="05">May</option>
+                <option value="06">June</option>
+                <option value="07">July</option>
+                <option value="08">August</option>
+                <option value="09">September</option>
+                <option value="10">October</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
+              </select>
+            </span>
+            <span>
+              <input id="award-date-max-year" type="text" class="filter-input" v-model="filters.awardDates.max.year">
+            </span>
           </filter-item>
 
         </chart-card>

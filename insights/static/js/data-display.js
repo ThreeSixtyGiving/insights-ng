@@ -26,6 +26,14 @@ Vue.filter('formatNumber', formatNumber);
 Vue.filter('getAmountSuffix', getAmountSuffix);
 Vue.filter('formatNumberSuffix', formatNumberSuffix);
 
+function constructMonth(month, year) {
+    if (month && year) {
+        return year + '-' + month;
+    }
+    else {
+        return null;
+    }
+}
 
 function initialFilters(useQueryParams) {
     var params = new URLSearchParams(window.location.search);
@@ -47,8 +55,14 @@ function initialFilters(useQueryParams) {
             max: params.get("awardAmount.max"),
         },
         awardDates: {
-            min: params.get("awardDates.min"),
-            max: params.get("awardDates.max"),
+            min: {
+                 month: params.get("awardDates.min.month"),
+                 year: params.get("awardDates.min.year"),
+            },
+            max: {
+                 month: params.get("awardDates.max.month"),
+                 year: params.get("awardDates.max.year"),
+            }
         },
         orgSize: {
             min: params.get("orgSize.min"),
@@ -135,8 +149,11 @@ var app = new Vue({
             /* Take a copy of the filters */
             var filters = JSON.parse(JSON.stringify(this.filters));
 
+            filters.awardDates.min = constructMonth(filters.awardDates.min.month, filters.awardDates.min.year);
+            filters.awardDates.max = constructMonth(filters.awardDates.max.month, filters.awardDates.max.year);
+
             /* convert the filter data into data for graphql query */
-            ['awardAmount', 'awardDates', 'orgSize', 'orgAge'].forEach((field) => {
+            ['awardAmount', 'orgSize', 'orgAge'].forEach((field) => {
                 if (filters[field].min === '') { filters[field].min = null; }
                 if (filters[field].max === '') { filters[field].max = null; }
             });
@@ -186,7 +203,7 @@ var app = new Vue({
 
             var searchParams = new URLSearchParams();
 
-            if (this.filters.awardDates.min || this.filters.awardDates.max || this.filters.orgtype.length) {
+            if (this.filters.orgtype.length) {
                 return null;
             }
 
@@ -195,6 +212,13 @@ var app = new Vue({
             }
             if (this.filters.awardAmount.max) {
                 searchParams.append('max_amount', this.filters.awardAmount.max);
+            }
+
+            if (this.filters.awardDates.min.month && this.filters.awardDates.min.year) {
+                searchParams.append('min_date', this.filters.awardDates.min.month + '/' + this.filters.awardDates.min.year);
+            }
+            if (this.filters.awardDates.max.month && this.filters.awardDates.max.year) {
+                searchParams.append('max_date', this.filters.awardDates.max.month + '/' + this.filters.awardDates.max.year);
             }
 
             var text_query = '';
@@ -208,7 +232,9 @@ var app = new Vue({
                     text_query += ' additional_data.recipientOrganizationLocation.ctry:' + area;
                 }
             });
-            searchParams.append('query', text_query);
+            if (text_query) {
+                searchParams.append('query', text_query);
+            }
 
             this.filters.funderTypes.forEach((funderType) => {
                 searchParams.append('fundingOrganizationTSGType', funderType)
@@ -282,7 +308,16 @@ var app = new Vue({
                         Object.entries(v)
                             .filter(([l, w]) => w && w.length != 0)
                             .forEach(([l, w]) => {
-                                queryParams.append(`${k}.${l}`, w);
+                                if(typeof w == "object" && l != null) {
+                                    Object.entries(w)
+                                        .filter(([m, x]) => x && x.length != 0)
+                                        .forEach(([m, x]) => {
+                                            queryParams.append(`${k}.${l}.${m}`, x);
+                                        });
+                                }
+                                else {
+                                    queryParams.append(`${k}.${l}`, w);
+                                }
                             })
                     } else {
                         queryParams.append(k, v);
