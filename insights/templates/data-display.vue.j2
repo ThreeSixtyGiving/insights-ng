@@ -177,10 +177,11 @@
 
       <div class="grid grid--two-columns">
 
-        <chart-card color="teal">
-        <chart-card-header title="Dataset filters">
-          <a href="/" title="See all available datasets">(back to dataset selection)</a>
-        </chart-card-header>
+        <chart-card color="teal" class="hide-print">
+          <chart-card-header title="Dataset filters">
+            <a href="/" title="See all available datasets">(back to dataset selection)</a>
+          </chart-card-header>
+
           <a href="#" v-bind:title="'Remove dataset filter '+filtersToTitles[filter]" class="filter filter--data-wrangling" v-for="filter in filtersApplied" v-on:click.prevent="resetFilter(filter)">{{filtersToTitles[filter]}} &times;</a>
         </chart-card>
 
@@ -192,6 +193,7 @@
             </chart-card-header>
             <ul class="bar-chart" v-if="chartData.byFunder">
                 <li ref="byFunderItem" v-bind:data-label="group.label" class="bar-chart__item" v-for="(group, index) in chartBars('byFunder')"
+                  v-bind:class="{ 'hide-print' : group.inactive }"
                   :style="group.style" v-on:click="toggleInArray(filters.funders, group.id)">
                   <label class="bar-chart__label small">{{ group.label }}</label>
                   <div class="bar-chart__bar" v-bind:class="{ 'inactive-bar': group.inactive }"><span></span></div>
@@ -215,6 +217,7 @@
           <ul class="bar-chart" v-if="chartData.byFunderType && chartData.byFunderType.length > 0">
             <li class="bar-chart__item" v-for="(group, index) in chartBars('byFunderType')"
               :style="group.style"
+              v-bind:class="{ 'hide-print' : group.inactive }"
               v-on:click="toggleInArray(filters.funderTypes, group.id)"
               >
               <label class="bar-chart__label small">{{ group.label }}</a></label>
@@ -239,6 +242,7 @@
           <ul class="bar-chart" v-if="chartData.byAmountAwarded">
             <li class="bar-chart__item" v-for="group in chartBars('byAmountAwarded', 'grants', 1)"
                 :style="group.style"
+                v-bind:class="{ 'hide-print' : group.inactive }"
                 v-on:click="applyAmountAwardedFilter(group)">
                <label class="bar-chart__label">{{ group.label }}</label>
               <div class="bar-chart__bar" v-bind:class="{ 'inactive-bar': group.inactive }"><span></span></div>
@@ -325,6 +329,7 @@
             :style="group.style"
             v-on:click="toggleInArray(filters.grantProgrammes, group.id)"
             v-bind:data-label="group.label"
+            v-bind:class="{ 'hide-print' : group.inactive }"
             ref="byGrantProgrammeItem"
             >
             <label class="bar-chart__label small">{{ group.label }}</label>
@@ -357,6 +362,7 @@
           <ul class="bar-chart" v-if="chartData.byCountryRegion">
             <li class="bar-chart__item" v-for="(group, index) in chartBars('byCountryRegion', 'grants', 1, false)"
               :style="group.style"
+              v-bind:class="{ 'hide-print' : group.inactive }"
               v-on:click.prevent="toggleInArray(filters.area, group.id)"
               >
                 <label class="bar-chart__label small">
@@ -369,6 +375,7 @@
               v-if="group.label != 'England'"
               :style="group.style"
               v-on:click.prevent="toggleInArray(filters.area, group.id)"
+              v-bind:class="{ 'hide-print' : group.inactive }"
               >
               <label class="bar-chart__label small">
                 {{ group.label }}
@@ -450,6 +457,7 @@
           <ul class="bar-chart" v-if="chartData.byOrgType">
             <li class="bar-chart__item" v-for="(group, index) in chartBars('byOrgType')"
               :style="group.style"
+              v-bind:class="{ 'hide-print' : group.inactive }"
               v-on:click="toggleInArray(filters.orgtype, group.id)"
             >
               <label class="bar-chart__label small">{{ group.label }}</label>
