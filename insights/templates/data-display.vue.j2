@@ -274,7 +274,7 @@
           <filter-item title="Award date">
             <label for="award-date-min">From</label>
             <span>
-              <select id="award-date-min-month" name="month" class="filter-input" v-model="filters.awardDates.min.month">
+              <select id="award-date-min-month" name="month" class="filter-input" v-model="filterDates.min.month">
                 <option selected></option>
                 <option value="01">January</option>
                 <option value="02">February</option>
@@ -291,11 +291,11 @@
               </select>
             </span>
             <span>
-              <input id="award-date-min-year" type="text" class="filter-input" v-model="filters.awardDates.min.year">
+              <input id="award-date-min-year" type="text" class="filter-input" style="width: 6ch" placeholder="yyyy" minlength="4" maxlength="4" v-model="filterDates.min.year">
             </span>
             <label for="award-date-max">to</label>
             <span>
-              <select id="award-date-max-month" name="month" class="filter-input" v-model="filters.awardDates.max.month">
+              <select id="award-date-max-month" name="month" class="filter-input" v-model="filterDates.max.month">
                 <option selected></option>
                 <option value="01">January</option>
                 <option value="02">February</option>
@@ -312,7 +312,7 @@
               </select>
             </span>
             <span>
-              <input id="award-date-max-year" type="text" class="filter-input" v-model="filters.awardDates.max.year">
+              <input id="award-date-max-year" type="text" class="filter-input" style="width: 6ch" placeholder="yyyy" minlength="4" maxlength="4" v-model="filterDates.max.year">
             </span>
           </filter-item>
 

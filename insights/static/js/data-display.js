@@ -142,6 +142,7 @@ var app = new Vue({
             dataUrl: PAGE_URLS['data'],
             find: { funder: "", grantProgramme: "" },
             filtersToTitles: filtersToTitles,
+            filterDates: { ...initialFilters(true).awardDates },
         }
     },
     computed: {
@@ -288,6 +289,17 @@ var app = new Vue({
             deep: true,
             immediate: false,
         },
+        'filterDates': {
+            handler: function(){
+                for (let range of ["min", "max"]){
+                    if (this.filterDates[range].month && this.safeLength(this.filterDates[range].year) == 4){
+                        this.filters.awardDates[range].month = this.filterDates[range].month;
+                        this.filters.awardDates[range].year = this.filterDates[range].year;
+                    }
+                }
+            },
+            deep: true,
+        }
     },
     methods: {
         updateUrl() {
@@ -342,6 +354,13 @@ var app = new Vue({
                 this.filters[name] = '';
             } else {
                 this.filters[name] = null;
+            }
+
+            if (name == "awardDates"){
+                this.filterDates = {
+                    min: { month: null, year: null },
+                    max: { month: null, year: null }
+                };
             }
         },
         updateData() {
