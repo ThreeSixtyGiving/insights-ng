@@ -177,7 +177,7 @@
 
       <div class="grid grid--two-columns">
 
-        <chart-card color="teal" class="hide-print">
+        <chart-card color="teal" class="hide-print" v-if="filtersApplied.length">
           <chart-card-header title="Dataset filters">
             <a href="/" title="See all available datasets">(back to dataset selection)</a>
           </chart-card-header>
