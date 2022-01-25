@@ -170,7 +170,7 @@ var app = new Vue({
         filtersApplied(){
             let activeFilters = [];
 
-            if (!window.location.search){
+            if (!window.location.search && this.dataset == 'main'){
                 return activeFilters;
             }
 
