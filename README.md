@@ -104,3 +104,13 @@ coverage report
 ```
 black insights/
 ```
+
+## Design System
+
+Insights' design system is located in [360-ds](https://github.com/ThreeSixtyGiving/360-ds). Any change in CSS needs to
+be made in [Insights' folder](https://github.com/ThreeSixtyGiving/360-ds/tree/master/src/project-styles/insights) and
+then compile.
+
+```
+npm run compile-sass -- --project 'insights' --path '../insights-ng/insights/static/css/'
+```
