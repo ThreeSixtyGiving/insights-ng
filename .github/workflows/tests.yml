@@ -53,6 +53,7 @@ jobs:
         psql -c 'CREATE DATABASE "insights-ng";' -W -h localhost postgres postgres
         flask db upgrade
         flask data fetch --limit 1000
+        flask data geonames
     - name: Test with pytest
       run: python -m pytest
 
