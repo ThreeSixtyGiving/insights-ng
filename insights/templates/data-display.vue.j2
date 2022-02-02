@@ -195,7 +195,8 @@
                 </li>
             </ul>
             <input type="text" v-model="find.funder" placeholder="Find a funder" class="search-field" v-if="safeLength(chartData.byFunder) + safeLength(inactiveChartData.byFunder) > 10"  />
-            <div class="base-card__note">
+            <div>
+              <hr class="separator-light">
               <p>Based on {{ chartN('byFunder') | formatNumber }} grants.</p>
               <p v-if="chartMissing('byFunder')">
                 {{ chartMissing('byFunder') | formatNumber }} grants not found.
@@ -220,7 +221,8 @@
             </li>
           </ul>
 
-          <div class="base-card__note">
+          <div>
+            <hr class="separator-light">
             <p>Based on {{ chartN('byFunderType') | formatNumber }} grants.</p>
             <p v-if="chartMissing('byFunderType')">
               {{ chartMissing('byFunderType') | formatNumber }} grants not found.
@@ -332,7 +334,8 @@
           </li>
         </ul>
         <input type="text" v-model="find.grantProgramme" placeholder="Find a programme" class="search-field" v-if="safeLength(chartData.byGrantProgramme) + safeLength(inactiveChartData.byGrantProgramme) > 10"  />
-        <div class="base-card__note">
+        <div>
+          <hr class="separator-light">
           <p>Based on {{ chartN('byGrantProgramme') | formatNumber }} grants.</p>
           <p v-if="chartMissing('byGrantProgramme')">
             {{ chartMissing('byGrantProgramme') | formatNumber }} grants did not have a grant programme.
@@ -378,7 +381,8 @@
               <div class="bar-chart__bar" v-bind:class="{ 'inactive-bar': group.inactive }"><span></span></div>
             </li>
           </ul>
-          <div class="base-card__note">
+          <div>
+            <hr class="separator-light">
             <p>Based on {{ chartN('byCountryRegion') | formatNumber }} grants.</p>
             <p v-if="chartMissing('byCountryRegion')">
               {{ chartMissing('byCountryRegion') | formatNumber }} grants did not have a region or country.
@@ -399,7 +403,8 @@
               <div class="align-left margin-bottom:1">
                 <a :href="mapUrl" class="button button--small button--red align-left">View this map on its own page</a>
               </div>
-              <div class="base-card__note" v-if="geoGrants">
+              <div v-if="geoGrants">
+                <hr class="separator-light">
                 <p>Based on {{ geoGrants.length | formatNumber }} grants.</p>
                 <p v-if="chartMissing('byCountryRegion')">
                   {{ chartMissing('byCountryRegion') | formatNumber }} grants did not have a location available.
@@ -421,7 +426,8 @@
               <div class="bar-chart__bar"><span></span></div>
             </li>
           </ul>
-          <div class="base-card__note">
+          <div>
+            <hr class="separator-light">
             <p>Based on {{ chartN('byGeoSource') | formatNumber }} grants.</p>
             <p v-if="chartMissing('byGeoSource')">
               {{ chartMissing('byGeoSource') | formatNumber }} grants did not have a location available.
@@ -460,16 +466,17 @@
             </li>
           </ul>
 
-          <div class="base-card__note">
+          <div>
+            <hr class="separator-light">
             <p>Based on {{ chartN('byOrgType') | formatNumber }} grants.</p>
             <p v-if="chartMissing('byOrgType')">
               {{ chartMissing('byOrgType') | formatNumber }} values are not found.
             </p>
-            <p class="">Organisation type is based on official organisation identifiers, such as registered charity or
+            <p>Organisation type is based on official organisation identifiers, such as registered charity or
               company numbers, found in the data.</p>
-            <p class=""> "Identifier not recognised" means either that the organisation does not have an official
+            <p>Identifier not recognised" means either that the organisation does not have an official
               identifier, for example because it is an unregistered community group, or the publisher has not included
-              official identifiers in the data. .</p>
+              official identifiers in the data.</p>
           </div>
         </chart-card>
 
@@ -485,7 +492,8 @@
               <div class="bar-chart__bar"><span></span></div>
             </li>
           </ul>
-          <div class="base-card__note">
+          <div>
+            <hr class="separator-light">
             <p>Based on {{ chartN('byOrgSize') | formatNumber }} grants.</p>
             <p v-if="chartMissing('byOrgSize')">
               Latest income is not available for {{ chartMissing('byOrgSize') | formatNumber }} grants.
@@ -522,7 +530,8 @@
           </filter-item>
         -->
 
-          <div class="base-card__note">
+          <div>
+            <hr class="separator-light">
             <p>Based on {{ chartN('byOrgAge') | formatNumber }} grants.</p>
             <p>Organisation age at the time of the grant award, based on the registration date of that organisation. Only
               available for recipients with charity or company numbers.</p>

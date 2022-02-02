@@ -118,7 +118,8 @@
       </ul>
       <input v-if="datasetSelect[key].length > 10" class="search-field" v-model="find[key]" v-bind:placeholder="'Find '+dataset" />
 
-      <div class="base-card__note">
+      <div>
+        <hr class="separator-light">
         <p>Total {{dataset}} {{datasetSelect[key].length}}. <a v-if="dataset == 'Regions' || dataset == 'Countries' || dataset == 'Local authorities'" href="#map">Map.</a></p>
      </div>
     </chart-card>
