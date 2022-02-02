@@ -70,6 +70,9 @@
           <template v-if="grantnavUrl && dataset == 'main'">
             <a v-bind:href="grantnavUrl" class="button" style="float:right">See in GrantNav</a>.
           </template>
+
+          <a href="#" class="button hide-print" title="Print this page" style="margin-right: 5px; padding-bottom: 2px; float:right" onclick="window.print()"><i class="material-icons">print</i></a>
+
           <template v-if="summary.currencies.length > 1">
             This data contains grants made in {{ summary.currencies.length }} different currencies.
             Only showing grants made in {{ currencyUsed }}.
@@ -160,6 +163,7 @@
 
       <!-- / totals summary boxes -->
   </header>
+  <div class="spacer-3"></div>
 
   <main class="layout__content">
     <div class="layout__content-inner">
