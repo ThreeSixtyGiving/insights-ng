@@ -66,7 +66,10 @@
             <loading v-if="loading"></loading>
           </div>
         </hgroup>
-        <p class="header-group__excerpt" v-if="summary.currencies">
+        <p class="header-group__excerpt">
+          <template v-if="grantnavUrl && dataset == 'main'">
+            <a v-bind:href="grantnavUrl" class="button" style="float:right">See in GrantNav</a>.
+          </template>
           <template v-if="summary.currencies.length > 1">
             This data contains grants made in {{ summary.currencies.length }} different currencies.
             Only showing grants made in {{ currencyUsed }}.
@@ -80,14 +83,6 @@
                 sources[0].publisher.name }}</a> with a <a v-bind:href="sources[0].license">{{ sources[0].licenseName
                 }}</a> licence.</template></template>
           <template v-else-if="sources.length == 1">Original filename: <code>{{ sources[0].title }}</code></template>
-        </p>
-        <p>
-          <template v-if="grantnavUrl">
-            <a v-bind:href="grantnavUrl">See this in GrantNav</a>.
-          </template>
-          <template v-else>
-            Could not generate a link to GrantNav, as your query uses the "Recipient type" filter which it does not support.
-          </template>
         </p>
         <template v-if="sources.length > 1">
           <details class="header-group__excerpt">
