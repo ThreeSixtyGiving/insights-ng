@@ -42,6 +42,7 @@ def create_app():
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         MAPBOX_ACCESS_TOKEN=os.environ.get("MAPBOX_ACCESS_TOKEN"),
         URL_FETCH_ALLOW_LIST=settings.URL_FETCH_ALLOW_LIST,
+        DATASET_EXPIRY_DAYS=settings.DATASET_EXPIRY_DAYS,
         SECRET_KEY=secret_key(),
     )
 
