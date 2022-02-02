@@ -274,7 +274,7 @@ def fetch_data(dataset, bulk_limit, limit):
 def fetch_data(url_template):
     opts = get_frontpage_options(with_url=False)
     click.echo("Fetching geonames")
-    for i in ["countries", "regions", "local_authorities"]:
+    for i in ["countries", "regions", "localAuthorities"]:
         count = 0
         click.echo(f"Fetching {i}")
         with click.progressbar(opts[i]) as bar:
