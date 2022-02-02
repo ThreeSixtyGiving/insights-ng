@@ -171,6 +171,7 @@ var app = new Vue({
             let activeFilters = [];
 
             if (!window.location.search && this.dataset == 'main'){
+                window.location.href = "/";
                 return activeFilters;
             }
 
@@ -367,6 +368,7 @@ var app = new Vue({
             /* If no search filters do nothing */
 
             if (!this.filtersApplied.length && this.dataset == 'main'){
+                window.location.href = '/'
                 return;
             }
 
