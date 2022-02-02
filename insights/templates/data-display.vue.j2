@@ -425,8 +425,9 @@
           </chart-card-header>
           <ul class="bar-chart" v-if="chartData.byGeoSource">
             <li class="bar-chart__item" v-for="(group, index) in chartBars('byGeoSource')"
+              style="cursor: unset;"
               :style="group.style">
-              <label class="bar-chart__label small">{{ group.label }}</label>
+              <label class="bar-chart__label small" style="cursor: unset;">{{ group.label }}</label>
               <div class="bar-chart__bar"><span></span></div>
             </li>
           </ul>
@@ -465,7 +466,7 @@
               v-bind:class="{ 'hide-print' : group.inactive }"
               v-on:click="toggleInArray(filters.orgtype, group.id)"
             >
-              <label class="bar-chart__label small">{{ group.label }}</label>
+              <label class="bar-chart__label small" >{{ group.label }}</label>
               <div class="bar-chart__bar" v-bind:class="{ 'inactive-bar': group.inactive }"><span></span></div>
             </li>
           </ul>
@@ -491,8 +492,9 @@
           </chart-card-header>
           <ul class="bar-chart" v-if="chartData.byOrgSize">
             <li class="bar-chart__item" v-for="(group, index) in chartBars('byOrgSize')"
+              style="cursor: unset;"
               :style="group.style">
-              <label class="bar-chart__label">{{ group.label }}</label>
+              <label class="bar-chart__label" style="cursor: unset;">{{ group.label }}</label>
               <div class="bar-chart__bar"><span></span></div>
             </li>
           </ul>
@@ -521,8 +523,10 @@
             (number of grants)
           </chart-card-header>
           <ul class="bar-chart" v-if="chartData.byOrgAge">
-            <li class="bar-chart__item" v-for="(group, index) in chartBars('byOrgAge')"  :style="group.style">
-              <label class="bar-chart__label">{{ group.label }}</label>
+            <li class="bar-chart__item" v-for="(group, index) in chartBars('byOrgAge')"
+              style="cursor: unset;"
+             :style="group.style">
+              <label class="bar-chart__label" style="cursor: unset;" >{{ group.label }}</label>
               <div class="bar-chart__bar" v-bind:class="{ 'inactive-bar': group.inactive }"><span></span></div>
             </li>
           </ul>
