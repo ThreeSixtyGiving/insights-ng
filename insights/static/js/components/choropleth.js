@@ -105,7 +105,7 @@ export const choropleth = {
 
         zoom(){
             /* Toggle the two layers based on zoom level */
-            if (this.map.getZoom() > 9){
+            if (this.map.getZoom() > 7){
                 /* more detailed layer*/
                 if (this.map.hasLayer(this.regionCountryLayer)){
                     this.regionCountryLayer.remove();
@@ -132,7 +132,7 @@ export const choropleth = {
         var map = L.mapbox.map(this.container, null, {
             attributionControl: { compact: true },
             zoomControl: true,
-        }).setView([52.48, -1.9025], 7);
+        }).setView([54.55, -2], 6);
         L.mapbox.styleLayer('mapbox://styles/davidkane/cjvnt2h0007hm1clrbd20bbug').addTo(map);
 
         // disable scroll when map isn't focused
