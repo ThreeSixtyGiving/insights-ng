@@ -19,6 +19,7 @@
     const PAGE_URLS = {{ page_urls|tojson }};
     const TITLE = {{ title|tojson }};
     const SUBTITLE = {{ subtitle|tojson }};
+    const DATASET_EXPIRY_DAYS = {{ config.DATASET_EXPIRY_DAYS|tojson }};
   </script>
   <script type="module" src="{{ url_for('static', filename='js/data-display.js') }}"></script>
 {% endblock bodyscripts %}
@@ -167,9 +168,10 @@
 
   <main class="layout__content">
     <div class="layout__content-inner">
-      <div class="box box--orange" v-if="!filtersApplied.length && dataset == 'main'">
+      <div class="box box--orange" v-if="(!filtersApplied.length && dataset == 'main') | (summary.grants === 0 && dataset !== 'main')">
           <h3>No Dataset selected</h3>
           <p>There are currently no 360Giving datasets selected. <a href="/">Select a dataset.</a></p>
+          <p>Note: Datasets imported from GrantNav expire after {{datasetExpiryDays}} days.</p>
       </div>
 
       <template v-else>

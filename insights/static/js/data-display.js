@@ -113,6 +113,7 @@ var app = new Vue({
     data() {
         return {
             dataset: DATASET,
+            datasetExpiryDays: DATASET_EXPIRY_DAYS,
             title: TITLE,
             subtitle: SUBTITLE,
             bin_labels: BIN_LABELS,
