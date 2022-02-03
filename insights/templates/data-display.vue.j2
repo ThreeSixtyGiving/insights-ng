@@ -170,7 +170,7 @@
       <div class="box box--orange" v-if="(!filtersApplied.length && dataset == 'main') | (summary.grants === 0 && dataset !== 'main')">
           <h3>No Dataset selected</h3>
           <p>There are currently no 360Giving datasets selected. <a href="/">Select a dataset.</a></p>
-          <p>Note: Datasets imported from GrantNav expire after {{datasetExpiryDays}} days.</p>
+          <p>Note: Datasets imported from <a href="https://grantnav.threesixtygiving.org">GrantNav</a> expire after {{datasetExpiryDays}} days.</p>
       </div>
 
       <template v-else>
