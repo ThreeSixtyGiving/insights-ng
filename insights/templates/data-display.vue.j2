@@ -78,8 +78,6 @@
             This data contains grants made in {{ summary.currencies.length }} different currencies.
             Only showing grants made in {{ currencyUsed }}.
           </template>
-          <strong v-if="dataset == 'main'">From the <a href="https://data.threesixtygiving.org/">360Giving data
-              registry</a></strong>
 
           <template v-if="sources.length == 1 && sources[0].distribution[0]"> | <a
               v-bind:href="sources[0].distribution[0].downloadURL">Download original file</a><br>
