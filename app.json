@@ -1,7 +1,17 @@
 {
-    "scripts": {
-      "dokku": {
-        "postdeploy": "flask db upgrade"
-      }
+  "scripts": {
+    "dokku": {
+      "postdeploy": "flask db upgrade"
     }
-  }
+  },
+  "cron": [
+    {
+      "command": "./fetch_data.sh > /dev/null",
+      "schedule": "0 3 * * *"
+    },
+    {
+      "command": "flask expire uploaded_data > /dev/null",
+      "schedule": "0 0 * * *"
+    }
+  ]
+}
