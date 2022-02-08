@@ -109,6 +109,7 @@ class Publisher(db.Model):
     name = db.Column(db.String(255), nullable=False, index=True)
     website = db.Column(db.String(255), nullable=True, index=True)
     logo = db.Column(db.String(255), nullable=True, index=True)
+    last_published = db.Column(db.String(255), nullable=True)
     source_files = relationship("SourceFile", back_populates="publisher")
     grants = relationship("Grant", back_populates="publisher")
 
