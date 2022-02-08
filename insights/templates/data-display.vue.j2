@@ -155,19 +155,21 @@
       </div>
     </div>
 
-    <template v-if="summary.currencies.length > 1">
-      <div>
-      <p>This data contains grants made in {{ summary.currencies.length }} different currencies.
-      Only showing grants made in {{ currencyUsed }}.</p>
-      </div>
-    </template>
-
+    <div v-if="summary.currencies.length > 1">
+      This data also contains
+      <ul>
+        <li v-for="currency in summary.currencies" v-if="currency.currency != 'GBP'">
+          {{currency.grants | formatNumberSuffix}} grants awarded in {{currency.currency}} totalling {{ currency.total |
+          formatCurrency(currency.currency) }}.
+        </li>
+      </ul>
+    </div>
 
       <!-- / totals summary boxes -->
   </header>
 
   <main class="layout__content">
-    <div class="layout__content-inner">
+    <div class="layout__content-inner" style="padding-top: 10px">
       <div class="box box--orange" v-if="(!filtersApplied.length && dataset == 'main') | (summary.grants === 0 && dataset !== 'main')">
           <h3>No Dataset selected</h3>
           <p>There are currently no 360Giving datasets selected. <a href="/">Select a dataset.</a></p>
