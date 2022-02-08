@@ -74,11 +74,6 @@
 
           <a href="#" class="button hide-print" title="Print this page" style="margin-right: 5px; padding-bottom: 2px; float:right" onclick="window.print()"><i class="material-icons">print</i></a>
 
-          <template v-if="summary.currencies.length > 1">
-            This data contains grants made in {{ summary.currencies.length }} different currencies.
-            Only showing grants made in {{ currencyUsed }}.
-          </template>
-
           <template v-if="sources.length == 1 && sources[0].distribution[0]"> | <a
               v-bind:href="sources[0].distribution[0].downloadURL">Download original file</a><br>
             <template v-if="sources[0].publisher">Published by <a v-bind:href="sources[0].publisher.website">{{
@@ -159,6 +154,14 @@
         </template>
       </div>
     </div>
+
+    <template v-if="summary.currencies.length > 1">
+      <div>
+      <p>This data contains grants made in {{ summary.currencies.length }} different currencies.
+      Only showing grants made in {{ currencyUsed }}.</p>
+      </div>
+    </template>
+
 
       <!-- / totals summary boxes -->
   </header>
@@ -403,9 +406,11 @@
               <chart-card-header title="Grant Locations">
               (number of grants)
               </chart-card-header>
+              <!-- https://github.com/ThreeSixtyGiving/insights-ng/issues/88
               <div class="align-left margin-bottom:1">
                 <a :href="mapUrl" class="button button--small button--red align-left">View this map on its own page</a>
               </div>
+              --->
               <div v-if="geoGrants">
                 <hr class="separator-light">
                 <p>Based on {{ geoGrants.length | formatNumber }} grants.</p>
