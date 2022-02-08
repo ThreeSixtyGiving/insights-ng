@@ -2572,12 +2572,12 @@ body.modal--shown {
 .base-card__title {
   font-size: 2rem;
   line-height: 1.3;
-  font-weight: 100;
+  font-weight: 300;
   margin: 0; }
 
 .base-card__text {
   font-size: 1rem;
-  font-weight: 100; }
+  font-weight: 300; }
 
 .base-card--orange:before {
   --card-bg-hsl: var(--orange-hsl); }
