@@ -54,7 +54,7 @@ export const mapboxMap = {
             attributionControl: { compact: true },
             zoomControl: true,
         }).setView([52.9225, 1.4746], 6);
-        L.mapbox.styleLayer('mapbox://styles/davidkane/cjvnt2h0007hm1clrbd20bbug').addTo(map)
+        L.mapbox.styleLayer('mapbox://styles/davidkane/cjvnt2h0007hm1clrbd20bbug').addTo(map);
 
         // disable scroll when map isn't focused
         map.scrollWheelZoom.disable();

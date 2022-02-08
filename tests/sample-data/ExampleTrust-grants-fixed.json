@@ -28,7 +28,11 @@
                 }
             ],
             "dateModified": "2017-12-22T00:00:00+00:00",
-            "dataSource": "http://www.example.org/grants.htm"
+            "dataSource": "http://www.example.org/grants.htm",
+            "additional_data": {
+                "locationLookup": [],
+                "recipientOrgInfos": []
+            }
         },
         {
             "id": "360G-KJD-001231",
@@ -58,7 +62,15 @@
                 }
             ],
             "dateModified": "2017-12-22T00:00:00+00:00",
-            "dataSource": "http://www.example.org/grants.htm"
+            "dataSource": "http://www.example.org/grants.htm",
+            "additional_data": {
+                "locationLookup": [],
+                "recipientOrgInfos": [
+                    {
+                        "dateRegistered": ""
+                    }
+                ]
+            }
         },
         {
             "id": "360G-KJD-001232",

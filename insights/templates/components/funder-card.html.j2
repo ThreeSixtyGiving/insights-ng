@@ -1,19 +1,20 @@
+{# component not currently in use #}
 {% macro funder_card(record) %}<li class="card-list__item">
 <article class="insights-card" title="{{ record.name }}">
     <div class="insights-card__pub-logo">
         <a href="{{ record.website }}" target="_blank">
-        
+
         <img src="{{ record.logo }}" alt="{{ record.name }}">
-        
+
         <span class="screen-reader-only">(opens in a new tab)</span></a>
     </div>
     <div class="insights-card__content">
     <h3 class="insights-card__pub-name">
         <a href="{{ url_for('data', data_type='publisher', data_id=record.prefix) }}">{{ record.name }}</a>
     </h3>
-    
+
     <ul class="insights-card__list">
-        
+
         <li class="insights-card__item ">
         <a href="{{ url_for('data', data_type='publisher', data_id=record.prefix) }}">
             <table class="grant">
@@ -47,7 +48,7 @@
             </tbody></table>
         </a>
         </li>
-        
+
     </ul>
     </div>
 </article>

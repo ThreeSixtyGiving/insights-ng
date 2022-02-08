@@ -1,10 +1,20 @@
-import { formatNumber } from './components/filters.js';
+import { formatCurrency, formatDate, formatNumber, getAmountSuffix, formatNumberSuffix } from './components/filters.js';
 
+Vue.filter('formatCurrency', formatCurrency);
+Vue.filter('formatDate', formatDate);
 Vue.filter('formatNumber', formatNumber);
+Vue.filter('getAmountSuffix', getAmountSuffix);
+Vue.filter('formatNumberSuffix', formatNumberSuffix);
+
+import { choropleth } from './components/choropleth.js';
+
+import { mapboxMap } from './components/map.js';
+Vue.component('mapbox-map', mapboxMap);
+Vue.component('choropleth', choropleth);
+Vue.component('multi-select', window.VueMultiselect.default);
 
 var app = new Vue({
     el: '#app',
-    delimiters: ["<%", "%>"],
     data() {
         return {
             uploadModal: false,
@@ -17,29 +27,64 @@ var app = new Vue({
             uploadSourceLicenseName: null,
             uploadError: null,
             datasetSelect: DATASET_SELECT,
-            datasetSelectSections: DATASET_SELECT_SECTIONS,
-            datasetSearch: null,
-            maxListLength: 10,
+            datasetSelectSections: {
+                funders: "Funders",
+                funderTypes: "Funding organisation type",
+                // publishers: "Publishers",
+                countries: "Countries",
+                regions: "Regions",
+                localAuthorities: "Local authorities",
+            },
+            find: {
+                funders: "",
+                funderTypes: "",
+                countries: "",
+                regions: "",
+                localAuthorities: "",
+            },
+            maxGrantCounts: {}, /* cache of max count */
         }
+    },
+    watch: {
+        find: {
+            deep: true,
+            handler: function(){
+                for (let field in this.find){
+                    if (this.find[field].length == 0){
+                        continue;
+                    }
+                    /* Filter the <li> in the graph list for the specified term */
+                    var app = this;
+                    this.$refs[field].forEach((li) => {
+                        li.style.display = null;
+                        if (li.dataset.label && app.find[field] && !li.dataset.label.toLowerCase().includes(app.find[field].toLowerCase())){
+                            li.style.display = "none";
+                        }
+                    });
+
+                    console.log(this.find[field]);
+                }
+            }
+        }
+
     },
     methods: {
         getDatasetOptions: function (field) {
-            if (this.datasetSearch) {
-                return this.datasetSelect[field].filter((v) => {
-                    var searchStr = v.name
-                        .concat(" ", v.id)
-                        .toLowerCase();
-                    return searchStr.includes(this.datasetSearch.toLowerCase());
-                });
-            }
-            return this.datasetSelect[field].slice(0, this.maxListLength);
+            return this.datasetSelect[field];
         },
-        getDatasetOptionsOtherN: function (field) {
-            if (this.datasetSearch) {
-                return 0;
-            }
-            return this.datasetSelect[field].length - this.getDatasetOptions(field).length;
+        openDataPage(filterK, filterV){
+            window.location = `/data?${filterK}=${filterV}`;
         },
+        barStyle: function(field, value){
+            if (!this.maxGrantCounts[field]){
+                this.maxGrantCounts[field] = Math.max(...Object.values (this.datasetSelect[field]).map((dataOb) => dataOb.grant_count))
+            }
+            return  {
+                '--value': value,
+                '--width': `${(value / this.maxGrantCounts[field]) * 100}%`,
+            }
+        },
+
         addFile: function(e){
             let droppedFiles;
             if(e.dataTransfer){
@@ -78,5 +123,6 @@ var app = new Vue({
         openFileDialog: function(){
             this.$refs.uploadFileInput.click();
         }
-    }
+        },
+
 });

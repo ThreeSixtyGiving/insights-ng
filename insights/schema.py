@@ -176,6 +176,7 @@ class Query(graphene.ObjectType):
         return query.filter(PublisherModel.prefix.in_(ids)).all()
 
     def resolve_grant_aggregates(self, info, **kwargs):
+        print(info)
         query = get_grants_base_query(db.session.query(), **kwargs)
 
         geo_labels = {g.id: g.name for g in GeoName.query.all()}
@@ -204,6 +205,7 @@ class Query(graphene.ObjectType):
         return_result = {}
 
         operations = get_graphql_operations(info)
+        print(operations)
 
         for k, fields in group_bys.items():
 
@@ -229,7 +231,9 @@ class Query(graphene.ObjectType):
                 agg_cols.append(func.count(GrantModel.id).label("grants"))
             if "recipients" in operations[k] or "bucket" in operations[k]:
                 agg_cols.append(
-                    func.count(distinct(GrantModel.insights_org_id)).label("recipients")
+                    func.count(distinct(GrantModel.insights_org_id_int)).label(
+                        "recipients"
+                    )
                 )
             if "funders" in operations[k] or "bucket" in operations[k]:
                 agg_cols.append(
@@ -290,7 +294,9 @@ class Query(graphene.ObjectType):
                     for b in r["bucket_group"]:
                         if not b["id"]:
                             continue
-                        b["name"] = ''.join(map(lambda x: x if x.islower() else " "+x, b["id"])).capitalize()
+                        b["name"] = "".join(
+                            map(lambda x: x if x.islower() else " " + x, b["id"])
+                        ).capitalize()
 
             if k == "by_country_region":
                 return_result[k] = sorted(

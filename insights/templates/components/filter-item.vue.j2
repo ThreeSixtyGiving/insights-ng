@@ -1,0 +1,21 @@
+{% raw %}
+<script type="text/x-template" id="filter-item-template">
+<div class="filter-panel__item">
+  <div class="grid grid--four-columns">
+    <div class="grid__1"></div>
+      <div class="grid__3">
+        <slot></slot>
+      </div>
+  </div>
+</div>
+</script>
+
+<script>
+    Vue.component('filter-item', {
+        template: "#filter-item-template",
+        props: {
+            title: { type: String },
+        },
+    });
+</script>
+{% endraw %}

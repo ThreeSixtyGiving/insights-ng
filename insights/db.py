@@ -64,6 +64,7 @@ class Grant(db.Model):
 
     # insights specific fields - organisation
     insights_org_id = db.Column(db.String(255), nullable=True)
+    insights_org_id_int = db.Column(db.Integer, nullable=True)
     insights_org_registered_date = db.Column(db.Date, nullable=True)
     insights_org_latest_income = db.Column(db.Integer, nullable=True)
     insights_org_type = db.Column(db.String(255), nullable=True, index=True)
@@ -108,6 +109,7 @@ class Publisher(db.Model):
     name = db.Column(db.String(255), nullable=False, index=True)
     website = db.Column(db.String(255), nullable=True, index=True)
     logo = db.Column(db.String(255), nullable=True, index=True)
+    last_published = db.Column(db.String(255), nullable=True)
     source_files = relationship("SourceFile", back_populates="publisher")
     grants = relationship("Grant", back_populates="publisher")
 
@@ -116,3 +118,23 @@ class GeoName(db.Model):
     id = db.Column(db.String(255), primary_key=True)
     name = db.Column(db.String(255), nullable=False, index=True)
     type_ = db.Column(db.String(255), nullable=False, index=True)
+
+
+DATASET_STATS = ["grants_total", "amount_average", "amount_total", "recipients_total"]
+
+
+class DatasetStats(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    dataset = db.Column(
+        db.String(255), nullable=False, index=True, default=settings.DEFAULT_DATASET
+    )
+    name = db.Column(db.String(255), nullable=False, index=True)
+    value = db.Column(db.String(255), nullable=False, index=True)
+
+
+class OrgIdIds(db.Model):
+    """For faster distinct and sorting on org-ids keep a table of them to
+    generate a unique int for each one"""
+
+    id = db.Column(db.Integer, primary_key=True)
+    org_id = db.Column(db.String(255), nullable=False, index=True)

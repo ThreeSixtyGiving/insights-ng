@@ -45,18 +45,24 @@ def client():
     os.unlink(db_path)
 
 
-def create_dummy_grants():
-    publisher = Publisher(prefix="360G-pub", name="Publisher")
-    db.session.merge(publisher)
+def create_dummy_grants(source_file_id="12345", publisher_prefix="360G-pub", source_file_modified=None, grant_dataset="main"):
+    if publisher_prefix is None:
+        publisher = None
+    else:
+        publisher = Publisher(prefix=publisher_prefix, name="Publisher")
+        db.session.merge(publisher)
     source_file = SourceFile(
-        id="12345",
+        id=source_file_id,
         title="Source file",
         publisher=publisher,
     )
+    if source_file_modified:
+        source_file.modified = source_file_modified
     db.session.merge(source_file)
+    grant_ids = []
     for i in range(0, 10):
         g = Grant(
-            dataset="main",
+            dataset=grant_dataset,
             grant_id=f"dummy_{i}",
             title=f"Dummy Grant {i}",
             description="A dummy grant",
@@ -70,8 +76,10 @@ def create_dummy_grants():
             publisher=publisher,
             source_file=source_file,
         )
-        db.session.merge(g)
-    db.session.commit()
+        g_merged = db.session.merge(g)
+        db.session.commit()
+        grant_ids.append(g_merged.id)
+    return grant_ids
 
 
 def test_index(client):

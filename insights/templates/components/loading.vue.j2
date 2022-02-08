@@ -1,0 +1,19 @@
+
+<script id="loading-template" type="text/x-template">
+    <div class="lds-ellipsis">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+</script>
+
+
+<script>
+    Vue.component('loading', {
+        template: '#loading-template',
+        props: {
+            textAlign: {type: String, default: "center"}
+        }
+    });
+</script>

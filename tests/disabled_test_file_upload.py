@@ -119,24 +119,3 @@ def test_upload_broken(m, client, filename, filetype):
         assert rv.json["filetype"] == filetype
 
 
-@pytest.mark.parametrize("url", [
-    "https://grantnav.threesixtygiving.org/grants/grants.json",
-    "https://grantnav.threesixtygiving.org/grants/grants.csv",
-])
-def test_fetch_from_url(m, client, url):
-    rv = client.get("/?url=" + url, follow_redirects=True)
-    assert rv.status_code == 200
-    assert "/data/" in request.path
-    assert b'Uploaded dataset' in rv.data
-    assert b'Could not fetch from URL' not in rv.data
-
-
-@pytest.mark.parametrize("url", [
-    "https://raw.githubusercontent.com/ThreeSixtyGiving/standard/master/schema/360-giving-package-schema.json",
-    "https://grantnav.threesixtygiving.org/grants/broken-grants.csv",
-])
-def test_fetch_from_url_broken(m, client, url):
-    rv = client.get("/?url=" + url, follow_redirects=True)
-    assert rv.status_code == 200
-    assert request.path == "/"
-    assert b'Could not fetch from URL' in rv.data

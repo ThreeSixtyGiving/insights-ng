@@ -7,13 +7,109 @@ from flask import current_app
 from flask.cli import AppGroup, with_appcontext
 from sqlalchemy import create_engine
 from sqlalchemy.sql import text
+from sqlalchemy.sql import func, distinct
 
 from insights import settings
 from insights.data import get_frontpage_options
-from insights.db import Distribution, GeoName, Grant, Publisher, SourceFile, db
+from insights.db import (
+    Distribution,
+    GeoName,
+    Grant,
+    Publisher,
+    SourceFile,
+    DatasetStats,
+    OrgIdIds,
+    db,
+    DATASET_STATS,
+    get_or_create,
+)
 from insights.utils import get_org_schema, to_band
 
 cli = AppGroup("data")
+
+
+def process_row(row):
+    # sort out organistion type
+    orgType = []
+    try:
+        orgType = json.loads(row["organisationType"])
+    except TypeError:
+        pass
+    except json.decoder.JSONDecodeError:
+        if isinstance(row["organisationType"], str):
+            orgType = [row["organisationType"]]
+        else:
+            click.echo(
+                "Couldn't process organisation type for grant {}: {}".format(
+                    row["grant_id"], row["organisationType"]
+                ),
+                err=True,
+            )
+    del row["organisationType"]
+
+    if not row["insights_org_id"]:
+        row["insights_org_id"] = row["recipientOrganization_id"]
+
+    row["insights_org_id_int"] = get_or_create(
+        db.session, OrgIdIds, org_id=row["insights_org_id"]
+    ).id
+
+    org_id_schema, org_id_value = get_org_schema(row["insights_org_id"])
+    row["insights_org_type"] = "Identifier not recognised"
+    if org_id_schema is None and orgType:
+        row["insights_org_type"] = orgType[0]
+    elif org_id_schema == "GB-COH" and len(orgType) > 1:
+        row["insights_org_type"] = orgType[1]
+    elif org_id_schema in settings.IDENTIFIER_MAP:
+        row["insights_org_type"] = settings.IDENTIFIER_MAP.get(
+            org_id_schema, org_id_schema
+        )
+    elif org_id_schema and not org_id_schema.startswith("GB-"):
+        row["insights_org_type"] = "Overseas organisation"
+    elif org_id_schema:
+        row["insights_org_type"] = org_id_schema
+
+    # sort out duration field
+    if row["plannedDates_duration"]:
+        try:
+            row["plannedDates_duration"] = int(row["plannedDates_duration"])
+        except ValueError:
+            row["plannedDates_duration"] = None
+
+    # sort out dates
+    for f in [
+        "awardDate",
+        "insights_org_registered_date",
+        "plannedDates_startDate",
+        "plannedDates_endDate",
+    ]:
+        if row[f] is None:
+            continue
+        try:
+            row[f] = datetime.date.fromisoformat(row[f][0:10])
+        except ValueError:
+            row[f] = None
+            click.echo(
+                "Invalid date for grant {} [{}]: {}".format(row["grant_id"], f, row[f]),
+                err=True,
+            )
+
+    # sort out bandings
+    row["insights_band_amount"] = to_band(
+        row["amountAwarded"], settings.AMOUNT_BINS, settings.AMOUNT_BIN_LABELS
+    )
+    if row["insights_org_latest_income"]:
+        row["insights_band_income"] = to_band(
+            row["insights_org_latest_income"],
+            settings.INCOME_BINS,
+            settings.INCOME_BIN_LABELS,
+        )
+    if row["insights_org_registered_date"]:
+        days = (row["awardDate"] - row["insights_org_registered_date"]).days
+        days = max(days, 0)
+        row["insights_band_age"] = to_band(
+            days, settings.AGE_BINS, settings.AGE_BIN_LABELS
+        )
 
 
 @cli.command("fetch")
@@ -50,10 +146,10 @@ def fetch_data(dataset, bulk_limit, limit):
         text(
             """
     select data
-    from db_sourcefile ds 
+    from db_sourcefile ds
     where ds.id in (
-        select distinct source_file_id 
-        from view_latest_grant vlg 
+        select distinct source_file_id
+        from view_latest_grant vlg
     )
     """
         )
@@ -154,85 +250,8 @@ def fetch_data(dataset, bulk_limit, limit):
             # add dataset name
             row["dataset"] = dataset
 
-            # sort out organistion type
-            orgType = []
-            try:
-                orgType = json.loads(row["organisationType"])
-            except TypeError:
-                pass
-            except json.decoder.JSONDecodeError:
-                if isinstance(row["organisationType"], str):
-                    orgType = [row["organisationType"]]
-                else:
-                    click.echo(
-                        "Couldn't process organisation type for grant {}: {}".format(
-                            row["grant_id"], row["organisationType"]
-                        ),
-                        err=True,
-                    )
-            del row["organisationType"]
+            process_row(row)
 
-            if not row["insights_org_id"]:
-                row["insights_org_id"] = row["recipientOrganization_id"]
-
-            org_id_schema, org_id_value = get_org_schema(row["insights_org_id"])
-            row["insights_org_type"] = "Identifier not recognised"
-            if org_id_schema is None and orgType:
-                row["insights_org_type"] = orgType[0]
-            elif org_id_schema == "GB-COH" and len(orgType) > 1:
-                row["insights_org_type"] = orgType[1]
-            elif org_id_schema in settings.IDENTIFIER_MAP:
-                row["insights_org_type"] = settings.IDENTIFIER_MAP.get(
-                    org_id_schema, org_id_schema
-                )
-            elif org_id_schema and not org_id_schema.startswith("GB-"):
-                row["insights_org_type"] = "Overseas organisation"
-            elif org_id_schema:
-                row["insights_org_type"] = org_id_schema
-
-            # sort out duration field
-            if row["plannedDates_duration"]:
-                try:
-                    row["plannedDates_duration"] = int(row["plannedDates_duration"])
-                except ValueError:
-                    row["plannedDates_duration"] = None
-
-            # sort out dates
-            for f in [
-                "awardDate",
-                "insights_org_registered_date",
-                "plannedDates_startDate",
-                "plannedDates_endDate",
-            ]:
-                if not row[f]:
-                    continue
-                try:
-                    row[f] = datetime.date.fromisoformat(row[f][0:10])
-                except ValueError:
-                    row[f] = None
-                    click.echo(
-                        "Invalid date for grant {} [{}]: {}".format(
-                            row["grant_id"], f, row[f]
-                        ),
-                        err=True,
-                    )
-
-            # sort out bandings
-            row["insights_band_amount"] = to_band(
-                row["amountAwarded"], settings.AMOUNT_BINS, settings.AMOUNT_BIN_LABELS
-            )
-            if row["insights_org_latest_income"]:
-                row["insights_band_income"] = to_band(
-                    row["insights_org_latest_income"],
-                    settings.INCOME_BINS,
-                    settings.INCOME_BIN_LABELS,
-                )
-            if row["insights_org_registered_date"]:
-                days = (row["awardDate"] - row["insights_org_registered_date"]).days
-                days = max(days, 0)
-                row["insights_band_age"] = to_band(
-                    days, settings.AGE_BINS, settings.AGE_BIN_LABELS
-                )
             objects.append(row)
 
             if len(objects) >= bulk_limit:
@@ -255,7 +274,7 @@ def fetch_data(dataset, bulk_limit, limit):
 def fetch_data(url_template):
     opts = get_frontpage_options(with_url=False)
     click.echo("Fetching geonames")
-    for i in ["countries", "regions", "local_authorities"]:
+    for i in ["countries", "regions", "localAuthorities"]:
         count = 0
         click.echo(f"Fetching {i}")
         with click.progressbar(opts[i]) as bar:
@@ -270,3 +289,33 @@ def fetch_data(url_template):
                 db.session.commit()
                 count += 1
         click.echo(f"Fetched {count:,.0f} {i}")
+
+
+@cli.command("update_dataset_stats")
+@click.option(
+    "--dataset",
+    default=settings.DEFAULT_DATASET,
+    show_default=True,
+    help="Update the dataset stats",
+)
+@with_appcontext
+def update_dataset_stats(dataset):
+
+    db.session.query(DatasetStats).filter(dataset == dataset).delete()
+
+    stats_q = dict(
+        db.session.query(
+            func.count(Grant.id).label(DATASET_STATS[0]),
+            func.avg(Grant.amountAwarded).label(DATASET_STATS[1]),
+            func.sum(Grant.amountAwarded).label(DATASET_STATS[2]),
+            func.count(distinct(Grant.insights_org_id)).label(DATASET_STATS[3]),
+        )
+        .filter(Grant.dataset == dataset)
+        .first()
+    )
+
+    for key in stats_q.keys():
+        print(key)
+        db.session.add(DatasetStats(name=key, value=str(stats_q[key]), dataset=dataset))
+
+    db.session.commit()
