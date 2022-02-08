@@ -112,5 +112,6 @@ be made in [Insights' folder](https://github.com/ThreeSixtyGiving/360-ds/tree/ma
 then compile.
 
 ```
-npm run compile-sass -- --project 'insights' --path '../insights-ng/insights/static/css/'
+cd 360-ds
+npm run compile-sass -- --project 'insights' --path '../insights/static/css/'
 ```

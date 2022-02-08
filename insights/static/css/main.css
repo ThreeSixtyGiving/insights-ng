@@ -2055,8 +2055,10 @@ p {
   .modal__trigger {
     cursor: pointer; }
   .modal__close {
-    all: unset;
     cursor: pointer;
+    background-color: unset;
+    padding: unset;
+    border: unset;
     float: right; }
     .modal__close:after {
       content: 'close'; }
@@ -2564,7 +2566,7 @@ body.modal--shown {
 
 .base-card__subheading {
   font-size: 1rem;
-  font-weight: 200;
+  font-weight: 300;
   margin: 0; }
 
 .base-card__title {
