@@ -61,8 +61,6 @@ var app = new Vue({
                             li.style.display = "none";
                         }
                     });
-
-                    console.log(this.find[field]);
                 }
             }
         }
@@ -111,7 +109,6 @@ var app = new Vue({
             fetch(UPLOAD_URL, {method: "POST", body: formData})
                 .then(response => response.json())
                 .then(data => {
-                    console.log(data);
                     window.location.replace(data.data_url);
                 })
                 .catch(error => {

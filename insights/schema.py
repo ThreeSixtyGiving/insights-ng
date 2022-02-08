@@ -176,7 +176,6 @@ class Query(graphene.ObjectType):
         return query.filter(PublisherModel.prefix.in_(ids)).all()
 
     def resolve_grant_aggregates(self, info, **kwargs):
-        print(info)
         query = get_grants_base_query(db.session.query(), **kwargs)
 
         geo_labels = {g.id: g.name for g in GeoName.query.all()}
@@ -205,7 +204,6 @@ class Query(graphene.ObjectType):
         return_result = {}
 
         operations = get_graphql_operations(info)
-        print(operations)
 
         for k, fields in group_bys.items():
 

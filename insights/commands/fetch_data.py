@@ -315,7 +315,6 @@ def update_dataset_stats(dataset):
     )
 
     for key in stats_q.keys():
-        print(key)
         db.session.add(DatasetStats(name=key, value=str(stats_q[key]), dataset=dataset))
 
     db.session.commit()

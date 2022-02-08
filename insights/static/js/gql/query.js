@@ -143,8 +143,6 @@ export function graphqlQuery(query, vars) {
   const formData = new FormData();
   formData.append('query', query);
   formData.append('variables', JSON.stringify(vars));
-  console.log(query);
-  console.log(vars);
   return fetch(GRAPHQL_ENDPOINT, {
     method: 'POST',
     mode: 'same-origin',

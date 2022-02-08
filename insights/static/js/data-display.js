@@ -416,7 +416,6 @@ var app = new Vue({
 
         },
         dataWithoutFilter(filterName){
-            console.log("Doing with out filter on "+filterName);
             /* returns the without the filter named applied so that we can display
             what the options are if it were unselected/unfiltered */
             var app = this;
