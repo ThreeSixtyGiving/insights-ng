@@ -172,7 +172,7 @@
       <ul>
         <li v-for="currency in summary.currencies" v-if="currency.currency != 'GBP'">
           {{currency.grants | formatNumberSuffix}} grants awarded in {{currency.currency}} totalling {{ currency.total |
-          formatCurrency(currency.currency) }}.
+          formatCurrency(currency.currency) }}{{ currency.total | getAmountSuffix(true) }}.
         </li>
       </ul>
     </div>
@@ -254,7 +254,7 @@
 
         <chart-card color="orange" v-bind:loading="loading">
           <chart-card-header title="Award amount">
-          (number of grants)
+          (GBP, number of grants)
           </chart-card-header>
           <ul class="bar-chart" v-if="chartData.byAmountAwarded">
             <li class="bar-chart__item" v-for="group in chartBars('byAmountAwarded', 'grants', 1)"
