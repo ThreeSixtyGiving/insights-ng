@@ -43,30 +43,42 @@
 
     <div class="base-section">
       <div class="grid grid--single-column">
-        <hgroup class="header-group">
-          <a href="/"><img style="max-width: 140px;"
-              src="https://cdn.threesixtygiving.org/images/360-logos/insights/360insights-color.svg" alt="360 "></a>
-          <h3 class="header-group__brow">{{ subtitle }}</h3>
-          <h2 class="header-group__title">
-            {{ title }}
-            <template v-if="summary.minDate">
-              <template v-if="summary.minDate.slice(0,7) == summary.maxDate.slice(0,7)">
-                <small>in</small> {{ summary.minDate | formatDate('month') }}
-              </template>
-              <template v-else-if="summary.minDate.slice(0,4) == summary.maxDate.slice(0,4)">
-                <small>between</small> {{ summary.minDate | formatDate('month') }} <small>and</small> {{ summary.maxDate
-                | formatDate('month') }}
-              </template>
-              <template v-else>
-                <small>between</small> {{ summary.minDate | formatDate('year') }} <small>and</small> {{ summary.maxDate
-                | formatDate('year') }}
-              </template>
-            </template>
-          </h2>
+          <hgroup class="layout__header">
+            <div class="hero-section">
+              <div class="wrapper">
+                <div class="hero hero--orange">
+                  <!-- .hero--orange, .hero--yellow, .hero--red -->
+                  <div class="hero__column hero__logo">
+                    <a href="/"><img src="https://cdn.threesixtygiving.org/images/360-logos/insights/360insights-color.svg"
+                        alt="360 "></a>
+                  </div>
+                  <div class="hero__column hero__lead">
+                    <h2 class="hero__title">{{ subtitle }}</h2>
+                    <p class="hero__blurb">
+                        {{ title }}
+                        <template v-if="summary.minDate">
+                          <template v-if="summary.minDate.slice(0,7) == summary.maxDate.slice(0,7)">
+                            <small>in</small> {{ summary.minDate | formatDate('month') }}
+                          </template>
+                          <template v-else-if="summary.minDate.slice(0,4) == summary.maxDate.slice(0,4)">
+                            <small>between</small> {{ summary.minDate | formatDate('month') }} <small>and</small> {{ summary.maxDate
+                            | formatDate('month') }}
+                          </template>
+                          <template v-else>
+                            <small>between</small> {{ summary.minDate | formatDate('year') }} <small>and</small> {{ summary.maxDate
+                            | formatDate('year') }}
+                          </template>
+                        </template>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           <div class="fix-spinner-position">
             <loading v-if="loading"></loading>
           </div>
-        </hgroup>
+          </hgroup>
+
         <p class="header-group__excerpt">
           <template v-if="grantnavUrl && dataset == 'main'">
             <a v-bind:href="grantnavUrl" class="button hide-print" style="float:right">See in GrantNav</a>.
