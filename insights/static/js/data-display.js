@@ -395,17 +395,9 @@ var app = new Vue({
 
                 });
 
-                /* depending on the filters set find out what the data options would have been */
-                if (this.filtersApplied.length){
-                    ['funders', 'funderTypes', 'area', 'orgtype', 'grantProgrammes'].forEach((filter) => {
-                        if (app.filters[filter].length > 0){
-                            this.dataWithoutFilter(filter);
-                        }
-                    });
-                }
-
                 app.loadingQ--;
             });
+            /* For Grants array used for map */
             graphqlQuery(GEO_GQL, {
                 dataset: app.dataset,
                 ...app.base_filters,
@@ -413,6 +405,17 @@ var app = new Vue({
             }).then((data) => {
                 app.grants = data.data.grants;
             });
+
+            /* depending on the filters set find out what the data options would have been */
+            if (this.filtersApplied.length){
+                ['funders', 'funderTypes', 'area', 'orgtype', 'grantProgrammes'].forEach((filter) => {
+                    if (app.filters[filter].length > 0){
+                        this.dataWithoutFilter(filter);
+                    }
+                });
+            }
+
+
 
         },
         dataWithoutFilter(filterName){
