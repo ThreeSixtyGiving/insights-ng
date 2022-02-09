@@ -12,36 +12,36 @@
     <footer class="footer">
         <div class="footer__row wrapper">
             <div class="footer__column-2 footer__branding">
-                <div class="footer__logo"><img src="https://cdn.threesixtygiving.org//images/360-giving-logo-white.svg"
+                <div class="footer__logo"><img src="{{ url_for('static', filename='images/360-giving-logo-white.svg') }}"
                         alt="360Giving"></div>
                 <p class="footer__tagline">Open data for more effective grantmaking</p>
             </div>
             <div class="footer__column-1 footer__social">
-                <a href="#" class="github-icon"><img src="https://cdn.threesixtygiving.org//images/github-logo.svg"
+                <a href="https://github.com/ThreeSixtyGiving/insights-ng" class="github-icon"><img src="{{ url_for('static', filename='images/github-logo.svg') }}"
                         alt="Check our Github"></a>
-                <a href="#" class="twitter-icon"><img src="https://cdn.threesixtygiving.org//images/twitter-logo.svg"
+                <a href="https://twitter.com/360Giving/" class="twitter-icon"><img src="{{ url_for('static', filename='images/twitter-logo.svg') }}"
                         alt="Follow us on Twitter"></a>
             </div>
         </div>
 
         <div class="footer__row wrapper">
             <div class="footer__column-2 footer__section medium-up">
-                <h3 class="footer__heading">Products</h3>
+                <h3 class="footer__heading">Links</h3>
                 <ul>
-                    <li><a href="#">GrantNav</a></li>
-                    <li><a href="#">Insights</a></li>
-                    <li><a href="#">Resources</a></li>
-                    <li><a href="#">Cove</a></li>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/about/">About</a></li>
+                    <li><a href="https://threesixtygiving.org/">360Giving</a></li>
                 </ul>
             </div>
 
             <div class="footer__column-2 footer__section medium-up">
-                <h3 class="footer__heading">Other Products</h3>
+                <h3 class="footer__heading">Products</h3>
                 <ul>
-                    <li><a href="#">Data Registry</a></li>
-                    <li><a href="#">Data Standard</a></li>
-                    <li><a href="#">Data Challenge</a></li>
-                    <li><a href="#">Data Champions</a></li>
+                    <li><a href="https://grantnav.threesixtygiving.org/">GrantNav</a></li>
+                    <li><a href="https://standard.threesixtygiving.org/">Data Standard</a></li>
+                    <li><a href="https://dataquality.threesixtygiving.org/">Data Quality Tool</a></li>
+                    <li><a href="https://data.threesixtygiving.org/">Registry</a></li>
+                    <li><a href="https://qualitydashboard.threesixtygiving.org/">Quality Dashboard</a></li>
                 </ul>
             </div>
 
@@ -62,8 +62,8 @@
         </div>
 
         <div class="wrapper footer__small-print">
-            <a href="#" class="edit-github button button--small button--yellow">Edit on Github</a>
-            <p>© Copyright 2016-2017, 360Giving, licensed under a <a href="#" target="_blank">Creative Commons
+            <a href="https://github.com/ThreeSixtyGiving/insights-ng" class="edit-github button button--small button--yellow">Edit on Github</a>
+            <p>© Copyright 2022, 360Giving, licensed under a <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">Creative Commons
                     Attribution 4.0 International License.<span class="screen-reader-only">(opens in a new
                         tab)</span></a> <br>Icons from the Noun Project: Document by Jamison Wieser and JSON File by
                 useiconic.com. Revision e76b5687.</p>
@@ -72,13 +72,15 @@
         <div class="footer__row wrapper footer__small-print">
 
             <div class="footer__column-2">
-                <p>360Giving: Company <a href="" target="blank">09668396<span class="screen-reader-only">(opens in a new
-                            tab)</span></a> Charity <a href="#" target="_blank">1164883<span
-                            class="screen-reader-only">(opens in a new tab)</span></a></p>
+                <p>
+                    <strong>360 Giving</strong> (Trading as <strong>360Giving</strong>) is a registered charity <a
+                        href="https://register-of-charities.charitycommission.gov.uk/charity-details/?regId=1164883&amp;subId=0">1164883</a>
+                    and a registered company <a href="https://beta.companieshouse.gov.uk/company/09668396">09668396</a>.
+                    <br>Registered address: 360Giving, c/o Esmée Fairbairn Foundation, Kings Place, 90 York Way, London N1 9AG.
+                </p>
             </div>
-            <div class="footer__column-2 footer__policy-links">
-                <p><a href="#">Privacy Notice</a> | <a href="#">Terms & Conditions</a> | <a href="#">Cookie Policy</a> |
-                    <a href="#">Take Down Policy</a> | <a href="#">License</a></p>
+            <div class="footer__column-2 footer__policy-links hide-print">
+                <p><a href="https://www.threesixtygiving.org/privacy/">Privacy Notice</a> | <a href="https://www.threesixtygiving.org/terms-conditions/">Terms &amp; Conditions</a> | <a href="https://www.threesixtygiving.org/cookie-policy/">Cookie Policy</a> | <a href="https://www.threesixtygiving.org/take-down-policy/">Take Down Policy</a> | <a href="https://www.threesixtygiving.org/about/360giving-code-conduct/">Code of Conduct</a></p>
             </div>
         </div>
     </footer>
