@@ -125,7 +125,9 @@
 
       <div>
         <hr class="separator-light">
+        <p v-if="dataset == 'Regions'">This type of region data is currently only available for England (UK).</p>
         <p>Total {{dataset}} {{datasetSelect[key].length}}. <a v-if="dataset == 'Regions' || dataset == 'Countries' || dataset == 'Local authorities'" href="#map">Map.</a></p>
+
      </div>
     </chart-card>
 
