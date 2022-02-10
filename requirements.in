@@ -3,6 +3,7 @@ python-dotenv
 flask_graphql
 flask_sqlalchemy
 flask_migrate
+Flask-Caching
 graphene_sqlalchemy
 psycopg2
 requests

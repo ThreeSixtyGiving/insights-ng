@@ -5,6 +5,8 @@ import click
 import requests
 from flask import current_app
 from flask.cli import AppGroup, with_appcontext
+from flask_caching import Cache
+
 from sqlalchemy import create_engine
 from sqlalchemy.sql import text
 from sqlalchemy.sql import func, distinct
@@ -260,6 +262,13 @@ def fetch_data(dataset, bulk_limit, limit):
 
     objects = save_objects(objects)
     db.session.commit()
+
+    try:
+        with current_app.app_context():
+            Cache(current_app).clear()
+    except Exception:
+        click.echo("Warning: Cache clear failed")
+
     click.echo("All rows saved")
 
 
