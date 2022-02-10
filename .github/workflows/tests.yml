@@ -55,7 +55,7 @@ jobs:
         flask data fetch --limit 1000
         flask data geonames
     - name: Test with pytest
-      run: python -m pytest
+      run: CACHE_TYPE=NullCache python -m pytest
 
     - env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

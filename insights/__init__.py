@@ -4,11 +4,22 @@ import string
 import sys
 from urllib.parse import parse_qs
 
-from flask import Flask, abort, render_template, url_for, request, redirect, flash
+from flask import (
+    Flask,
+    abort,
+    render_template,
+    url_for,
+    request,
+    redirect,
+    flash,
+    Response,
+)
 from flask_graphql import GraphQLView
+from flask_caching import Cache
+import hashlib
 
 from insights import settings
-from insights.commands import fetch_data, expire
+from insights.commands import fetch_data, expire, cache as cli_cache
 from insights.data import get_frontpage_options, get_funder_names
 from insights.db import GeoName, Publisher, db, migrate
 from insights.schema import schema
@@ -44,17 +55,47 @@ def create_app():
         URL_FETCH_ALLOW_LIST=settings.URL_FETCH_ALLOW_LIST,
         DATASET_EXPIRY_DAYS=settings.DATASET_EXPIRY_DAYS,
         SECRET_KEY=secret_key(),
+        # https://flask-caching.readthedocs.io/en/latest/index.html#built-in-cache-backends
+        CACHE_TYPE=os.environ.get("CACHE_TYPE", "FileSystemCache"),
+        CACHE_DIR=os.environ.get("CACHE_DIR", "/tmp/insights-cac"),
+        CACHE_DEFAULT_TIMEOUT=os.environ.get("CACHE_TIMEOUT", 0),
     )
 
     db.init_app(app)
     migrate.init_app(app, db)
+    cache = Cache(app)
 
     app.cli.add_command(fetch_data.cli)
     app.cli.add_command(expire.cli)
+    app.cli.add_command(cli_cache.cli)
+
+    class CachedGraphQLView(GraphQLView):
+        def dispatch_request(self, *args, **kwargs):
+
+            body = self.parse_body()
+
+            try:
+                data = "%s%s" % (body["query"], body["variables"])
+                cache_key = hashlib.md5(data.encode()).hexdigest()
+                cached_result = cache.get(cache_key)
+                if cached_result:
+                    print("Cache hit")
+                    return Response(
+                        cached_result, status=200, content_type="application/json"
+                    )
+            except KeyError:
+                cache_key = None
+
+            response = GraphQLView.dispatch_request(self, *args, **kwargs)
+
+            if cache_key:
+                cache.set(cache_key, response.data)
+
+            return response
 
     app.add_url_rule(
         "/graphql",
-        view_func=GraphQLView.as_view(
+        view_func=CachedGraphQLView.as_view(
             "graphql", schema=schema, graphiql=True  # for having the GraphiQL interface
         ),
     )
@@ -71,14 +112,26 @@ def create_app():
 
     @app.route("/")
     def index():
+        # Loading data from GrantNav avoid the cache mechanism
         if request.args.get("url"):
             try:
                 return redirect(fetch_file_from_url(request.args.get("url")))
             except Exception as e:
                 flash("Could not fetch from URL:" + repr(e), "error")
-        return render_template(
-            "homepage.vue.j2", dataset_select=get_frontpage_options()
-        )
+                return render_template(
+                    "homepage.vue.j2", dataset_select=get_frontpage_options()
+                )
+        else:
+            home_page = cache.get("home_page")
+            if home_page:
+                print("Cache hit")
+                return home_page
+            else:
+                home_page = render_template(
+                    "homepage.vue.j2", dataset_select=get_frontpage_options()
+                )
+                cache.set("home_page", home_page)
+                return home_page
 
     @app.route("/about")
     def about():
