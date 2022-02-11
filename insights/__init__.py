@@ -21,7 +21,7 @@ import hashlib
 from insights import settings
 from insights.commands import fetch_data, expire, cache as cli_cache
 from insights.data import get_frontpage_options, get_funder_names
-from insights.db import GeoName, Publisher, db, migrate
+from insights.db import GeoName, Publisher, Grant, db, migrate
 from insights.schema import schema
 from insights.utils import list_to_string
 from insights.file_upload import upload_file, fetch_file_from_url
@@ -313,6 +313,24 @@ def create_app():
             template=template,
             page_urls=page_urls,
         )
+
+    # Handle legacy links from previous versions of Insights
+    @app.route("/file/<file_id>")
+    def file(file_id):
+        funding_orgs = (
+            db.session.query(Grant.fundingOrganization_id.distinct())
+            .filter_by(source_file_id=file_id)
+            .all()
+        )
+
+        if not funding_orgs:
+            return redirect("/")
+
+        get_query = "?"
+        for funder in funding_orgs:
+            get_query = "%s&funders=%s" % (get_query, funder[0])
+
+        return redirect("/data" + get_query)
 
     # Upload functionality disabled for now
     # app.add_url_rule("/upload", "upload", view_func=upload_file, methods=["POST"])
