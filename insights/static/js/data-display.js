@@ -90,7 +90,7 @@ var filtersToTitles = {
     grantProgrammes: "Grant programmes",
     funders: "Funders",
     funderTypes: "Funder types",
-    area: "Region",
+    area: "Location",
 }
 
 var chartToFilters = {
@@ -481,49 +481,30 @@ var app = new Vue({
             /* Initialise the graph data to include filters with default 0 value */
             var values = {}
 
-            /* Look up the filter name for this chart */
-            let chartFilter = chartToFilters[chart];
-
-            /* Initialise all the chart data */
-            /* FIXME does this still need doing ?
-            if (chartFilter){
-
-                this.filters[chartFilter].forEach((item) => (
-                    values[item.id] = {
-                        label: item.name,
-                        id: item.id,
-                        value: 0,
-                        style: {
-                            '--value': 0,
-                            '--width': '0%',
-                        }
-                    }
-                ));
-            }*/
-
-            let duplicateIds = [];
-
             /* Update or create the data entries */
             chartData.forEach((data) => {
+                let total = 0;
+                /* We have already set a value for this id. Merge this entry */
+                if (values[data.bucketGroup[bucketGroup].id] && values[data.bucketGroup[bucketGroup].id].value > 0){
+                    total = values[data.bucketGroup[bucketGroup].id].value + data[field];
+                } else {
+                    total = data[field]
+                }
+
                 let entry = {
                     label: data.bucketGroup[bucketGroup].name,
                     id: data.bucketGroup[bucketGroup].id,
-                    value: data[field],
+                    value: total,
                     style: {
-                        '--value': data[field],
-                        '--width': `${clamp(((data[field] / maxValue) * 100), 0.1, 100)}%`,
+                        '--value': total,
+                        '--width': `${clamp(((total / maxValue) * 100), 0.1, 100)}%`,
                     }
                 };
 
-                if (values[data.bucketGroup[bucketGroup].id] && values[data.bucketGroup[bucketGroup].id].value > 0){
-                    /* We have already set a value for this id. Sometimes multiple org-ids with
-                    different data (e.g. org name) cause this */
-                    duplicateIds.push(entry);
-                } else {
-                    values[data.bucketGroup[bucketGroup].id] = entry;              }
+                values[data.bucketGroup[bucketGroup].id] = entry;
             });
 
-            var inActiveValues = [];
+            var inActiveValues = {};
 
             if (this.inactiveChartData[chart]){
                 this.inactiveChartData[chart].forEach((inActiveData) => {
@@ -533,27 +514,35 @@ var app = new Vue({
                         return;
                     }
 
+                    let total = 0;
+                    /* We have already set a value for this id. Merge this entry */
+                    if (inActiveValues[inActiveData.bucketGroup[bucketGroup].id] && inActiveValues[inActiveData.bucketGroup[bucketGroup].id].value > 0){
+                        total = inActiveValues[inActiveData.bucketGroup[bucketGroup].id].value + inActiveData[field];
+                    } else {
+                        total = inActiveData[field]
+                    }
+
                     let entry = {
                         label: inActiveData.bucketGroup[bucketGroup].name,
                         id: inActiveData.bucketGroup[bucketGroup].id,
-                        value: inActiveData[field],
+                        value: total,
                         style: {
-                            '--value': inActiveData[field],
-                            '--width': `${ clamp(((inActiveData[field] / maxValue) * 100), 0.1, 100)}%`,
+                            '--value': total,
+                            '--width': `${clamp(((total / maxValue) * 100), 0.1, 100)}%`,
                             'overflow': 'hidden',
                         },
                         inactive: true,
                     };
 
-                    inActiveValues.push(entry);
+                    inActiveValues[inActiveData.bucketGroup[bucketGroup].id] = entry;
+
+
                 });
             }
 
             /* Convert to an array now that we don't need to look up ids */
             values = Object.values(values);
-
-            /* Add in duplicated Ids - this appears to be a quirk of the data */
-            values = values.concat(duplicateIds);
+            inActiveValues = Object.values(inActiveValues);
 
             if (chart in this.bin_labels) {
                 let labels = Object.keys(this.bin_labels[chart]);
