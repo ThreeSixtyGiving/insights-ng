@@ -57,7 +57,17 @@ def warm_cache(url):
         time.sleep(4)
 
 
-@cli.command("expire")
-def expire_cache():
+@cli.command("clear")
+@click.option(
+    "--homepage",
+    default=False,
+    is_flag=True,
+    show_default=True,
+    help="Only clear homepage cache",
+)
+def clear_cache(homepage):
     with current_app.app_context():
-        Cache(current_app).clear()
+        if homepage:
+            Cache(current_app).delete("home_page")
+        else:
+            Cache(current_app).clear()
