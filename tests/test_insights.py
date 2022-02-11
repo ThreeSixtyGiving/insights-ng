@@ -21,7 +21,7 @@ def test_app():
 
     with app.app_context():
         db.create_all()
-        create_dummy_grants()
+        create_testdata_grants()
         yield app
 
     os.close(db_fd)
@@ -38,14 +38,14 @@ def client():
     with app.test_client() as client:
         with app.app_context():
             db.create_all()
-            create_dummy_grants()
+            create_testdata_grants()
         yield client
 
     os.close(db_fd)
     os.unlink(db_path)
 
 
-def create_dummy_grants(source_file_id="12345", publisher_prefix="360G-pub", source_file_modified=None, grant_dataset="main"):
+def create_testdata_grants(source_file_id="12345", publisher_prefix="360G-pub", source_file_modified=None, grant_dataset="main"):
     if publisher_prefix is None:
         publisher = None
     else:
@@ -63,16 +63,16 @@ def create_dummy_grants(source_file_id="12345", publisher_prefix="360G-pub", sou
     for i in range(0, 10):
         g = Grant(
             dataset=grant_dataset,
-            grant_id=f"dummy_{i}",
-            title=f"Dummy Grant {i}",
-            description="A dummy grant",
+            grant_id=f"testdata_{i}",
+            title=f"Testdata Grant {i}",
+            description="A testdata grant",
             currency="GBP",
             amountAwarded=100 * (i + 1),
             awardDate=datetime.date(2020, (i % 12) + 1, (i % 28) + 1),
-            recipientOrganization_id=f"360G-dummy-{i}",
-            recipientOrganization_name=f"Dummy Recipient {i}",
-            fundingOrganization_id=f"360G-dummy-funder-{i % 3}",
-            fundingOrganization_name=f"Dummy Funder {i % 3}",
+            recipientOrganization_id=f"360G-testdata-{i}",
+            recipientOrganization_name=f"Testdata Recipient {i}",
+            fundingOrganization_id=f"360G-testdata-funder-{i % 3}",
+            fundingOrganization_name=f"Testdata Funder {i % 3}",
             publisher=publisher,
             source_file=source_file,
         )
@@ -86,7 +86,7 @@ def test_index(client):
     rv = client.get("/")
     assert rv.status_code == 200
     assert b"See your grantmaking in new ways" in rv.data
-    assert b"Dummy Funder 0" in rv.data
+    assert b"Testdata Funder 0" in rv.data
     assert b"https://grantnav.threesixtygiving.org/" in rv.data
 
 
@@ -97,13 +97,13 @@ def test_about(client):
 
 
 def test_funder_dash(client):
-    rv = client.get("/funder/360G-dummy-funder-0")
+    rv = client.get("/funder/360G-testdata-funder-0")
     assert rv.status_code == 200
-    assert b"360G-dummy-funder-0" in rv.data
+    assert b"360G-testdata-funder-0" in rv.data
 
 
 def test_funder_dash_404(client):
-    rv = client.get("/funder/360G-dummy-funder-not-found")
+    rv = client.get("/funder/360G-testdata-funder-not-found")
     assert rv.status_code == 404
 
 
@@ -114,5 +114,5 @@ def test_publisher_dash(client):
 
 
 def test_publisher_dash_404(client):
-    rv = client.get("/publisher/360G-dummy-pub-not-found")
+    rv = client.get("/publisher/360G-testdata-pub-not-found")
     assert rv.status_code == 404

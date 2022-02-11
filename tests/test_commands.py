@@ -2,47 +2,47 @@ import datetime
 
 from insights.db import db, SourceFile, Grant
 from insights import settings
-from .test_insights import test_app, create_dummy_grants
+from .test_insights import test_app, create_testdata_grants
 
 def test_expire(test_app):
     runner = test_app.test_cli_runner()
 
     # Absolute datetime more than expiry cut off in the past
-    create_dummy_grants(
+    create_testdata_grants(
         source_file_id="uploaded_dataset_d7d3a2e80e3c85c53403f34c3058b010",
         source_file_modified=datetime.datetime(2020, 1, 1),
         publisher_prefix=None,
         grant_dataset="d7d3a2e80e3c85c53403f34c3058b010",
     )
     # Abosloute datetime well in the future
-    create_dummy_grants(
+    create_testdata_grants(
         source_file_id="uploaded_dataset_d7d3a2e80e3c85c53403f34c3058b011",
         source_file_modified=datetime.datetime(2220, 1, 1),
         publisher_prefix=None,
         grant_dataset="d7d3a2e80e3c85c53403f34c3058b011",
     )
     # No datetime specified, should default to now
-    create_dummy_grants(
+    create_testdata_grants(
         source_file_id="uploaded_dataset_d7d3a2e80e3c85c53403f34c3058b012",
         publisher_prefix=None,
         grant_dataset="d7d3a2e80e3c85c53403f34c3058b012",
     )
     # Calculate a datetime before expiry point
-    create_dummy_grants(
+    create_testdata_grants(
         source_file_id="uploaded_dataset_d7d3a2e80e3c85c53403f34c3058b013",
         source_file_modified=datetime.datetime.now() - datetime.timedelta(days=settings.DATASET_EXPIRY_DAYS * 2),
         publisher_prefix=None,
         grant_dataset="d7d3a2e80e3c85c53403f34c3058b013",
     )
     # Calculate a datetime after expiry point
-    create_dummy_grants(
+    create_testdata_grants(
         source_file_id="uploaded_dataset_d7d3a2e80e3c85c53403f34c3058b014",
         source_file_modified=datetime.datetime.now() - datetime.timedelta(days=settings.DATASET_EXPIRY_DAYS / 2),
         publisher_prefix=None,
         grant_dataset="d7d3a2e80e3c85c53403f34c3058b014",
     )
     # Check that grants with the default dataset (main) are not deleted
-    main_grants_ids = create_dummy_grants(
+    main_grants_ids = create_testdata_grants(
         source_file_id="uploaded_dataset_d7d3a2e80e3c85c53403f34c3058b015",
         source_file_modified=datetime.datetime(2020, 1, 1),
         publisher_prefix=None,
