@@ -126,7 +126,7 @@
       <div>
         <hr class="separator-light">
         <p v-if="dataset == 'Regions'">This type of region data is currently only available for England (UK).</p>
-        <p>Total {{dataset}} {{datasetSelect[key].length}}. <a v-if="dataset == 'Regions' || dataset == 'Countries' || dataset == 'Local authorities'" href="#map">Map.</a></p>
+        <p>Total {{dataset}} {{datasetSelect[key].length}}. <a class="button" v-if="dataset == 'Regions' || dataset == 'Countries' || dataset == 'Local authorities'" href="#map">View on Map below</a></p>
 
      </div>
     </chart-card>
@@ -154,7 +154,7 @@
           rel="noreferrer">360Giving data registry</a>. All external data is used under the <a
           href="http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/" target="_blank"
           rel="noreferrer">Open Government Licence</a>.</p>
-      <p><a href="/about#data-sources">More about data sources</a></p>
+      <p><a class="button" href="/about#data-sources">More about data sources</a></p>
 
     </chart-card>
 
