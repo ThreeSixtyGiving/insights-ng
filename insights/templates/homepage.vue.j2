@@ -106,9 +106,13 @@
     <div class="spacer-3"></div>
 
     <chart-card color="orange" v-bind:loading="loading" v-for="(dataset, key) in datasetSelectSections" class="spacer-3">
-      <chart-card-header v-bind:title="dataset">
+      <chart-card-header v-bind:title="'Regions in England'" v-if="dataset == 'Regions'">
         (number of grants)
       </chart-card-header>
+      <chart-card-header v-bind:title="dataset" v-else>
+        (number of grants)
+      </chart-card-header>
+
       <ul class="bar-chart" >
         <li class="bar-chart__item" v-for="(group, index) in datasetSelect[key]"
           v-bind:title="group.grant_count"

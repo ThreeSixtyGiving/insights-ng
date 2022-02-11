@@ -372,9 +372,38 @@
           <h3>Grants locations</h3>
         </div>
 
+      <!-- countries -->
+      <chart-card color="red" v-bind:loading="loading" v-if="chartN('byCountryRegion') > 0">
+        <chart-card-header title="Countries">
+          (number of grants)
+        </chart-card-header>
+        <ul class="bar-chart" v-if="chartData.byCountryRegion">
+          <li class="bar-chart__item"
+           v-for="(group, index) in chartBars('byCountryRegion', 'grants', 0, false)"
+           :style="group.style"
+           v-on:click.prevent="toggleInArray(filters.area, group.id)"
+           v-bind:class="{ 'hide-print' : group.inactive }"
+           v-if="group.id"
+           >
+            <label class="bar-chart__label small">
+              {{ group.label }}
+              <span v-if="group.label.length === 0">{{group.id}}</span>
+            </label>
+            <div class="bar-chart__bar" v-bind:class="{ 'inactive-bar': group.inactive }"><span></span></div>
+          </li>
+        </ul>
+        <div>
+          <hr class="separator-light">
+          <p>Based on {{ chartN('byCountryRegion') | formatNumber }} grants.</p>
+          <p v-if="chartMissing('byCountryRegion')">
+            {{ chartMissing('byCountryRegion') | formatNumber }} grants did not have enough information to determine geography.
+          </p>
+        </div>
+      </chart-card>
+
         <!-- Regions -->
         <chart-card color="red" v-bind:loading="loading" v-if="chartN('byCountryRegion') > 0">
-          <chart-card-header title="UK region and country">
+          <chart-card-header title="Regions in England">
           (number of grants)
           </chart-card-header>
           <ul class="bar-chart" v-if="chartData.byCountryRegion">
@@ -382,22 +411,12 @@
               :style="group.style"
               v-bind:class="{ 'hide-print' : group.inactive }"
               v-on:click.prevent="toggleInArray(filters.area, group.id)"
+              v-if="group.id"
               >
                 <label class="bar-chart__label small">
-                  England - {{ group.label }}
+                  {{ group.label }}
                 </label>
 
-              <div class="bar-chart__bar" v-bind:class="{ 'inactive-bar': group.inactive }"><span></span></div>
-            </li>
-            <li class="bar-chart__item" v-for="(group, index) in chartBars('byCountryRegion', 'grants', 0, false)"
-              v-if="group.label != 'England'"
-              :style="group.style"
-              v-on:click.prevent="toggleInArray(filters.area, group.id)"
-              v-bind:class="{ 'hide-print' : group.inactive }"
-              >
-              <label class="bar-chart__label small">
-                {{ group.label }}
-              </label>
               <div class="bar-chart__bar" v-bind:class="{ 'inactive-bar': group.inactive }"><span></span></div>
             </li>
           </ul>
@@ -405,8 +424,9 @@
             <hr class="separator-light">
             <p>Based on {{ chartN('byCountryRegion') | formatNumber }} grants.</p>
             <p v-if="chartMissing('byCountryRegion')">
-              {{ chartMissing('byCountryRegion') | formatNumber }} grants did not have a region or country.
+              {{ chartMissing('byCountryRegion') | formatNumber }} grants did not have enough information to determine geography.
             </p>
+            <p>This type of region data is currently only available for England (UK).</p>
           </div>
         </chart-card>
 
