@@ -55,7 +55,11 @@
                   <div class="hero__column hero__lead">
                     <h2 class="hero__title">{{ subtitle }}</h2>
                     <p class="hero__blurb">
-                        {{ title }}
+                        <template v-if="funders && funders.length <= 3">
+                          {{ funders.join(", ")}}
+                        </template>
+                        <template v-else>{{ title }}</template>
+
                         <template v-if="summary.minDate">
                           <template v-if="summary.minDate.slice(0,7) == summary.maxDate.slice(0,7)">
                             <small>in</small> {{ summary.minDate | formatDate('month') }}
