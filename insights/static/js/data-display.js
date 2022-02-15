@@ -1,9 +1,6 @@
 import { lineChart } from './components/line-chart.js';
 import { barChart } from './components/bar-chart.js';
-import { mapboxMap } from './components/map.js';
 import { GQL, gqlSingleGraph, graphqlQuery } from './gql/query.js';
-import { SOURCE_GQL } from './gql/sources.js';
-import { GEO_GQL } from './gql/geo.js';
 import { formatCurrency, formatDate, formatNumber, getAmountSuffix, formatNumberSuffix } from './components/filters.js';
 import { debounce } from './lib/debounce.js';
 
@@ -14,11 +11,12 @@ const COLOURS = {
     orange: "#DE6E26",
 }
 
+import { choropleth } from './components/choropleth.js';
+
+Vue.component('choropleth', choropleth);
 
 Vue.component('bar-chart', barChart);
 Vue.component('line-chart', lineChart);
-Vue.component('mapbox-map', mapboxMap);
-Vue.component('multi-select', window.VueMultiselect.default)
 
 Vue.filter('formatCurrency', formatCurrency);
 Vue.filter('formatDate', formatDate);
@@ -194,11 +192,6 @@ var app = new Vue({
                 return this.default_currency;
             }
             return currencies[0];
-        },
-        geoGrants: function () {
-            var grants = this.grants.filter((g) => (g.insightsGeoLat != null && g.insightsGeoLong != null));
-            if (grants.length == 0) { return null; }
-            return grants;
         },
         grantnavUrl: function () {
             // TODO, look this up from the config
@@ -397,14 +390,6 @@ var app = new Vue({
 
                 app.loadingQ--;
             });
-            /* For Grants array used for map */
-            graphqlQuery(GEO_GQL, {
-                dataset: app.dataset,
-                ...app.base_filters,
-                ...app.computedFilters,
-            }).then((data) => {
-                app.grants = data.data.grants;
-            });
 
             /* depending on the filters set find out what the data options would have been */
             if (this.filtersApplied.length){
@@ -566,6 +551,36 @@ var app = new Vue({
             return this.chartData[chart]
                 .filter((d) => !d.bucketGroup[bucketGroup].name)
                 .reduce((acc, d) => acc + d[field], 0);
+        },
+        dataForChoropleth(){
+            if (!this.chartData.byCountryRegion) { return []; };
+
+            let areas = [];
+
+            this.chartData.byCountryRegion.forEach((area) => {
+                if (!area.bucketGroup[0].id){
+                    return;
+                }
+
+                let choroplethArea = {};
+
+                if (area.bucketGroup[0].id == "E92000001"){
+                    choroplethArea = { ...area.bucketGroup[1] };
+                } else {
+                    choroplethArea = { ...area.bucketGroup[0] };
+                }
+
+                choroplethArea.grant_count = area.grants;
+                areas.push(choroplethArea);
+            });
+
+            return [
+                {
+                    layerName: "regionCountryLayerCombined",
+                    areas: areas,
+                    layerBoundariesJsonFile: "country_region.geojson",
+                }
+            ]
         },
         toggleInArray(array, item){
             let idx = array.indexOf(item);

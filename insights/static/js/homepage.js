@@ -8,10 +8,7 @@ Vue.filter('formatNumberSuffix', formatNumberSuffix);
 
 import { choropleth } from './components/choropleth.js';
 
-import { mapboxMap } from './components/map.js';
-Vue.component('mapbox-map', mapboxMap);
 Vue.component('choropleth', choropleth);
-Vue.component('multi-select', window.VueMultiselect.default);
 
 var app = new Vue({
     el: '#app',
@@ -42,6 +39,7 @@ var app = new Vue({
                 regions: "",
                 localAuthorities: "",
             },
+            choroplethData: [],
             maxGrantCounts: {}, /* cache of max count */
         }
     },
@@ -67,6 +65,22 @@ var app = new Vue({
 
     },
     methods: {
+        dataForChoropleth: function () {
+            return [
+                {
+                    layerName: "regionCountryLayer",
+                    areas: this.datasetSelect["countries"].concat(this.datasetSelect["regions"]),
+                    layerBoundariesJsonFile: "country_region.geojson",
+                    // click handler?
+                },
+                {
+                    layerName: "laLayer",
+                    areas: this.datasetSelect["localAuthorities"],
+                    layerBoundariesJsonFile: "lalt.geojson",
+                    // click handler?
+                }
+            ];
+        },
         getDatasetOptions: function (field) {
             return this.datasetSelect[field];
         },
@@ -120,6 +134,11 @@ var app = new Vue({
         openFileDialog: function(){
             this.$refs.uploadFileInput.click();
         }
-        },
+    },
+
+    mounted: function(){
+        this.choroplethData = this.dataForChoropleth();
+
+    },
 
 });

@@ -434,31 +434,19 @@
           </div>
         </chart-card>
 
-        <!-- map -->
-        <div class="grid__all">
-          <div class="base-card base-card--red base-card--left">
-            <div style="padding-left: 4px">
-              <mapbox-map container="grants-map" height="500px" :markers="geoGrants"></mapbox-map>
-            </div>
-            <div class="base-card__content">
-              <chart-card-header title="Grant Locations">
-              (number of grants)
-              </chart-card-header>
-              <!-- https://github.com/ThreeSixtyGiving/insights-ng/issues/88
-              <div class="align-left margin-bottom:1">
-                <a :href="mapUrl" class="button button--small button--red align-left">View this map on its own page</a>
-              </div>
-              --->
-              <div v-if="geoGrants">
-                <hr class="separator-light">
-                <p>Based on {{ geoGrants.length | formatNumber }} grants.</p>
-                <p v-if="chartMissing('byCountryRegion')">
-                  {{ chartMissing('byCountryRegion') | formatNumber }} grants did not have a location available.
-                </p>
-              </div>
-            </div>
+        <!-- choropleth -->
+        <chart-card color="red">
+          <chart-card-header title="Distribution of Grants by location"></chart-card-header>
+          <a name="map"></a>
+          <choropleth class="base-card__content" v-bind:data="dataForChoropleth()" container="ch-1" height="680px" :zoom-control="false"></choropleth>
+          <div>
+            <hr class="separator-light">
+            <p>Click on an area to view number of grants.</p>
+            <p>
+              {{ chartMissing('byCountryRegion') | formatNumber }} grants did not have location data available.
+            </p>
           </div>
-        </div>
+        </chart-card>
 
         <!-- Source of location information -->
         <chart-card color="red" v-bind:loading="loading" v-if="chartN('byGeoSource') > 0">
@@ -482,12 +470,6 @@
           </div>
         </chart-card>
 
-        <chart-card color="red" v-bind:loading="loading" v-if="!geoGrants || geoGrants.length == 0">
-          <chart-card-header title="No location data shown"></chart-card-header>
-          <p>
-            {{ chartMissing('byCountryRegion') | formatNumber }} grants did not have location data available.
-          </p>
-        </chart-card>
       </div> <!-- /end grid -->
 
       <div class="spacer-3"></div>
