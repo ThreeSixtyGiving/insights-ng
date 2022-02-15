@@ -1,6 +1,18 @@
+/* Property data expected format:
+[
+    {
+        layerName: "name",
+        areas: [
+             { areaName : name, grant_count: int },
+        ],
+        layerBoundariesJsonFile: "file_name.geojson",
+    },
+]
+*/
+
 
 export const choropleth = {
-    props: ['container', 'height'],
+    props: ['container', 'height', 'data', 'zoomControl'],
     data: function () {
         return {
             map: null,
@@ -9,13 +21,16 @@ export const choropleth = {
             mapbox_access_token: MAPBOX_ACCESS_TOKEN,
         };
     },
+    watch: {
+        'data': function(){ this.updateMap(); },
+    },
+
     methods: {
         updateMap() {
 
             var component = this;
-            var maxGrantCount = 0;
 
-            function getColor(d) {
+            function getColor(d, maxGrantCount) {
                 d = d / maxGrantCount;
                 return d > 0.9 ? '#800026' :
                     d > 0.8 ? '#BD0026' :
@@ -34,30 +49,28 @@ export const choropleth = {
                     color: 'white',
                     dashArray: '3',
                     fillOpacity: 0.7,
-                    fillColor: getColor(feature.properties.grantCount)
+                    fillColor: getColor(feature.properties.grantCount, feature.properties.maxGrantCount)
                 };
 
             }
 
-            async function makeLayer(layer, dataSelect, geoJsonUrl, addToMap){
+            async function makeLayer(layer, addToMap){
 
+                let geoJsonUrl = "/static/geo/"+layer.layerBoundariesJsonFile;
                 let res = await fetch(geoJsonUrl);
                 let geoJson = await res.json()
 
                 let areaSelectLookup = {};
 
-
-                dataSelect.forEach((dataSelect) => {
+                layer.areas.forEach((area) => {
                   /* Create a lookup object for name->id with grant count */
-
-                    DATASET_SELECT[dataSelect].forEach((area) => {
-
-                        areaSelectLookup[area.name] = {
-                            grantCount: area.grant_count,
-                            areaId: area.id
-                        };
-                    });
+                    areaSelectLookup[area.name] = {
+                        grantCount: area.grant_count,
+                        areaId: area.id
+                    };
                 });
+
+                let maxGrantCount = 0;
 
                 geoJson.features.forEach((feature) => {
                     let name = "";
@@ -86,25 +99,45 @@ export const choropleth = {
                     }
                 });
 
+                /* Copy the maxGrantCount into each feature for colour calc */
+                geoJson.features.forEach((feature) => {
+                    feature.properties.maxGrantCount = maxGrantCount;
+                });
 
-                component[layer] = L.geoJson(geoJson, {style: defaultStyle})
+                component[layer.layerName] = L.geoJson(geoJson, {style: defaultStyle})
 
-                component[layer].bindPopup(function(layer){
-                    return `<a href="/data?area=${layer.feature.properties.areaId}">${layer.feature.properties.name}</a>:
-                    ${layer.feature.properties.grantCount} grants`;
+                component[layer.layerName].bindPopup(function(layer){
+                    /* Fixme  we need to use a callback or event here */
+                    if (window.location.href.indexOf("/data") == -1) {
+                        return `<a href="/data?area=${layer.feature.properties.areaId}">${layer.feature.properties.name} : ${layer.feature.properties.grantCount} grants`;
+                    } else {
+                        return `${layer.feature.properties.name} : ${layer.feature.properties.grantCount} grants`;
+                    }
                 });
 
                 if (addToMap){
-                    component[layer].addTo(component.map);
+                    component[layer.layerName].addTo(component.map);
                 }
             }
 
-            makeLayer("laLayer", ["localAuthorities"], "/static/geo/lalt.geojson", false);
-            makeLayer("regionCountryLayer", ["regions", "countries"], "/static/geo/country_region.geojson", true);
+            this.map.eachLayer((layer)=> {
+                if (!layer.keep){
+                    layer.remove();
+                }
+            });
+
+            for (let i in this.data){
+                /* Only add layer 0 to the map */
+                makeLayer(this.data[i], i == 0);
+            }
         },
 
         zoom(){
+            if (!this.zoomControl){
+                return;
+            }
             /* Toggle the two layers based on zoom level */
+            /* Todo make generic */
             if (this.map.getZoom() > 7){
                 /* more detailed layer*/
                 if (this.map.hasLayer(this.regionCountryLayer)){
@@ -128,12 +161,15 @@ export const choropleth = {
         }
     },
     mounted() {
+
         L.mapbox.accessToken = this.mapbox_access_token;
-        var map = L.mapbox.map(this.container, null, {
+        var map = L.mapbox.map(this.$refs['mapElement'], null, {
             attributionControl: { compact: true },
-            zoomControl: true,
+            zoomControl: this.zoomControl,
         }).setView([54.55, -2], 6);
-        L.mapbox.styleLayer('mapbox://styles/davidkane/cjvnt2h0007hm1clrbd20bbug').addTo(map);
+        let styleLayer = L.mapbox.styleLayer('mapbox://styles/davidkane/cjvnt2h0007hm1clrbd20bbug');
+        styleLayer.keep = true;
+        styleLayer.addTo(map);
 
         // disable scroll when map isn't focused
         map.scrollWheelZoom.disable();
@@ -145,8 +181,7 @@ export const choropleth = {
         document.querySelector('.mapbox-logo').classList.add('mapbox-logo-true');
 
         this.map = map;
-
-        this.updateMap();
     },
-    template: '<div v-bind:id="container" v-bind:style="{ height: height }"></div>'
+
+    template: '<div v-bind:id="container" ref="mapElement" v-bind:style="{ height: height }"></div>'
 }

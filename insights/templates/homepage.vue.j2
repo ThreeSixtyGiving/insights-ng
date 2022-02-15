@@ -137,11 +137,12 @@
 
     <!-- choropleth -->
     <chart-card color="teal">
-      <chart-card-header title="Regional Distribution by number of Grants"></chart-card-header>
+      <chart-card-header title="Distribution of Grants by location"></chart-card-header>
       <a name="map"></a>
-      <choropleth class="base-card__content" container="ch-1" height="680px"></choropleth>
+      <choropleth class="base-card__content" v-bind:data="choroplethData" container="ch-1" height="680px" :zoom-control="true"></choropleth>
       <div>
         <hr class="separator-light">
+        <p>Click on an area to view number of grants.</p>
         <p>Zoom into a Country/Region to view Local Authority-level data.</p>
       </div>
     </chart-card>
