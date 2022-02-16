@@ -442,7 +442,7 @@
           <div>
             <hr class="separator-light">
             <p>Click on an area to view number of grants.</p>
-            <p>
+            <p v-if="chartMissing('byCountryRegion')">
               {{ chartMissing('byCountryRegion') | formatNumber }} grants did not have location data available.
             </p>
           </div>
