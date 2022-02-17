@@ -406,7 +406,7 @@
       </chart-card>
 
         <!-- Regions -->
-        <chart-card color="red" v-bind:loading="loading" v-if="chartN('byCountryRegion') > 0">
+        <chart-card color="red" v-bind:loading="loading" v-if="chartN('byCountryRegion', 1) > 0">
           <chart-card-header title="Regions in England">
           (number of grants)
           </chart-card-header>
@@ -434,14 +434,48 @@
           </div>
         </chart-card>
 
+        <!--  Local Authorities -->
+        <chart-card color="red" v-bind:loading="loading" v-if="chartN('byLocalAuthority') > 0">
+          <chart-card-header title="Local Authorities">
+          (number of grants)
+          </chart-card-header>
+          <ul class="bar-chart" v-if="chartData.byLocalAuthority">
+            <li class="bar-chart__item" v-for="(group, index) in chartBars('byLocalAuthority')"
+              :style="group.style"
+              v-bind:class="{ 'hide-print' : group.inactive }"
+              v-bind:data-label="group.label"
+              v-on:click.prevent="toggleInArray(filters.localAuthorities, group.id)"
+              v-if="group.id"
+              ref="byLocalAuthorityItem"
+              >
+                <label class="bar-chart__label small">
+                  {{ group.label }}
+                </label>
+
+              <div class="bar-chart__bar" v-bind:class="{ 'inactive-bar': group.inactive }"><span></span></div>
+            </li>
+          </ul>
+          <input type="text" v-model="find.localAuthority" placeholder="Find a local authority" class="search-field" v-if="safeLength(chartData.byLocalAuthority) + safeLength(inactiveChartData.byLocalAuthority) > 10"  />
+          <div>
+            <hr class="separator-light">
+            <p>Based on {{ chartN('byLocalAuthority') | formatNumber }} grants.</p>
+            <p v-if="chartMissing('byLocalAuthority')">
+              {{ chartMissing('byLocalAuthority') | formatNumber }} grants did not have enough information to determine geography.
+            </p>
+          </div>
+        </chart-card>
+
+
+
         <!-- choropleth -->
         <chart-card color="red">
           <chart-card-header title="Distribution of Grants by location"></chart-card-header>
           <a name="map"></a>
-          <choropleth class="base-card__content" v-bind:data="dataForChoropleth()" container="ch-1" height="680px" :zoom-control="false"></choropleth>
+          <choropleth class="base-card__content" v-bind:layer-data="choroplethData" container="ch-1" height="680px" :zoom-control="true" ></choropleth>
           <div>
             <hr class="separator-light">
             <p>Click on an area to view number of grants.</p>
+            <p>Zoom into a Country/Region to view Local Authority-level data.</p>
             <p v-if="chartMissing('byCountryRegion')">
               {{ chartMissing('byCountryRegion') | formatNumber }} grants did not have location data available.
             </p>

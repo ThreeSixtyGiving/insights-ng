@@ -12,7 +12,14 @@
 
 
 export const choropleth = {
-    props: ['container', 'height', 'data', 'zoomControl'],
+    props: ['container', 'height', 'layerData', 'zoomControl'],
+
+    props: {
+            container: { type: String },
+            height: { type: String },
+            zoomControl: { type: Boolean, default: true },
+            layerData: { type: Array, default: [] },
+        },
     data: function () {
         return {
             map: null,
@@ -22,7 +29,9 @@ export const choropleth = {
         };
     },
     watch: {
-        'data': function(){ this.updateMap(); },
+        'layerData': {
+            handler: function(){ this.updateMap(); },
+        },
     },
 
     methods: {
@@ -126,9 +135,9 @@ export const choropleth = {
                 }
             });
 
-            for (let i in this.data){
+            for (let i in this.layerData){
                 /* Only add layer 0 to the map */
-                makeLayer(this.data[i], i == 0);
+                makeLayer(this.layerData[i], i == 0);
             }
         },
 
@@ -181,6 +190,10 @@ export const choropleth = {
         document.querySelector('.mapbox-logo').classList.add('mapbox-logo-true');
 
         this.map = map;
+
+        if (this.layerData.length){
+            this.updateMap();
+        }
     },
 
     template: '<div v-bind:id="container" ref="mapElement" v-bind:style="{ height: height }"></div>'
