@@ -19,7 +19,6 @@ try:
 except (ModuleNotFoundError, ImportError):
     cache_warmer_available = False
 
-os.environ["FLASK_ENV"] = "development"
 BROWSER = os.environ.get("BROWSER", "ChromeHeadless")
 
 
