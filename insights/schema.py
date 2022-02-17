@@ -112,6 +112,7 @@ grant_query_args = dict(
     orgtype=graphene.Argument(type=graphene.List(graphene.String)),
     org_size=graphene.Argument(type=MaxMin),
     org_age=graphene.Argument(type=MaxMin),
+    local_authorities=graphene.Argument(type=graphene.List(graphene.String)),
 )
 
 
@@ -375,6 +376,10 @@ def get_grants_base_query(query, **kwargs):
     if kwargs.get("funder_types"):
         query = query.filter(
             GrantModel.insights_funding_org_type.in_(kwargs.get("funder_types")),
+        )
+    if kwargs.get("local_authorities"):
+        query = query.filter(
+            GrantModel.insights_geo_la.in_(kwargs.get("local_authorities")),
         )
     if kwargs.get("grant_programmes"):
         query = query.filter(
