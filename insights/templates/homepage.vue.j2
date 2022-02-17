@@ -139,7 +139,7 @@
     <chart-card color="teal">
       <chart-card-header title="Distribution of Grants by location"></chart-card-header>
       <a name="map"></a>
-      <choropleth class="base-card__content" v-bind:data="choroplethData" container="ch-1" height="680px" :zoom-control="true"></choropleth>
+      <choropleth class="base-card__content" v-bind:layer-data="choroplethData" container="ch-1" height="680px" :zoom-control="true"></choropleth>
       <div>
         <hr class="separator-light">
         <p>Click on an area to view number of grants.</p>

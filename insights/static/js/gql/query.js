@@ -13,6 +13,7 @@ export function queryHeader(queryName, queryType) {
       $grantProgrammes: [String],
       $funderTypes: [String],
       $orgSize: MaxMin,
+      $localAuthorities: [String],
     ) {
         ${queryType}(
           dataset: $dataset,
@@ -27,6 +28,7 @@ export function queryHeader(queryName, queryType) {
           grantProgrammes: $grantProgrammes,
           funderTypes: $funderTypes,
           orgSize: $orgSize,
+          localAuthorities: $localAuthorities,
         ) `
 }
 
@@ -117,6 +119,9 @@ ${queryHeader('insightsData', 'grantAggregates')} {
         ...chartFields
       }
       byCountryRegion {
+        ...chartFields
+      }
+      byLocalAuthority {
         ...chartFields
       }
       byGeoSource {

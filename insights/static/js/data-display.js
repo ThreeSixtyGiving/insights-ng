@@ -42,7 +42,6 @@ function initialFilters(useQueryParams) {
 
     let areas = [];
     /* These keys may be set from the homepage but they're all areas */
-    areas.push(...params.getAll("localAuthorities"));
     areas.push(...params.getAll("regions"));
     areas.push(...params.getAll("countries"));
     areas.push(...params.getAll("area"));
@@ -76,6 +75,7 @@ function initialFilters(useQueryParams) {
         grantProgrammes: params.getAll("grantProgrammes"),
         funders: params.getAll("funders"),
         funderTypes: params.getAll("funderTypes"),
+        localAuthorities: params.getAll("localAuthorities"),
     }
 }
 
@@ -89,6 +89,7 @@ var filtersToTitles = {
     funders: "Funders",
     funderTypes: "Funder types",
     area: "Location",
+    localAuthorities: "Local Authorities",
 }
 
 var chartToFilters = {
@@ -97,6 +98,7 @@ var chartToFilters = {
     byFunderType: 'funderTypes',
     byCountryRegion: 'area',
     byOrgType: 'orgtype',
+    byLocalAuthority: 'localAuthorities',
 }
 
 /* Same as above but k,v swapped */
@@ -139,9 +141,10 @@ var app = new Vue({
             grants: [],
             mapUrl: PAGE_URLS['map'],
             dataUrl: PAGE_URLS['data'],
-            find: { funder: "", grantProgramme: "" },
+            find: { funder: "", grantProgramme: "", localAuthority: "" },
             filtersToTitles: filtersToTitles,
             filterDates: { ...initialFilters(true).awardDates },
+            choroplethData: [],
         }
     },
     computed: {
@@ -246,9 +249,11 @@ var app = new Vue({
     },
     watch: {
 
-        /* TODO make the find. watchers generic */
-        'find.funder': function(){
-            /* Filter the <li> in the graph list for the specified term */
+        /* TODO make the find. watchers generic
+           Filter the <li> in the graph list for the specified term
+           requires ref to be set and data-label on the li
+        */
+        'find.funder': function () {
             var app = this;
             this.$refs.byFunderItem.forEach((li) => {
                 li.style.display = null;
@@ -267,8 +272,18 @@ var app = new Vue({
                 }
             });
         },
-        'loadingQ': function(){
-            if (this.loadingQ > 0){
+        'find.localAuthority': function () {
+            /* Filter the <li> in the graph list for the specified term */
+            var app = this;
+            this.$refs.byLocalAuthorityItem.forEach((li) => {
+                li.style.display = null;
+                if (li.dataset.label && app.find.localAuthority && !li.dataset.label.toLowerCase().includes(app.find.localAuthority.toLowerCase())) {
+                    li.style.display = "none";
+                }
+            });
+        },
+        'loadingQ': function () {
+            if (this.loadingQ > 0) {
                 this.loading = true;
             } else {
                 this.loading= false;
@@ -388,20 +403,19 @@ var app = new Vue({
 
                 });
 
+                app.updateChoropleth();
+
                 app.loadingQ--;
             });
 
             /* depending on the filters set find out what the data options would have been */
-            if (this.filtersApplied.length){
-                ['funders', 'funderTypes', 'area', 'orgtype', 'grantProgrammes'].forEach((filter) => {
-                    if (app.filters[filter].length > 0){
+            if (this.filtersApplied.length) {
+                ['funders', 'funderTypes', 'area', 'orgtype', 'grantProgrammes', 'localAuthorities'].forEach((filter) => {
+                    if (app.filters[filter].length > 0) {
                         this.dataWithoutFilter(filter);
                     }
                 });
             }
-
-
-
         },
         dataWithoutFilter(filterName){
             /* returns the without the filter named applied so that we can display
@@ -552,19 +566,23 @@ var app = new Vue({
                 .filter((d) => !d.bucketGroup[bucketGroup].name)
                 .reduce((acc, d) => acc + d[field], 0);
         },
-        dataForChoropleth(){
-            if (!this.chartData.byCountryRegion) { return []; };
+        updateChoropleth() {
+            if (!this.chartData.byCountryRegion || !this.chartData.byLocalAuthority) {
+                return [];
+            };
 
             let areas = [];
+            let laAreas = [];
 
             this.chartData.byCountryRegion.forEach((area) => {
-                if (!area.bucketGroup[0].id){
+                if (!area.bucketGroup[0].id) {
                     return;
                 }
 
                 let choroplethArea = {};
 
-                if (area.bucketGroup[0].id == "E92000001"){
+                /* England is split into regions */
+                if (area.bucketGroup[0].id == "E92000001") {
                     choroplethArea = { ...area.bucketGroup[1] };
                 } else {
                     choroplethArea = { ...area.bucketGroup[0] };
@@ -574,11 +592,28 @@ var app = new Vue({
                 areas.push(choroplethArea);
             });
 
-            return [
+            this.chartData.byLocalAuthority.forEach((area) => {
+                if (!area.bucketGroup[0].id) {
+                    return;
+                }
+
+                let choroplethArea = {};
+                choroplethArea = { ...area.bucketGroup[0] };
+                choroplethArea.grant_count = area.grants;
+
+                laAreas.push(choroplethArea);
+            });
+
+            this.choroplethData = [
                 {
-                    layerName: "regionCountryLayerCombined",
+                    layerName: "regionCountryLayer",
                     areas: areas,
                     layerBoundariesJsonFile: "country_region.geojson",
+                },
+                {
+                    layerName: "laLayer",
+                    areas: laAreas,
+                    layerBoundariesJsonFile: "lalt.geojson",
                 }
             ]
         },
