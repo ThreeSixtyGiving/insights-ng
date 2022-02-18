@@ -3,6 +3,7 @@ black
 isort
 pytest
 pytest-flask
+pytest-cov
 coverage
 requests_mock
 selenium
