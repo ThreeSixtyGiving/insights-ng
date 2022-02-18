@@ -8,6 +8,7 @@ env:
   FLASK_APP: insights.wsgi:app
   FLASK_ENV: development
   MAPBOX_ACCESS_TOKEN: ${{ secrets.MAPBOX_ACCESS_TOKEN }}
+  CACHE_TYPE: NullCache
 
 jobs:
   build:
@@ -55,7 +56,7 @@ jobs:
         flask data fetch --limit 1000
         flask data geonames
     - name: Test with pytest
-      run: CACHE_TYPE=NullCache python -m pytest
+      run: pytest tests/ --cov-append --cov
 
     - env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

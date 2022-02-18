@@ -58,10 +58,11 @@ contextlib2==0.6.0.post1
     # via
     #   -r requirements.txt
     #   schema
-coverage==5.5
+coverage[toml]==5.5
     # via
     #   -r dev-requirements.in
     #   coveralls
+    #   pytest-cov
 coveralls==3.3.1
     # via -r dev-requirements.in
 defusedxml==0.7.1
@@ -216,7 +217,10 @@ pyrsistent==0.17.3
 pytest==6.2.4
     # via
     #   -r dev-requirements.in
+    #   pytest-cov
     #   pytest-flask
+pytest-cov==3.0.0
+    # via -r dev-requirements.in
 pytest-flask==1.2.0
     # via -r dev-requirements.in
 python-dateutil==2.8.1
@@ -288,6 +292,7 @@ strict-rfc3339==0.7
 toml==0.10.2
     # via
     #   black
+    #   coverage
     #   pytest
 transaction==3.0.1
     # via
