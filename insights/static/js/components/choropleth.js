@@ -42,6 +42,10 @@ export const choropleth = {
 
             function getColor(d, maxGrantCount) {
                 d = d / maxGrantCount;
+                if (d == 0){
+                    return '';
+                }
+
                 return d > 0.9 ? '#800026' :
                     d > 0.8 ? '#BD0026' :
                         d > 0.7 ? '#E31A1C' :
