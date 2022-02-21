@@ -6,6 +6,7 @@
              { areaName : name, grant_count: int },
         ],
         layerBoundariesJsonFile: "file_name.geojson",
+        popupHandler: function()
     },
 ]
 */
@@ -115,14 +116,7 @@ export const choropleth = {
 
                 component[layer.layerName] = L.geoJson(geoJson, {style: defaultStyle})
 
-                component[layer.layerName].bindPopup(function(layer){
-                    /* Fixme  we need to use a callback or event here */
-                    if (window.location.href.indexOf("/data") == -1) {
-                        return `<a href="/data?area=${layer.feature.properties.areaId}">${layer.feature.properties.name} : ${layer.feature.properties.grantCount} grants`;
-                    } else {
-                        return `${layer.feature.properties.name} : ${layer.feature.properties.grantCount} grants`;
-                    }
-                });
+                component[layer.layerName].bindPopup(layer.popupHandler);
 
                 if (addToMap){
                     component[layer.layerName].addTo(component.map);

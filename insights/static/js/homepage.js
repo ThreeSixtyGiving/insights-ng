@@ -71,13 +71,17 @@ var app = new Vue({
                     layerName: "regionCountryLayer",
                     areas: this.datasetSelect["countries"].concat(this.datasetSelect["regions"]),
                     layerBoundariesJsonFile: "country_region.geojson",
-                    // click handler?
+                    popupHandler: function(layer){
+                        return `<a href="/data?area=${layer.feature.properties.areaId}">${layer.feature.properties.name} : ${layer.feature.properties.grantCount} grants`;
+                    },
                 },
                 {
                     layerName: "laLayer",
                     areas: this.datasetSelect["localAuthorities"],
                     layerBoundariesJsonFile: "lalt.geojson",
-                    // click handler?
+                    popupHandler: function(layer){
+                        return `<a href="/data?area=${layer.feature.properties.areaId}">${layer.feature.properties.name} : ${layer.feature.properties.grantCount} grants`;
+                    },
                 }
             ];
         },
