@@ -609,11 +609,17 @@ var app = new Vue({
                     layerName: "regionCountryLayer",
                     areas: areas,
                     layerBoundariesJsonFile: "country_region.geojson",
+                    popupHandler: function(layer){
+                        return `<a href="#map" data-filter="area" data-area="${layer.feature.properties.areaId}" onClick="this.dispatchEvent(new Event('map-select', {bubbles: true}))" >${layer.feature.properties.name} : ${layer.feature.properties.grantCount} grants</a>`;
+                    },
                 },
                 {
                     layerName: "laLayer",
                     areas: laAreas,
                     layerBoundariesJsonFile: "lalt.geojson",
+                    popupHandler: function(layer){
+                        return `<a href="#map" data-filter="localAuthorities" data-area="${layer.feature.properties.areaId}" onClick="this.dispatchEvent(new Event('map-select', {bubbles: true}))" >${layer.feature.properties.name} : ${layer.feature.properties.grantCount} grants</a>`;
+                    },
                 }
             ]
         },
@@ -638,5 +644,12 @@ var app = new Vue({
     },
     mounted() {
         this.updateData();
+
+        let app = this;
+
+        document.addEventListener("map-select", function(event){
+            event.preventDefault();
+            app.toggleInArray(app.filters[event.target.dataset.filter], event.target.dataset.area);
+        });
     }
 })
