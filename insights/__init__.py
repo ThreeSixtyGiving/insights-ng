@@ -96,7 +96,7 @@ def create_app():
     app.add_url_rule(
         "/graphql",
         view_func=CachedGraphQLView.as_view(
-            "graphql", schema=schema, graphiql=True  # for having the GraphiQL interface
+            "graphql", schema=schema, graphiql=False # for having the GraphiQL interface
         ),
     )
 
