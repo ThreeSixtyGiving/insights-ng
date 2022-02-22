@@ -202,7 +202,7 @@ var app = new Vue({
 
             var searchParams = new URLSearchParams();
 
-            if (this.filters.orgtype.length) {
+            if (this.filters.orgtype.length || this.filters.localAuthorities.length) {
                 return null;
             }
 
