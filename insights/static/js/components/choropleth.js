@@ -27,15 +27,7 @@ export const choropleth = {
             regionCountryLayer: null,
             laLayer: null,
             mapbox_access_token: MAPBOX_ACCESS_TOKEN,
-            keys: [
-             '#800026',
-             '#BD0026',
-             '#E31A1C',
-             '#FC4E2A',
-             '#FD8D3C',
-             '#FEB24C',
-             '#FED976',
-             '#FFEDA0'],
+            keys: ['#FFEDA0', '#FED976', '#FEB24C', '#FD8D3C', '#FC4E2A', '#E31A1C', '#BD0026', '#800026'],
         };
     },
     watch: {
@@ -56,14 +48,14 @@ export const choropleth = {
                 }
 
                 return(
-                d > 0.9 ? component.keys[0] :
-                    d > 0.8 ? component.keys[1] :
-                        d > 0.7 ? component.keys[2]:
-                            d > 0.6 ? component.keys[3] :
-                                d > 0.5 ? component.keys[4] :
-                                    d > 0.3 ? component.keys[5]:
-                                        d > 0.1 ? component.keys[6] :
-                                                     component.keys[7]);
+                d > 0.9 ? component.keys[7] :
+                    d > 0.8 ? component.keys[6] :
+                        d > 0.7 ? component.keys[5]:
+                            d > 0.6 ? component.keys[4] :
+                                d > 0.5 ? component.keys[3] :
+                                    d > 0.3 ? component.keys[2]:
+                                        d > 0.1 ? component.keys[1] :
+                                                     component.keys[0]);
             }
 
             function defaultStyle(feature) {
@@ -208,9 +200,9 @@ export const choropleth = {
     template: '<div>\
                 <div v-bind:id="container" ref="mapElement" v-bind:style="{ height: height }"></div> \
                   <div style="display: flex">\
-                    <p style="margin: auto 0.5em auto 0;">Key: Most grants</p>\
-                    <span v-for="key in keys" style="align-self: center; width: 15px; height: 15px" v-bind:style="`background-color: ${key}`"></span>\
-                    <p style="margin: auto 0 auto 0.5em "> Least grants</p>\
+                    <p style="margin: auto 0.5em auto 0;">Key: Least grants</p>\
+                    <span v-for="key in keys.reverse()" style="align-self: center; width: 15px; height: 15px" v-bind:style="`background-color: ${key}`"></span>\
+                    <p style="margin: auto 0 auto 0.5em "> Most grants</p>\
                  </div>\
                </div>',
 }
