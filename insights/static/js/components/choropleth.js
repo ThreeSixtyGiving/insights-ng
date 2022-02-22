@@ -201,7 +201,7 @@ export const choropleth = {
                 <div v-bind:id="container" ref="mapElement" v-bind:style="{ height: height }"></div> \
                   <div style="display: flex">\
                     <p style="margin: auto 0.5em auto 0;">Key: Least grants</p>\
-                    <span v-for="key in keys.reverse()" style="align-self: center; width: 15px; height: 15px" v-bind:style="`background-color: ${key}`"></span>\
+                    <span v-for="key in keys" style="align-self: center; width: 15px; height: 15px" v-bind:style="`background-color: ${key}`"></span>\
                     <p style="margin: auto 0 auto 0.5em "> Most grants</p>\
                  </div>\
                </div>',
