@@ -610,7 +610,7 @@ var app = new Vue({
                     areas: areas,
                     layerBoundariesJsonFile: "country_region.geojson",
                     popupHandler: function(layer){
-                        return `<a href="#map" data-filter="area" data-area="${layer.feature.properties.areaId}" onClick="this.dispatchEvent(new Event('map-select', {bubbles: true}))" >${layer.feature.properties.name} : ${layer.feature.properties.grantCount} grants</a>`;
+                        return `<a href="#" data-filter="area" data-area="${layer.feature.properties.areaId}" onClick="this.dispatchEvent(new Event('map-select', {bubbles: true}))" >${layer.feature.properties.name} : ${layer.feature.properties.grantCount} grants</a>`;
                     },
                 },
                 {
@@ -618,7 +618,7 @@ var app = new Vue({
                     areas: laAreas,
                     layerBoundariesJsonFile: "lalt.geojson",
                     popupHandler: function(layer){
-                        return `<a href="#map" data-filter="localAuthorities" data-area="${layer.feature.properties.areaId}" onClick="this.dispatchEvent(new Event('map-select', {bubbles: true}))" >${layer.feature.properties.name} : ${layer.feature.properties.grantCount} grants</a>`;
+                        return `<a href="#" data-filter="localAuthorities" data-area="${layer.feature.properties.areaId}" onClick="this.dispatchEvent(new Event('map-select', {bubbles: true}))" >${layer.feature.properties.name} : ${layer.feature.properties.grantCount} grants</a>`;
                     },
                 }
             ]
