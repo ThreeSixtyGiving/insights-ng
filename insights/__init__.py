@@ -124,16 +124,15 @@ def create_app():
                     "homepage.vue.j2", dataset_select=get_frontpage_options()
                 )
         else:
-            home_page = cache.get("home_page")
-            if home_page:
+            home_page_data = cache.get("home_page_data")
+            if home_page_data:
                 print("Cache hit")
-                return home_page
+                return render_template("homepage.vue.j2", dataset_select=home_page_data)
             else:
-                home_page = render_template(
-                    "homepage.vue.j2", dataset_select=get_frontpage_options()
-                )
-                cache.set("home_page", home_page)
-                return home_page
+                home_page_data = get_frontpage_options()
+                cache.set("home_page_data", home_page_data)
+
+                return render_template("homepage.vue.j2", dataset_select=home_page_data)
 
     @app.route("/about")
     def about():
