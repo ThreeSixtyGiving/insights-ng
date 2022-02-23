@@ -1,7 +1,7 @@
 {
   "scripts": {
     "dokku": {
-      "postdeploy": "flask db upgrade && flask cache clear"
+      "postdeploy": "flask db upgrade && flask cache clear && cp -a ./insights/static/* /insights_static/"
     }
   },
   "cron": [
