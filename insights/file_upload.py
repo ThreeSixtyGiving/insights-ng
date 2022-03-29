@@ -24,6 +24,7 @@ class FileImportError(Exception):
     pass
 
 
+# Not in use #
 def upload_file():
     if "file" not in request.files:
         return {
@@ -44,12 +45,13 @@ def upload_file():
     return result
 
 
-def fetch_file_from_url(url):
+def fetch_file_from_grantnav_url(url):
     if urlparse(url).netloc not in current_app.config.get("URL_FETCH_ALLOW_LIST"):
         raise FileImportError("Fetching from that URL is not supported")
 
-    r = requests.get(url)
+    r = requests.get(url, stream=True)
     r.raise_for_status()
+
     dataset = str(uuid.uuid4())
     fileinfo = {
         "filename": dataset,
@@ -58,10 +60,34 @@ def fetch_file_from_url(url):
         "headers": dict(r.headers),
         "mimetype": r.headers.get("content-type"),
     }
-    result = fetch_file(BytesIO(r.content), fileinfo)
-    if result.get("data_url"):
-        return result["data_url"]
-    raise FileImportError("Could not fetch data from URL. " + result.get("error", ""))
+
+    source_file_id = "uploaded_dataset_" + dataset
+    source_file = db.session.query(SourceFile).filter_by(id=source_file_id).first()
+    if not source_file:
+        source_file = SourceFile(
+            id=source_file_id,
+            title=request.values.get("source_title", fileinfo["filename"]),
+            issued=datetime.datetime.now(),
+            modified=datetime.datetime.now(),
+            license=request.values.get("source_license"),
+            license_name=request.values.get("source_license_name"),
+            description=request.values.get("source_description"),
+        )
+        db.session.add(source_file)
+        db.session.commit()
+
+    for line in r.iter_lines():
+        try:
+            # We're effectively turning the grantnav json feed into jsonlines
+            if line.decode("UTF-8").startswith(","):
+                line = line[1:]
+
+            grant = json.loads(line.decode("UTF-8"))
+            save_json_to_db({"grants": [grant]}, dataset, source_file_id)
+        except json.JSONDecodeError as e:
+            pass
+
+    return url_for("data", dataset=dataset)
 
 
 def fetch_file(f, fileinfo):
@@ -158,7 +184,6 @@ def fetch_file(f, fileinfo):
 def save_json_to_db(data, dataset, source_file_id):
     grants = []
     rows = 0
-    db.session.query(Grant).filter(Grant.dataset == dataset).delete()
 
     # if any of these fields are missing then we can't include them
     required_fields = [
@@ -173,10 +198,7 @@ def save_json_to_db(data, dataset, source_file_id):
     def save_objects(objects):
         if not objects:
             return []
-        print("{:,.0f} rows to save".format(len(objects)))
         db.session.bulk_insert_mappings(Grant, objects)
-        print("Saving rows")
-        print("Rows saved")
         return []
 
     for row in data.get("grants", []):

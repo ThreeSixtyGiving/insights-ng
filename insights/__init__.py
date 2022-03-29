@@ -24,7 +24,7 @@ from insights.data import get_frontpage_options, get_funder_names
 from insights.db import GeoName, Publisher, Grant, db, migrate
 from insights.schema import schema
 from insights.utils import list_to_string
-from insights.file_upload import upload_file, fetch_file_from_url
+from insights.file_upload import upload_file, fetch_file_from_grantnav_url
 
 __version__ = "0.1.0"
 
@@ -117,7 +117,7 @@ def create_app():
         # Loading data from GrantNav avoid the cache mechanism
         if request.args.get("url"):
             try:
-                return redirect(fetch_file_from_url(request.args.get("url")))
+                return redirect(fetch_file_from_grantnav_url(request.args.get("url")))
             except Exception as e:
                 flash("Could not fetch from URL:" + repr(e), "error")
                 return render_template(

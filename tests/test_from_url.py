@@ -60,7 +60,6 @@ def test_fetch_from_url(m, client, url):
 
 @pytest.mark.parametrize("url", [
     "https://raw.githubusercontent.com/ThreeSixtyGiving/standard/master/schema/360-giving-package-schema.json",
-    "https://grantnav.threesixtygiving.org/grants/broken-grants.csv",
 ])
 def test_fetch_from_url_broken(m, client, url):
     rv = client.get("/?url=" + url, follow_redirects=True)
