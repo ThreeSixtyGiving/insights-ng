@@ -5,7 +5,7 @@ from sqlalchemy.orm import relationship
 from insights import settings
 
 db = SQLAlchemy()
-migrate = Migrate()
+migrate = Migrate(compare_type=True)
 
 
 # https://stackoverflow.com/questions/2546207/does-sqlalchemy-have-an-equivalent-of-djangos-get-or-create
@@ -29,7 +29,7 @@ class Grant(db.Model):
     title = db.Column(db.String(1000), nullable=False)
     description = db.Column(db.Text, nullable=False)
     currency = db.Column(db.String(3), nullable=False, index=True)
-    amountAwarded = db.Column(db.Integer, nullable=False, index=True)
+    amountAwarded = db.Column(db.BigInteger, nullable=False, index=True)
     awardDate = db.Column(db.Date, nullable=False, index=True)
     plannedDates_startDate = db.Column(db.Date, nullable=True)
     plannedDates_endDate = db.Column(db.Date, nullable=True)
