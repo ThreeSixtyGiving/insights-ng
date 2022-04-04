@@ -66,7 +66,7 @@ class Grant(db.Model):
     insights_org_id = db.Column(db.String(255), nullable=True)
     insights_org_id_int = db.Column(db.Integer, nullable=True)
     insights_org_registered_date = db.Column(db.Date, nullable=True)
-    insights_org_latest_income = db.Column(db.Integer, nullable=True)
+    insights_org_latest_income = db.Column(db.BigInteger, nullable=True)
     insights_org_type = db.Column(db.String(255), nullable=True, index=True)
     insights_funding_org_type = db.Column(db.String(255), nullable=True, index=True)
 
