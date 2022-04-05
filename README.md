@@ -48,6 +48,10 @@ dokku config:set insights-ng DATASTORE_URL=postgresql://user:pass@store.data.thr
 dokku run insights-ng flask data fetch
 dokku run insights-ng flask data geonames
 
+# Recommeneded timeout for nginx
+dokku nginx:set insights proxy-read-timeout 300s
+dokku proxy:build-config insights-ng
+
 ```
 
 ## Migrations
