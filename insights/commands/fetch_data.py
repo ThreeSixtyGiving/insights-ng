@@ -158,7 +158,16 @@ def fetch_data(dataset, bulk_limit, limit):
     )
     for row in source_result:
         # create the publisher
-        publisher = Publisher(**row.data["publisher"])
+        publisher_data = row.data["publisher"]
+
+        publisher = Publisher(
+            prefix=publisher_data["prefix"],
+            name=publisher_data["name"],
+            website=publisher_data["website"],
+            logo=publisher_data["logo"],
+            last_published=publisher_data["last_published"],
+        )
+
         db.session.merge(publisher)
         db.session.commit()
 
