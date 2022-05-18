@@ -44,6 +44,12 @@ dokku postgres:link insightsng_db insights-ng
 dokku config:set insights-ng FLASK_APP=insights.wsgi:app
 dokku config:set insights-ng DATASTORE_URL=postgresql://user:pass@store.data.threesixtygiving.org:5432/360givingdatastore
 
+# Storage for static and cache files
+dokku storage:ensure-directory insights_data_cache
+dokku storage:mount insights-ng /var/lib/dokku/data/storage/insights_data_cache:/insights_data_cache
+dokku storage:ensure-directory insights_static
+dokku storage:mount insights-ng /var/lib/dokku/data/storage/insights_static:/insights_static
+
 # Import data from 360Giving datastore
 dokku run insights-ng flask data fetch
 dokku run insights-ng flask data geonames
