@@ -61,6 +61,11 @@ def create_app():
         CACHE_DEFAULT_TIMEOUT=os.environ.get("CACHE_TIMEOUT", 0),
     )
 
+    # Make sure that the tojson filter function does *not* use the jinja default of sorting the
+    # keys. This is especially important as the key order needs to be maintained
+    # for graph labels. (bin_labels)
+    app.jinja_env.policies["json.dumps_kwargs"] = {"sort_keys": False}
+
     db.init_app(app)
     migrate.init_app(app, db)
     cache = Cache(app)
