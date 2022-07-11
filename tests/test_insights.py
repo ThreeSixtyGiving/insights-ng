@@ -45,7 +45,12 @@ def client():
     os.unlink(db_path)
 
 
-def create_testdata_grants(source_file_id="12345", publisher_prefix="360G-pub", source_file_modified=None, grant_dataset="main"):
+def create_testdata_grants(
+    source_file_id="12345",
+    publisher_prefix="360G-pub",
+    source_file_modified=None,
+    grant_dataset="main",
+):
     if publisher_prefix is None:
         publisher = None
     else:

@@ -117,5 +117,3 @@ def test_upload_broken(m, client, filename, filetype):
         assert "error" in rv.json
         assert rv.json.get("rows_saved", 0) == 0
         assert rv.json["filetype"] == filetype
-
-
