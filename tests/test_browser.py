@@ -12,7 +12,10 @@ os.environ['FLASK_ENV'] = 'development'
 BROWSER = os.environ.get('BROWSER', 'ChromeHeadless')
 
 # Ensure the correct version of chromedriver is installed
-chromedriver_autoinstaller.install()
+try:
+    chromedriver_autoinstaller.install()
+except Exception:
+    print("Could not install chrome driver")
 
 @pytest.fixture(scope="module")
 def browser(request):

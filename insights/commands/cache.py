@@ -16,7 +16,7 @@ try:
     cache_warmer_available = True
     # Ensure the correct version of chromedriver is installed
     chromedriver_autoinstaller.install()
-except (ModuleNotFoundError, ImportError):
+except Exception:
     cache_warmer_available = False
 
 BROWSER = os.environ.get("BROWSER", "ChromeHeadless")
