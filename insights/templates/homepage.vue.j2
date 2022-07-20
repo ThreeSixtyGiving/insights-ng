@@ -89,12 +89,12 @@
           </div>
 
           <div class="grid__1">
-            <div class="base-card base-card--yellow">
+            <div class="base-card base-card--black">
               <div class="base-card__content">
-                <h2 class="base-card__title">{{ datasetSelect.dataset_stats.amount_average | formatCurrency("GBP") }}{{
-                  datasetSelect.dataset_stats.amount_average |
+                <h2 class="base-card__title">{{ datasetSelect.dataset_stats.funders_total | formatNumberSuffix }}{{
+                  datasetSelect.dataset_stats.funders_total |
                   getAmountSuffix(true) }}</h2>
-                <p class="base-card__text">Average Grant</p>
+                <p class="base-card__text">Funders</p>
               </div>
             </div>
           </div>

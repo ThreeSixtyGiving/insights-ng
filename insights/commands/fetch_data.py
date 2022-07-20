@@ -327,6 +327,7 @@ def update_dataset_stats(dataset):
             func.avg(Grant.amountAwarded).label(DATASET_STATS[1]),
             func.sum(Grant.amountAwarded).label(DATASET_STATS[2]),
             func.count(distinct(Grant.insights_org_id)).label(DATASET_STATS[3]),
+            func.count(distinct(Grant.fundingOrganization_id)).label(DATASET_STATS[4]),
         )
         .filter(Grant.dataset == dataset)
         .first()

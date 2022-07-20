@@ -120,7 +120,13 @@ class GeoName(db.Model):
     type_ = db.Column(db.String(255), nullable=False, index=True)
 
 
-DATASET_STATS = ["grants_total", "amount_average", "amount_total", "recipients_total"]
+DATASET_STATS = [
+    "grants_total",
+    "amount_average",
+    "amount_total",
+    "recipients_total",
+    "funders_total",
+]
 
 
 class DatasetStats(db.Model):
