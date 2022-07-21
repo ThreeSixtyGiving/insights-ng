@@ -125,6 +125,7 @@ var app = new Vue({
             summary: {
                 grants: 0,
                 recipients: 0,
+                funders: 0,
                 currencies:[ {
                     currency: "GBP",
                     grants: 0,
